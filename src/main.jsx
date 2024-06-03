@@ -10,6 +10,7 @@ import ErrorPage from "./error-page";
 import App from "./App.jsx";
 import "./index.css";
 import Home from "./Home.jsx";
+import Events from "./Events.jsx";
 
 const router = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
       {
         path: "home",
         element: <Home />,
+      },
+      {
+        path: "events",
+        element: <Events />,
       },
     ],
   },

@@ -1,10 +1,10 @@
 import React from "react";
-import "./component/VideoJS";
-import VideoJS from "./component/VideoJS";
+import "../component/VideoJS";
+import VideoJS from "../component/VideoJS";
 import videojs from "video.js";
-import { Button, Col, Row } from "antd";
+import { Col, Row } from "antd";
 
-const Home = () => {
+const Live = () => {
   const playerRef = React.useRef(null);
 
   //application/x-mpegURL  video/mp4
@@ -13,6 +13,7 @@ const Home = () => {
       autoplay: true,
       controls: true,
       fluid: true,
+      aspectRatio:"16:9",
       sources: [
         {
           src: "http://vjs.zencdn.net/v/oceans.mp4",
@@ -22,9 +23,10 @@ const Home = () => {
       ],
     },
     {
-      autoplay: false,
+      autoplay: true,
       controls: true,
       fluid: true,
+      aspectRatio:"16:9",
       sources: [
         {
           src: "http://vjs.zencdn.net/v/oceans.mp4",
@@ -34,9 +36,10 @@ const Home = () => {
       ],
     },
     {
-      autoplay: false,
+      autoplay: true,
       controls: true,
       fluid: true,
+      aspectRatio:"16:9",
       sources: [
         {
           src: "http://vjs.zencdn.net/v/oceans.mp4",
@@ -46,9 +49,10 @@ const Home = () => {
       ],
     },
     {
-      autoplay: false,
+      autoplay: true,
       controls: true,
       fluid: true,
+      aspectRatio:"16:9",
       sources: [
         {
           src: "http://vjs.zencdn.net/v/oceans.mp4",
@@ -74,34 +78,23 @@ const Home = () => {
 
   return (
     <>
-      <Row gutter={[16, { xs: 8, sm: 16, md: 24, lg: 32 }]}>
+      <Row>
         <Col span={12}>
+          <div></div>
           <VideoJS options={videoJsOptions[0]} onReady={handlePlayerReady} />
-          <Button type="primary">Primary</Button>
-          <Button>Default</Button>
-          <Button type="danger">Danger</Button>
         </Col>
         <Col span={12}>
           <VideoJS options={videoJsOptions[1]} onReady={handlePlayerReady} />
-          <Button type="primary">Primary</Button>
-          <Button>Default</Button>
-          <Button type="danger">Danger</Button>
         </Col>
         <Col span={12}>
           <VideoJS options={videoJsOptions[0]} onReady={handlePlayerReady} />
-          <Button type="primary">Primary</Button>
-          <Button>Default</Button>
-          <Button type="danger">Danger</Button>
         </Col>
         <Col span={12}>
           <VideoJS options={videoJsOptions[1]} onReady={handlePlayerReady} />
-          <Button type="primary">Primary</Button>
-          <Button>Default</Button>
-          <Button type="danger">Danger</Button>
         </Col>
       </Row>
     </>
   );
 };
 
-export default Home;
+export default Live;

@@ -1,16 +1,8 @@
-import videojs from "video.js";
-import "video.js/dist/video-js.css";
-import PropTypes from "prop-types";
 import { useRef, useState, useEffect } from "react";
 import { Button } from "antd";
+import { EditOutlined, FormOutlined } from "@ant-design/icons";
 
-export const VideoCanvas = (props) => {
-  VideoCanvas.propTypes = {
-    options: PropTypes.object,
-    onReady: PropTypes.func,
-  };
-
-  //Draw
+const Draw = () => {
   const canvasRef = useRef(null);
   const [points, setPoints] = useState([]);
   const [isDrawingPolygon, setIsDrawingPolygon] = useState(false);
@@ -18,9 +10,15 @@ export const VideoCanvas = (props) => {
   const [currentPos, setCurrentPos] = useState(null);
   const [lines, setLines] = useState([]);
   const [startLine, setStartLine] = useState(null);
-  const videoRef = useRef(null);
-  const playerRef = useRef(null);
-  const { options, onReady } = props;
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const parent = canvas.parentElement;
+
+    // 设置canvas大小等于上级标签大小
+    canvas.width = parent.clientWidth;
+    canvas.height = parent.clientHeight;
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -30,9 +28,9 @@ export const VideoCanvas = (props) => {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     // 设置绘图样式
-    context.strokeStyle = "royalblue";
-    context.lineWidth = 1;
-    context.fillStyle = "royalblue";
+    context.strokeStyle = "#FF0088";
+    context.lineWidth = 2;
+    context.fillStyle = "#FF0088";
 
     // 重新绘制多边形
     if (points.length > 0) {
@@ -64,36 +62,6 @@ export const VideoCanvas = (props) => {
       drawLineWithArrow(context, startLine, currentPos);
     }
   }, [points, currentPos, isDrawingPolygon, isDrawingLine, startLine, lines]);
-
-  //player
-  useEffect(() => {
-    if (!playerRef.current) {
-      const videoElement = document.createElement("video-js");
-
-      videoElement.classList.add("vjs-big-play-centered");
-      videoRef.current.appendChild(videoElement);
-
-      const player = (playerRef.current = videojs(videoElement, options, () => {
-        videojs.log("player is ready");
-        onReady && onReady(player);
-      }));
-    } else {
-      const player = playerRef.current;
-      player.autoplay(options.autoplay);
-      player.src(options.sources);
-    }
-  }, [options, videoRef, onReady]);
-
-  useEffect(() => {
-    const player = playerRef.current;
-
-    return () => {
-      if (player && !player.isDisposed()) {
-        player.dispose();
-        playerRef.current = null;
-      }
-    };
-  }, [playerRef]);
 
   const drawLineWithArrow = (context, start, end) => {
     context.beginPath();
@@ -145,6 +113,7 @@ export const VideoCanvas = (props) => {
   };
 
   const handleCanvasMouseMove = (e) => {
+    console.log("mouse_move");
     if (!isDrawingPolygon && !isDrawingLine) return;
 
     const rect = e.target.getBoundingClientRect();
@@ -183,34 +152,30 @@ export const VideoCanvas = (props) => {
 
   return (
     <>
-      <div data-vjs-player width={940} height={540}>
-        <div ref={videoRef}>
-          <canvas
-            width={940}
-            height={540}
-            ref={canvasRef}
-            style={{
-              backgroundColor: "rgba(211, 211, 211, 0.2)",
-              cursor:
-                isDrawingPolygon || isDrawingLine ? "crosshair" : "default",
-              position: "absolute",
-              zIndex: 999,
-            }}
-            onClick={handleCanvasClick}
-            onMouseMove={handleCanvasMouseMove}
-            onContextMenu={handleCanvasContextMenu}
-          />
-        </div>
-      </div>
-
-      <Button type="primary" onClick={startDrawingPolygon}>
-        多边形
-      </Button>
-      <Button type="primary" onClick={startDrawingLine}>
-        画直线
-      </Button>
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          top: 0,
+          left: 0,
+          zIndex: 999,
+          backgroundColor:
+            isDrawingPolygon || isDrawingLine
+              ? "rgba(211, 211, 211, 0.5)"
+              : "rgba(211, 211, 211, 0)",
+          cursor: isDrawingPolygon || isDrawingLine ? "crosshair" : "default",
+          pointerEvents: isDrawingPolygon || isDrawingLine ? "auto" : "none",
+        }}
+        onClick={handleCanvasClick}
+        onMouseMove={handleCanvasMouseMove}
+        onContextMenu={handleCanvasContextMenu}
+      />
+      <Button icon={<EditOutlined />} size="large" onClick={startDrawingLine}></Button>
+      <Button icon={<FormOutlined />} size="large" onClick={startDrawingPolygon}></Button>
     </>
   );
 };
 
-export default VideoCanvas;
+export default Draw;

@@ -7,10 +7,11 @@ import {
 } from "react-router-dom";
 import Landing from "./Landing.jsx";
 import ErrorPage from "./error-page";
-import App from "./App.jsx";
+import App from "./page/App.jsx";
 import "./index.css";
-import Home from "./Home.jsx";
-import Events from "./Events.jsx";
+import Live from "./page/Live.jsx";
+import Events from "./page/Events.jsx";
+import { Config } from "./page/Config.jsx";
 
 const router = createBrowserRouter([
   {
@@ -25,15 +26,23 @@ const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <Navigate to="home" />,
+        element: <Navigate to="live" />,
       },
       {
-        path: "home",
-        element: <Home />,
+        path: "live",
+        element: <Live />,
       },
       {
         path: "events",
         element: <Events />,
+      },
+      {
+        path: "events",
+        element: <Events />,
+      },
+      {
+        path: "config",
+        element: <Config />,
       },
     ],
   },

@@ -5,10 +5,11 @@ import {
   SettingOutlined,
   ExclamationCircleOutlined,
   VideoCameraOutlined,
-  SaveOutlined
+  SaveOutlined,
+  AreaChartOutlined
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme ,ConfigProvider} from "antd";
-import { Outlet } from "react-router-dom";
+import { Outlet,Link } from "react-router-dom";
 import zhCN from 'antd/locale/zh_CN';
 
 const { Header, Sider, Content } = Layout;
@@ -30,22 +31,27 @@ const App = () => {
               {
                 key: "1",
                 icon: <VideoCameraOutlined />,
-                label: "实时监控",
+                label: <Link to='live'>实时监控</Link>,
               },
               {
                 key: "2",
                 icon: <ExclamationCircleOutlined />,
-                label: "事件列表",
+                label: <Link to='events'>事件列表</Link>,
               },
               {
                 key: "3",
-                icon: <SaveOutlined />,
-                label: "录像回放",
+                icon: <AreaChartOutlined />,
+                label: <Link to='statistic'>统计数据</Link>,
               },
               {
                 key: "4",
+                icon: <SaveOutlined />,
+                label: <Link to='replay'>录像回放</Link>,
+              },
+              {
+                key: "5",
                 icon: <SettingOutlined />,
-                label: "应用设置",
+                label: <Link to='config'>应用设置</Link>,
               },
             ]}
           />

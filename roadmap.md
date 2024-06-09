@@ -5,7 +5,6 @@ camera:
     src
     state
     start_time
-
     regions:[
         
     ]
@@ -25,15 +24,12 @@ detect_region:
     region_id
     region_name
     description
-    Camera
+    camera_id
     type:line or rect
     points:[]
-    detect_type:[]
+    type_detects:[]
     state://启用，禁用，删除
-
     events:[]
-
-
 
 event:
     id

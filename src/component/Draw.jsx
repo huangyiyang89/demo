@@ -70,25 +70,27 @@ const Draw = () => {
     context.stroke();
 
     // 绘制箭头
-    const headLength = 10; // 箭头长度
-    const angle = Math.atan2(end.y - start.y, end.x - start.x);
-    context.beginPath();
-    context.moveTo(end.x, end.y);
-    context.lineTo(
-      end.x - headLength * Math.cos(angle - Math.PI / 6),
-      end.y - headLength * Math.sin(angle - Math.PI / 6)
-    );
-    context.lineTo(
-      end.x - headLength * Math.cos(angle + Math.PI / 6),
-      end.y - headLength * Math.sin(angle + Math.PI / 6)
-    );
-    context.lineTo(end.x, end.y);
-    context.lineTo(
-      end.x - headLength * Math.cos(angle - Math.PI / 6),
-      end.y - headLength * Math.sin(angle - Math.PI / 6)
-    );
-    context.stroke();
-    context.fill();
+    if (lines[1] && end.x == lines[1].end.x) {
+      const headLength = 10; // 箭头长度
+      const angle = Math.atan2(end.y - start.y, end.x - start.x);
+      context.beginPath();
+      context.moveTo(end.x, end.y);
+      context.lineTo(
+        end.x - headLength * Math.cos(angle - Math.PI / 6),
+        end.y - headLength * Math.sin(angle - Math.PI / 6)
+      );
+      context.lineTo(
+        end.x - headLength * Math.cos(angle + Math.PI / 6),
+        end.y - headLength * Math.sin(angle + Math.PI / 6)
+      );
+      context.lineTo(end.x, end.y);
+      context.lineTo(
+        end.x - headLength * Math.cos(angle - Math.PI / 6),
+        end.y - headLength * Math.sin(angle - Math.PI / 6)
+      );
+      context.stroke();
+      context.fill();
+    }
   };
 
   const handleCanvasClick = (e) => {
@@ -172,8 +174,16 @@ const Draw = () => {
         onMouseMove={handleCanvasMouseMove}
         onContextMenu={handleCanvasContextMenu}
       />
-      <Button icon={<EditOutlined />} size="large" onClick={startDrawingLine}></Button>
-      <Button icon={<FormOutlined />} size="large" onClick={startDrawingPolygon}></Button>
+      <Button
+        icon={<EditOutlined />}
+        size="large"
+        onClick={startDrawingLine}
+      ></Button>
+      <Button
+        icon={<FormOutlined />}
+        size="large"
+        onClick={startDrawingPolygon}
+      ></Button>
     </>
   );
 };

@@ -6,11 +6,12 @@ import {
   ExclamationCircleOutlined,
   VideoCameraOutlined,
   SaveOutlined,
-  AreaChartOutlined
+  AreaChartOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, theme ,ConfigProvider} from "antd";
-import { Outlet,Link } from "react-router-dom";
-import zhCN from 'antd/locale/zh_CN';
+import { Button, Layout, Menu, theme, ConfigProvider } from "antd";
+import { Outlet, Link } from "react-router-dom";
+import zhCN from "antd/locale/zh_CN";
+import Cameras from "./Cameras";
 
 const { Header, Sider, Content } = Layout;
 const App = () => {
@@ -31,27 +32,39 @@ const App = () => {
               {
                 key: "1",
                 icon: <VideoCameraOutlined />,
-                label: <Link to='live'>实时监控</Link>,
+                label: <Link to="live">实时监控</Link>,
               },
               {
                 key: "2",
                 icon: <ExclamationCircleOutlined />,
-                label: <Link to='events'>事件列表</Link>,
+                label: <Link to="events">事件列表</Link>,
               },
               {
                 key: "3",
                 icon: <AreaChartOutlined />,
-                label: <Link to='statistic'>统计数据</Link>,
+                label: <Link to="statistic">统计数据</Link>,
               },
               {
                 key: "4",
                 icon: <SaveOutlined />,
-                label: <Link to='replay'>录像回放</Link>,
+                label: <Link to="replay">录像回放</Link>,
               },
               {
                 key: "5",
                 icon: <SettingOutlined />,
-                label: <Link to='config'>应用设置</Link>,
+                label: "应用设置",
+                children: [
+                  {
+                    key: "6",
+                    icon: <VideoCameraOutlined />,
+                    label: <Link to="cameras">录像通道</Link>,
+                  },
+                  {
+                    key: "7",
+                    icon: <VideoCameraOutlined />,
+                    label: <Link to="config">区域设置</Link>,
+                  },
+                ],
               },
             ]}
           />

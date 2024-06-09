@@ -12,6 +12,9 @@ import "./index.css";
 import Live from "./page/Live.jsx";
 import Events from "./page/Events.jsx";
 import { Config } from "./page/Config.jsx";
+import EventVideoPlayer from "./page/EventVideoPlayer.jsx";
+import Replay from "./page/Replay.jsx";
+import Cameras from "./page/Cameras.jsx";
 
 const router = createBrowserRouter([
   {
@@ -35,14 +38,28 @@ const router = createBrowserRouter([
       {
         path: "events",
         element: <Events />,
-      },
-      {
-        path: "events",
-        element: <Events />,
+        children: [
+          {
+            path: ":id",
+            element: <EventVideoPlayer />,
+          },
+        ],
       },
       {
         path: "config",
         element: <Config />,
+      },
+      {
+        path: "Event",
+        element: <EventVideoPlayer />,
+      },
+      {
+        path: "Replay",
+        element: <Replay />,
+      },
+      {
+        path: "Cameras",
+        element: <Cameras />,
       },
     ],
   },

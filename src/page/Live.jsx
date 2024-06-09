@@ -1,67 +1,13 @@
 import React from "react";
 import "../component/VideoJS";
-import VideoJS from "../component/VideoJS";
-import videojs from "video.js";
 import { Col, Row } from "antd";
+import videojs from "video.js";
+
+import { get_cameras, detect_types } from "../mock";
+import { Camera } from "../component/Camera";
 
 const Live = () => {
   const playerRef = React.useRef(null);
-
-  //application/x-mpegURL  video/mp4
-  const videoJsOptions = [
-    {
-      autoplay: true,
-      controls: true,
-      fluid: true,
-      aspectRatio:"16:9",
-      sources: [
-        {
-          src: "http://vjs.zencdn.net/v/oceans.mp4",
-          type: "video/mp4",
-          aspectRatio: "9:16",
-        },
-      ],
-    },
-    {
-      autoplay: true,
-      controls: true,
-      fluid: true,
-      aspectRatio:"16:9",
-      sources: [
-        {
-          src: "http://vjs.zencdn.net/v/oceans.mp4",
-          type: "video/mp4",
-          aspectRatio: "9:16",
-        },
-      ],
-    },
-    {
-      autoplay: true,
-      controls: true,
-      fluid: true,
-      aspectRatio:"16:9",
-      sources: [
-        {
-          src: "http://vjs.zencdn.net/v/oceans.mp4",
-          type: "video/mp4",
-          aspectRatio: "16:9",
-        },
-      ],
-    },
-    {
-      autoplay: true,
-      controls: true,
-      fluid: true,
-      aspectRatio:"16:9",
-      sources: [
-        {
-          src: "http://vjs.zencdn.net/v/oceans.mp4",
-          type: "video/mp4",
-          aspectRatio: "1:1",
-        },
-      ],
-    },
-  ];
 
   const handlePlayerReady = (player) => {
     playerRef.current = player;
@@ -78,20 +24,12 @@ const Live = () => {
 
   return (
     <>
-      <Row>
-        <Col span={12}>
-          <div></div>
-          <VideoJS options={videoJsOptions[0]} onReady={handlePlayerReady} />
-        </Col>
-        <Col span={12}>
-          <VideoJS options={videoJsOptions[1]} onReady={handlePlayerReady} />
-        </Col>
-        <Col span={12}>
-          <VideoJS options={videoJsOptions[0]} onReady={handlePlayerReady} />
-        </Col>
-        <Col span={12}>
-          <VideoJS options={videoJsOptions[1]} onReady={handlePlayerReady} />
-        </Col>
+      <Row gutter={[12, 12]}>
+        {get_cameras.map((camera) => (
+          <Col key={camera.id} span={get_cameras.length == 1 ? 24 : 12}>
+            <Camera key={camera.id} camera={camera} />
+          </Col>
+        ))}
       </Row>
     </>
   );

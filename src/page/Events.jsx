@@ -10,86 +10,10 @@ import {
   Image,
 } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
+import EventModal from "../component/EventModal";
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
-//table columns
-const columns = [
-  {
-    title: "序号",
-    dataIndex: "key",
-    showSorterTooltip: {
-      target: "full-header",
-    },
-  },
 
-  {
-    title: "检测照",
-    dataIndex: "detect_photo",
-    showSorterTooltip: {
-      target: "full-header",
-    },
-    render: (text, record) => (
-      <Image
-        width={64}
-        src={record.detect_photo}
-        preview={{
-          src: record.detect_photo,
-        }}
-      />
-    ),
-  },
-  {
-    title: "全景照",
-    dataIndex: "full_photo",
-    showSorterTooltip: {
-      target: "full-header",
-    },
-    render: (text, record) => (
-      <Image
-        width={64}
-        src={record.detect_photo}
-        preview={{
-          src: record.detect_photo,
-        }}
-      />
-    ),
-  },
-  {
-    title: "摄像机",
-    dataIndex: "camera",
-    showSorterTooltip: {
-      target: "full-header",
-    },
-  },
-  {
-    title: "类型",
-    dataIndex: "type",
-    showSorterTooltip: {
-      target: "full-header",
-    },
-  },
-  {
-    title: "区域名称",
-    dataIndex: "area_name",
-    showSorterTooltip: {
-      target: "full-header",
-    },
-  },
-  {
-    title: "时间",
-    dataIndex: "time",
-    showSorterTooltip: {
-      target: "full-header",
-    },
-  },
-  {
-    title: "状态",
-    dataIndex: "state",
-    showSorterTooltip: {
-      target: "full-header",
-    },
-  },
-];
 
 //mock table data
 const data = [
@@ -232,6 +156,109 @@ const Events = () => {
     console.log("You are interested in: ", nextSelectedTags);
     setSelectedTags(nextSelectedTags);
   };
+
+  //modal
+  const [open, setOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const openModal = (event) => {
+    setSelectedEvent(event);
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedEvent(null);
+  };
+
+
+  //table columns
+const columns = [
+  {
+    title: "序号",
+    dataIndex: "key",
+    showSorterTooltip: {
+      target: "full-header",
+    },
+  },
+
+  {
+    title: "检测照",
+    dataIndex: "detect_photo",
+    showSorterTooltip: {
+      target: "full-header",
+    },
+    render: (text, record) => (
+      <Image
+        width={64}
+        src={record.detect_photo}
+        preview={{
+          src: record.detect_photo,
+        }}
+      />
+    ),
+  },
+  {
+    title: "全景照",
+    dataIndex: "full_photo",
+    showSorterTooltip: {
+      target: "full-header",
+    },
+    render: (text, record) => (
+      <Image
+        width={64}
+        src={record.detect_photo}
+        preview={{
+          src: record.detect_photo,
+        }}
+      />
+    ),
+  },
+  {
+    title: "摄像机",
+    dataIndex: "camera",
+    showSorterTooltip: {
+      target: "full-header",
+    },
+  },
+  {
+    title: "类型",
+    dataIndex: "type",
+    showSorterTooltip: {
+      target: "full-header",
+    },
+  },
+  {
+    title: "区域名称",
+    dataIndex: "area_name",
+    showSorterTooltip: {
+      target: "full-header",
+    },
+  },
+  {
+    title: "时间",
+    dataIndex: "time",
+    showSorterTooltip: {
+      target: "full-header",
+    },
+  },
+  {
+    title: "状态",
+    dataIndex: "state",
+    showSorterTooltip: {
+      target: "full-header",
+    },
+  },
+  {
+    title: "操作",
+    dataIndex: "action",
+    showSorterTooltip: {
+      target: "full-header",
+    },
+    render: (text, record) => (
+      <Button type="primary" onClick={()=>openModal(record)}>查看</Button>
+    ),
+  },
+];
+
   return (
     <Space
       direction="vertical"
@@ -278,6 +305,18 @@ const Events = () => {
           target: "sorter-icon",
         }}
       />
+
+      <EventModal
+        event={{
+          id: "2024022411221",
+          camera:"摄像头1",
+          detect_type:"抽烟",
+          pic_url:
+            "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+        }}
+        open={open}
+        onClose={handleClose}
+      ></EventModal>
     </Space>
   );
 };

@@ -2,16 +2,20 @@ import { useState, useRef } from "react";
 import DrawPad from "../component/DrawPad";
 import VideoJS from "../component/VideoJS";
 import videojs from "video.js";
-import { Input, Select, Typography, Flex, Button } from "antd";
+import { Input, Select, Typography, Flex, Button, Radio, message } from "antd";
 const { Title } = Typography;
-import { get_cameras, detect_types } from "../mock";
-import { Radio } from "antd";
 const { TextArea } = Input;
+import { get_cameras, detect_types } from "../mock";
 
 export const Config = () => {
   const [drawPolygon, setDrawPolygon] = useState(false);
   const [drawLine, setDrawLine] = useState(false);
-
+  const [selectedCamera, setSelectedCamera] = useState(null);
+  const [regionName, setRegionName] = useState("");
+  const [regionDescription, setRegionDescription] = useState("");
+  const [selectedDetectTypes, setSelectedDetectTypes] = useState([]);
+  const [drawingData, setDrawingData] = useState("");
+  
   const startDrawingPolygon = () => {
     setDrawPolygon(true);
     setDrawLine(false);
@@ -24,10 +28,11 @@ export const Config = () => {
 
   const handleDrawingComplete = (points) => {
     console.log("Drawing complete with points:", points);
+    setDrawingData(JSON.stringify(points));
     setDrawPolygon(false);
     setDrawLine(false);
-    // 在这里处理绘制完成后的点坐标
   };
+
   const options = {
     autoplay: false,
     controls: true,
@@ -39,11 +44,11 @@ export const Config = () => {
       },
     ],
   };
+
   const playerRef = useRef(null);
   const handlePlayerReady = (player) => {
     playerRef.current = player;
 
-    // You can handle player events here, for example:
     player.on("waiting", () => {
       videojs.log("player is waiting");
     });
@@ -53,10 +58,40 @@ export const Config = () => {
     });
   };
 
+  const handleSave = () => {
+    const dataToSubmit = {
+      cameraId: selectedCamera,
+      regionName,
+      regionDescription,
+      detectTypes: selectedDetectTypes,
+      drawingData,
+    };
+
+    console.log("Data to submit:", dataToSubmit);
+
+    // 请求服务器
+    fetch("/api/region/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dataToSubmit),
+    })
+    .then(response => response.json())
+    .then(data => {
+      message.success("数据保存成功");
+      console.log("Server response:", data);
+    })
+    .catch(error => {
+      message.error("数据保存失败");
+      console.error("Error:", error);
+    });
+  };
+
   return (
     <>
       <Title level={4}>区域设置</Title>
-      <div style={{width:1284,height:540}}>
+      <div style={{ width: 1234, height: 540 }}>
         <Flex gap="large">
           <div
             style={{
@@ -73,18 +108,25 @@ export const Config = () => {
               onDrawingComplete={handleDrawingComplete}
             ></DrawPad>
           </div>
-          <Flex vertical gap="middle" style={{ width: "300px" }}>
+          <Flex vertical gap="middle" style={{ width: "250px" }}>
             <Select
               options={get_cameras.map((camera) => ({
                 value: camera.id,
                 label: camera.name,
               }))}
               placeholder="选择摄像机"
+              onChange={setSelectedCamera}
             ></Select>
-
-            <Input placeholder="设置区域名称" />
-            <Input placeholder="区域描述" />
-
+            <Input
+              placeholder="设置区域名称"
+              value={regionName}
+              onChange={(e) => setRegionName(e.target.value)}
+            />
+            <Input
+              placeholder="区域描述"
+              value={regionDescription}
+              onChange={(e) => setRegionDescription(e.target.value)}
+            />
             <Select
               placeholder="设置检测类型"
               mode="multiple"
@@ -93,20 +135,20 @@ export const Config = () => {
                 value: type.name,
                 label: type.name,
               }))}
+              onChange={setSelectedDetectTypes}
             ></Select>
             <Radio.Group>
               <Radio.Button value="start" onClick={startDrawingLine}>画交叉线</Radio.Button>
-              <Radio.Button value="end" onClick={setDrawPolygon}>画多边形</Radio.Button>
+              <Radio.Button value="end" onClick={startDrawingPolygon}>画多边形</Radio.Button>
             </Radio.Group>
             <TextArea
-              rows={10}
+              rows={6}
               disabled={true}
               placeholder="画线数据"
-              autoSize = {false}
-              
+              value={drawingData}
             ></TextArea>
             <div style={{ flex: 1 }}></div>
-            <Button type="primary">保存</Button>
+            <Button type="primary" onClick={handleSave}>保存</Button>
           </Flex>
         </Flex>
       </div>

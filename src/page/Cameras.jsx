@@ -1,9 +1,21 @@
-import { useState } from "react";
-import { Table, Button, Modal, Form, Input, Select, message,Typography } from "antd";
+import { useState, useEffect } from "react";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  message,
+  Typography,
+  Popconfirm,
+} from "antd";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
+import { useLocation } from "react-router-dom";
+import { get_cameras } from "../mock";
 const { Title } = Typography;
 const { Option } = Select;
-import { get_cameras } from "../mock";
 
 const Cameras = () => {
   const [cameras, setCameras] = useState(get_cameras);
@@ -11,6 +23,17 @@ const Cameras = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentCamera, setCurrentCamera] = useState(null);
   const [form] = Form.useForm();
+
+  //带状态跳转
+  const location = useLocation();
+  useEffect(() => {
+    if (location.state?.openModal) {
+      setCurrentCamera(null);
+      setIsEditing(false);
+      form.setFieldsValue({});
+      setIsModalOpen(true);
+    }
+  }, [location.state, form]);
 
   const showModal = (camera = null) => {
     setCurrentCamera(camera);
@@ -25,9 +48,7 @@ const Cameras = () => {
       .then((values) => {
         if (isEditing) {
           setCameras(
-            cameras.map((camera) =>
-              camera.id === values.id ? values : camera
-            )
+            cameras.map((camera) => (camera.id === values.id ? values : camera))
           );
           message.success("摄像机更新成功！");
         } else {
@@ -59,16 +80,25 @@ const Cameras = () => {
       key: "action",
       render: (text, record) => (
         <span>
-          <Button type="link" onClick={() => showModal(record)}>
+          <Button type="primary" onClick={() => showModal(record)}>
             编辑
           </Button>
-          <Button
-            type="link"
-            danger
-            onClick={() => handleDelete(record.id)}
+          <Popconfirm
+            title="确认删除？"
+            description="删除后数据无法恢复"
+            onConfirm={() => handleDelete(record.id)}
+            icon={
+              <QuestionCircleOutlined
+                style={{
+                  color: "red",
+                }}
+              />
+            }
           >
-            删除
-          </Button>
+            <Button type="primary" style={{ marginLeft: "8px" }} danger>
+              删除
+            </Button>
+          </Popconfirm>
         </span>
       ),
     },
@@ -79,12 +109,16 @@ const Cameras = () => {
       <Title level={4}>摄像机设置</Title>
       <Button
         type="primary"
-        onClick={() => showModal()}
-        style={{ marginTop: "20px",marginBottom: "10px"  }}
+        onClick={showModal}
+        style={{ marginTop: "20px", marginBottom: "10px" }}
       >
         添加摄像机
       </Button>
-      <Table columns={columns} dataSource={cameras.filter((camera) => camera.state!="deleted")} rowKey="id" />
+      <Table
+        columns={columns}
+        dataSource={cameras.filter((camera) => camera.state != "deleted")}
+        rowKey="id"
+      />
       <Modal
         title={isEditing ? "编辑摄像机" : "添加摄像机"}
         open={isModalOpen}

@@ -8,22 +8,20 @@ import {
   DatePicker,
   Button,
   Image,
+  Segmented,
 } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
 import EventModal from "../component/EventModal";
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
 
-
 //mock table data
 const data = [
   {
     key: "1",
     camera: "camera1",
-    detect_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    full_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+    detect_photo: "./images/event1.jpg",
+    full_photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -32,10 +30,8 @@ const data = [
   {
     key: "2",
     camera: "camera1",
-    detect_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    full_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+    detect_photo: "./images/event1.jpg",
+    full_photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -44,10 +40,8 @@ const data = [
   {
     key: "3",
     camera: "camera1",
-    detect_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    full_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+    detect_photo: "./images/event1.jpg",
+    full_photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -56,10 +50,8 @@ const data = [
   {
     key: "4",
     camera: "camera1",
-    detect_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    full_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+    detect_photo: "./images/event1.jpg",
+    full_photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -68,10 +60,8 @@ const data = [
   {
     key: "5",
     camera: "camera1",
-    detect_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    full_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+    detect_photo: "./images/event1.jpg",
+    full_photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -80,10 +70,8 @@ const data = [
   {
     key: "6",
     camera: "camera1",
-    detect_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    full_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+    detect_photo: "./images/event1.jpg",
+    full_photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -92,10 +80,8 @@ const data = [
   {
     key: "7",
     camera: "camera1",
-    detect_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    full_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+    detect_photo: "./images/event1.jpg",
+    full_photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -104,10 +90,8 @@ const data = [
   {
     key: "8",
     camera: "camera1",
-    detect_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    full_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+    detect_photo: "./images/event1.jpg",
+    full_photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -116,10 +100,8 @@ const data = [
   {
     key: "9",
     camera: "camera1",
-    detect_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    full_photo:
-      "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+    detect_photo: "./images/event1.jpg",
+    full_photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -169,95 +151,96 @@ const Events = () => {
     setSelectedEvent(null);
   };
 
-
   //table columns
-const columns = [
-  {
-    title: "序号",
-    dataIndex: "key",
-    showSorterTooltip: {
-      target: "full-header",
+  const columns = [
+    {
+      title: "序号",
+      dataIndex: "key",
+      showSorterTooltip: {
+        target: "full-header",
+      },
     },
-  },
 
-  {
-    title: "检测照",
-    dataIndex: "detect_photo",
-    showSorterTooltip: {
-      target: "full-header",
+    {
+      title: "检测照",
+      dataIndex: "detect_photo",
+      showSorterTooltip: {
+        target: "full-header",
+      },
+      render: (text, record) => (
+        <Image
+          width={108}
+          src={record.detect_photo}
+          preview={{
+            src: record.detect_photo,
+          }}
+        />
+      ),
     },
-    render: (text, record) => (
-      <Image
-        width={64}
-        src={record.detect_photo}
-        preview={{
-          src: record.detect_photo,
-        }}
-      />
-    ),
-  },
-  {
-    title: "全景照",
-    dataIndex: "full_photo",
-    showSorterTooltip: {
-      target: "full-header",
+    {
+      title: "全景照",
+      dataIndex: "full_photo",
+      showSorterTooltip: {
+        target: "full-header",
+      },
+      render: (text, record) => (
+        <Image
+          width={108}
+          src={record.detect_photo}
+          preview={{
+            src: record.detect_photo,
+          }}
+        />
+      ),
     },
-    render: (text, record) => (
-      <Image
-        width={64}
-        src={record.detect_photo}
-        preview={{
-          src: record.detect_photo,
-        }}
-      />
-    ),
-  },
-  {
-    title: "摄像机",
-    dataIndex: "camera",
-    showSorterTooltip: {
-      target: "full-header",
+    {
+      title: "摄像机",
+      dataIndex: "camera",
+      showSorterTooltip: {
+        target: "full-header",
+      },
     },
-  },
-  {
-    title: "类型",
-    dataIndex: "type",
-    showSorterTooltip: {
-      target: "full-header",
+    {
+      title: "类型",
+      dataIndex: "type",
+      showSorterTooltip: {
+        target: "full-header",
+      },
     },
-  },
-  {
-    title: "区域名称",
-    dataIndex: "area_name",
-    showSorterTooltip: {
-      target: "full-header",
+    {
+      title: "区域名称",
+      dataIndex: "area_name",
+      showSorterTooltip: {
+        target: "full-header",
+      },
     },
-  },
-  {
-    title: "时间",
-    dataIndex: "time",
-    showSorterTooltip: {
-      target: "full-header",
+    {
+      title: "时间",
+      dataIndex: "time",
+      showSorterTooltip: {
+        target: "full-header",
+      },
     },
-  },
-  {
-    title: "状态",
-    dataIndex: "state",
-    showSorterTooltip: {
-      target: "full-header",
+    {
+      title: "状态",
+      dataIndex: "state",
+      showSorterTooltip: {
+        target: "full-header",
+      },
     },
-  },
-  {
-    title: "操作",
-    dataIndex: "action",
-    showSorterTooltip: {
-      target: "full-header",
+    {
+      title: "操作",
+      dataIndex: "action",
+      showSorterTooltip: {
+        target: "full-header",
+      },
+      render: (text, record) => (
+        <Button type="primary" onClick={() => openModal(record)}>
+          查看
+        </Button>
+      ),
     },
-    render: (text, record) => (
-      <Button type="primary" onClick={()=>openModal(record)}>查看</Button>
-    ),
-  },
-];
+  ];
 
   return (
     <Space
@@ -282,6 +265,7 @@ const columns = [
           ))}
         </Flex>
         <Flex>
+          {/* <Button type="primary" icon={<ReloadOutlined />}></Button> */}
           <RangePicker
             showTime={{
               format: "HH:mm",
@@ -293,7 +277,12 @@ const columns = [
             }}
             onOk={onOk}
           />
-          <Button type="primary" icon={<ReloadOutlined />}></Button>
+          <Segmented
+            options={["今天", "本周", "本月"]}
+            onChange={(value) => {
+              console.log(value); // string
+            }}
+          />
         </Flex>
       </Flex>
 
@@ -309,10 +298,9 @@ const columns = [
       <EventModal
         event={{
           id: "2024022411221",
-          camera:"摄像头1",
-          detect_type:"抽烟",
-          pic_url:
-            "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
+          camera: "摄像头1",
+          detect_type: "抽烟",
+          pic_url: "./images/event1.jpg",
         }}
         open={open}
         onClose={handleClose}

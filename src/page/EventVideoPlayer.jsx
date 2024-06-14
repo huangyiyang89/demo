@@ -1,7 +1,7 @@
 // src/EventVideoPlayer.js
 import { useRef } from 'react';
 import { Layout, List, Avatar } from 'antd';
-import VideoJS from '../component/VideoJS'
+import VideoJs from '../component/VideoJs'
 import 'antd/dist/reset.css';
 
 const { Sider, Content } = Layout;
@@ -54,7 +54,7 @@ const EventVideoPlayer = () => {
         />
       </Sider>
       <Content style={{ padding: '20px' }}>
-        <VideoJS options={videoJsOptions} onReady={handlePlayerReady} />
+        <VideoJs options={videoJsOptions} onReady={handlePlayerReady} />
       </Content>
     </Layout>
   );

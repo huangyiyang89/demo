@@ -36,7 +36,7 @@ const DrawPad = ({
 
       // 如果是第二条线需要绘制箭头
       if (lines[1] && end.x === lines[1].end.x) {
-        const headLength = 10; // 箭头长度
+        const headLength = 8; // 箭头长度
         const angle = Math.atan2(end.y - start.y, end.x - start.x);
         context.beginPath();
         context.moveTo(end.x, end.y);
@@ -132,7 +132,7 @@ const DrawPad = ({
     // 闭合多边形
     if (points.length > 1) {
       setPoints([...points, points[0]]);
-      onDrawingComplete({tpye:"polygon",data:[...points, points[0]]});
+      onDrawingComplete({type:"polygon",data:[...points, points[0]]});
     }
   };
 

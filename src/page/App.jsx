@@ -9,7 +9,7 @@ import {
   AreaChartOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme, ConfigProvider } from "antd";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import zhCN from "antd/locale/zh_CN";
 import Login from "./Login";
 
@@ -24,6 +24,11 @@ const App = () => {
   const handleLogin = (status) => {
     setIsLoggedIn(status);
   };
+
+
+  const location = useLocation();
+  const selectedKey = location.pathname;
+  console.log(location,selectedKey)
   return (
     <ConfigProvider locale={zhCN}>
       {isLoggedIn ? (
@@ -33,42 +38,42 @@ const App = () => {
             <Menu
               theme="dark"
               mode="inline"
-              defaultSelectedKeys={["1"]}
+              selectedKeys={[selectedKey]}
               items={[
                 {
-                  key: "1",
+                  key: "/live",
                   icon: <VideoCameraOutlined />,
-                  label: <Link to="live">实时监控</Link>,
+                  label: <Link to="/live">实时监控</Link>,
                 },
                 {
-                  key: "2",
+                  key: "/events",
                   icon: <ExclamationCircleOutlined />,
-                  label: <Link to="events">事件列表</Link>,
+                  label: <Link to="/events">事件列表</Link>,
                 },
                 {
-                  key: "3",
+                  key: "/statistic",
                   icon: <AreaChartOutlined />,
-                  label: <Link to="statistic">统计数据</Link>,
+                  label: <Link to="/statistic">统计数据</Link>,
                 },
                 {
-                  key: "4",
+                  key: "/replay",
                   icon: <SaveOutlined />,
-                  label: <Link to="replay">录像回放</Link>,
+                  label: <Link to="/replay">录像回放</Link>,
                 },
                 {
                   key: "5",
                   icon: <SettingOutlined />,
-                  label: "应用设置",
+                  label: "录像通道",
                   children: [
                     {
-                      key: "6",
+                      key: "/cameras",
                       icon: <VideoCameraOutlined />,
-                      label: <Link to="cameras">录像通道</Link>,
+                      label: <Link to="/cameras">录像通道</Link>,
                     },
                     {
-                      key: "7",
+                      key: "/config",
                       icon: <VideoCameraOutlined />,
-                      label: <Link to="config">区域设置</Link>,
+                      label: <Link to="/config">区域设置</Link>,
                     },
                   ],
                 },

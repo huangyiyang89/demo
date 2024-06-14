@@ -1,7 +1,7 @@
 // src/EventVideoPlayer.js
 import { useState, useRef } from "react";
 import { Layout, Select, DatePicker, Button, Flex} from "antd";
-import VideoJS from "../component/VideoJS";
+import VideoJs from "../component/VideoJs";
 import "antd/dist/reset.css";
 
 const { Sider, Content } = Layout;
@@ -88,7 +88,7 @@ const Replay = () => {
         </Flex>
       </Sider>
       <Content>
-        <VideoJS options={videoJsOptions} onReady={handlePlayerReady} />
+        <VideoJs options={videoJsOptions} onReady={handlePlayerReady} />
       </Content>
     </Layout>
   );

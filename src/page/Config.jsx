@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import DrawPad from "../component/DrawPad";
-import VideoJS from "../component/VideoJS";
+import VideoJs from "../component/VideoJs";
 import videojs from "video.js";
 import { Input, Select, Typography, Flex, Button, Radio, message } from "antd";
 const { Title } = Typography;
@@ -101,7 +101,7 @@ export const Config = () => {
               textAlign: "center",
             }}
           >
-            <VideoJS options={options} onReady={handlePlayerReady}></VideoJS>
+            <VideoJs options={options} onReady={handlePlayerReady}></VideoJs>
             <DrawPad
               onStartDrawingPolygon={drawPolygon}
               onStartDrawingLine={drawLine}

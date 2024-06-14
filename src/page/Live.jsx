@@ -5,6 +5,7 @@ import videojs from "video.js";
 
 import { get_cameras, detect_types } from "../mock";
 import { Camera } from "../component/Camera";
+import PlusSquareOutlined from "@ant-design/icons/PlusSquareOutlined";
 
 const Live = () => {
   const playerRef = React.useRef(null);
@@ -30,6 +31,7 @@ const Live = () => {
             <Camera key={camera.id} camera={camera} />
           </Col>
         ))}
+        {get_cameras.length < 4 ? <Col key="add" span={12}><PlusSquareOutlined width={100}/></Col> : null}
       </Row>
     </>
   );

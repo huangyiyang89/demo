@@ -5,25 +5,19 @@ import {
   Navigate,
   RouterProvider,
 } from "react-router-dom";
-import Landing from "./Landing.jsx";
 import ErrorPage from "./error-page";
 import App from "./page/App.jsx";
-import "./index.css";
 import Live from "./page/Live.jsx";
 import Events from "./page/Events.jsx";
 import { Config } from "./page/Config.jsx";
 import EventVideoPlayer from "./page/EventVideoPlayer.jsx";
 import Replay from "./page/Replay.jsx";
 import Cameras from "./page/Cameras.jsx";
+import Statistic from "./page/Statistic.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Landing />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: "/app",
     element: <App />,
     errorElement: <ErrorPage />,
     children: [
@@ -50,16 +44,20 @@ const router = createBrowserRouter([
         element: <Config />,
       },
       {
-        path: "Event",
+        path: "event",
         element: <EventVideoPlayer />,
       },
       {
-        path: "Replay",
+        path: "replay",
         element: <Replay />,
       },
       {
-        path: "Cameras",
+        path: "cameras",
         element: <Cameras />,
+      },
+      {
+        path: "statistic",
+        element: <Statistic />,
       },
     ],
   },

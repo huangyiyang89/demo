@@ -10,7 +10,6 @@ import {
   Image,
   Segmented,
 } from "antd";
-import { ReloadOutlined } from "@ant-design/icons";
 import EventModal from "../component/EventModal";
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -143,6 +142,7 @@ const Events = () => {
   const [open, setOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const openModal = (event) => {
+    console.log(selectedEvent)
     setSelectedEvent(event);
     setOpen(true);
   };

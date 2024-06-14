@@ -23,11 +23,12 @@ const Cameras = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentCamera, setCurrentCamera] = useState(null);
   const [form] = Form.useForm();
-
+  console.log(currentCamera)
   //带状态跳转
   const location = useLocation();
   useEffect(() => {
     if (location.state?.openModal) {
+      
       setCurrentCamera(null);
       setIsEditing(false);
       form.setFieldsValue({});

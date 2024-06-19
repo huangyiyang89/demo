@@ -6,7 +6,6 @@ import {
   ExclamationCircleOutlined,
   VideoCameraOutlined,
   SaveOutlined,
-  AreaChartOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme, ConfigProvider } from "antd";
 import { Outlet, Link, useLocation } from "react-router-dom";
@@ -51,24 +50,24 @@ const App = () => {
                   label: <Link to="/events">事件列表</Link>,
                 },
                 {
-                  key: "/statistic",
-                  icon: <AreaChartOutlined />,
-                  label: <Link to="/statistic">统计数据</Link>,
-                },
-                {
                   key: "/replay",
                   icon: <SaveOutlined />,
                   label: <Link to="/replay">录像回放</Link>,
                 },
                 {
-                  key: "5",
+                  key: "/appconfig",
                   icon: <SettingOutlined />,
-                  label: "录像通道",
+                  label: "应用设置",
                   children: [
                     {
                       key: "/cameras",
                       icon: <VideoCameraOutlined />,
-                      label: <Link to="/cameras">录像通道</Link>,
+                      label: <Link to="/cameras">通道设置</Link>,
+                    },
+                    {
+                      key: "/areas",
+                      icon: <VideoCameraOutlined />,
+                      label: <Link to="/areas">区域列表</Link>,
                     },
                     {
                       key: "/config",

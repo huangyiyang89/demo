@@ -235,7 +235,7 @@ const Events = () => {
         target: "full-header",
       },
       render: (text, record) => (
-        <Button type="primary" onClick={() => openModal(record)}>
+        <Button type="primary" size="small" onClick={() => openModal(record)}>
           查看
         </Button>
       ),

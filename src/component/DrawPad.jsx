@@ -5,6 +5,7 @@ const DrawPad = ({
   onStartDrawingPolygon,
   onStartDrawingLine,
   onDrawingComplete,
+  data = null
 }) => {
   const canvasRef = useRef(null);
   const [points, setPoints] = useState([]);
@@ -13,6 +14,18 @@ const DrawPad = ({
   const [currentPos, setCurrentPos] = useState(null);
   const [lines, setLines] = useState([]);
   const [startLine, setStartLine] = useState(null);
+
+  
+  // 初始数据
+  useEffect(() => {
+    if (data) {
+      if (data.type === "polygon" && data.data.length > 0) {
+        setPoints(data.points);
+      } else if (data.type === "line" && data.data.length > 0) {
+        setLines(data.lines);
+      }
+    }
+  }, [data]);
 
   useEffect(() => {
     //初始化
@@ -184,6 +197,7 @@ DrawPad.propTypes = {
   onStartDrawingPolygon: PropTypes.bool.isRequired,
   onStartDrawingLine: PropTypes.bool.isRequired,
   onDrawingComplete: PropTypes.func.isRequired,
+  data: PropTypes.object,
 };
 
 export default DrawPad;

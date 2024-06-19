@@ -9,11 +9,12 @@ import ErrorPage from "./error-page";
 import App from "./page/App.jsx";
 import Live from "./page/Live.jsx";
 import Events from "./page/Events.jsx";
-import { Config } from "./page/Config.jsx";
+import { AreaEditor } from "./page/AreaEditor.jsx";
 import EventVideoPlayer from "./page/EventVideoPlayer.jsx";
 import Replay from "./page/Replay.jsx";
 import Cameras from "./page/Cameras.jsx";
 import Statistic from "./page/Statistic.jsx";
+import Areas from "./page/Areas.jsx";
 
 const router = createBrowserRouter([
   {
@@ -41,7 +42,7 @@ const router = createBrowserRouter([
       },
       {
         path: "config",
-        element: <Config />,
+        element: <AreaEditor />,
       },
       {
         path: "event",
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
       {
         path: "statistic",
         element: <Statistic />,
+      },
+      {
+        path: "areas",
+        element: <Areas />,
       },
     ],
   },

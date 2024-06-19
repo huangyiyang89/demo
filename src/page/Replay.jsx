@@ -1,21 +1,17 @@
 // src/EventVideoPlayer.js
 import { useState, useRef } from "react";
-import { Layout, Select, DatePicker, Button, Flex} from "antd";
+import { Layout, Select, DatePicker, Button, Flex, message } from "antd";
 import VideoJs from "../component/VideoJs";
 import "antd/dist/reset.css";
+import axios from "axios";
 
 const { Sider, Content } = Layout;
 
-const videoChannels = [
-  { id: 1, name: "摄像机1", src: "http://vjs.zencdn.net/v/oceans.mp4#" },
-  { id: 2, name: "摄像机2", src: "http://vjs.zencdn.net/v/oceans.mp4##" },
-  { id: 3, name: "摄像机3", src: "http://vjs.zencdn.net/v/oceans.mp4###" },
-  { id: 4, name: "摄像机4", src: "http://vjs.zencdn.net/v/oceans.mp4####" },
-];
 
 const Replay = () => {
-  const [selectedChannel, setSelectedChannel] = useState(videoChannels[0].src);
+  const [selectedCamera, setSelectedCamera] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
+  const [cameras, setCameras] = useState([]);
   const playerRef = useRef(null);
 
   const videoJsOptions = {
@@ -23,15 +19,20 @@ const Replay = () => {
     controls: true,
     fluid: true,
     aspectRatio: "16:9",
-    sources: [{ src: selectedChannel, type: "video/mp4" }],
+    sources: [{ src: selectedCamera.Camera_addr, type: "video/mp4" }],
   };
 
-  const handleChannelChange = (value) => {
-    setSelectedChannel(value);
-    if (playerRef.current) {
-      playerRef.current.src([{ src: value, type: "video/mp4" }]);
+  const fetchCameras = async () => {
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/device/cameras"
+      );
+      setCameras(response.data);
+    } catch (error) {
+      message.error("获取摄像机数据失败");
     }
   };
+
 
   const handleDateChange = (date, dateString) => {
     setSelectedDate(dateString);
@@ -42,11 +43,11 @@ const Replay = () => {
   };
 
   const handleReplayClick = () => {
-    console.log('Replay video for date:', selectedDate);
+    console.log("Replay video for date:", selectedDate);
     if (selectedDate) {
-      console.log('Replay video for date:', selectedDate);
+      console.log("Replay video for date:", selectedDate);
       if (playerRef.current) {
-        console.log('play');
+        console.log("play");
         playerRef.current.play();
       }
     }
@@ -58,13 +59,13 @@ const Replay = () => {
         <Flex gap="small" vertical>
           <h4>选择摄像机</h4>
           <Select
-            defaultValue={videoChannels[0].src}
-            style={{ width: "100%" }}
-            onChange={handleChannelChange}
-            options={videoChannels.map((channel) => ({
-              value: channel.src,
-              label: channel.name,
+            options={cameras.map((camera) => ({
+              value: camera.Camera_id,
+              label: camera.name,
             }))}
+            placeholder="选择摄像机"
+            onChange={setSelectedCamera}
+            onClick={fetchCameras}
           />
           <h4 style={{ marginTop: "20px" }}>选择日期</h4>
           <DatePicker

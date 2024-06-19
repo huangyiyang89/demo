@@ -1,6 +1,6 @@
 import { PropTypes } from 'prop-types';
 import { useState } from 'react';
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 
 const Login = ({ onLogin }) => {
@@ -11,8 +11,10 @@ const Login = ({ onLogin }) => {
     // Simulate login request
     setTimeout(() => {
       if (values.username === 'admin' && values.password === 'admin') {
+        message.success('登录成功');
         onLogin(true);
       } else {
+        message.error('用户名或密码错误')
         onLogin(false);
       }
       setLoading(false);

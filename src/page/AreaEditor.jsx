@@ -196,6 +196,7 @@ export const AreaEditor = () => {
           </Flex>
         </Flex>
       </div>
+
     </>
   );
 };

@@ -5,7 +5,6 @@ import {
   Modal,
   Form,
   Input,
-  Select,
   message,
   Typography,
   Popconfirm,
@@ -13,10 +12,9 @@ import {
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
+import { fetchCameras, deleteCamera, createCamera,updateCamera, updateArea } from "../service";
 
 const { Title } = Typography;
-const { Option } = Select;
 
 const Cameras = () => {
   const [cameras, setCameras] = useState([]);
@@ -27,7 +25,15 @@ const Cameras = () => {
   const location = useLocation();
 
   useEffect(() => {
-    fetchCameras();
+    const getCameras = async () => {
+      try {
+        const camerasData = await fetchCameras();
+        setCameras(camerasData);
+      } catch (error) {
+        message.error("获取摄像机数据失败");
+      }
+    };
+    getCameras();
     if (location.state?.openModal) {
       setCurrentCamera(null);
       setIsEditing(false);
@@ -35,18 +41,6 @@ const Cameras = () => {
       setIsModalOpen(true);
     }
   }, [location.state, form]);
-
-  const fetchCameras = async () => {
-    try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/device/cameras"
-      );
-      setCameras(response.data);
-    } catch (error) {
-      console.error("获取摄像机数据失败:", error);
-      message.error("获取摄像机数据失败");
-    }
-  };
 
   const showModal = (camera = null) => {
     setCurrentCamera(camera);
@@ -59,21 +53,16 @@ const Cameras = () => {
     try {
       const values = await form.validateFields();
       if (isEditing) {
-        await axios.post(
-          `http://127.0.0.1:8000/api/device/cameras?Camera_id=${values.Camera_id}`,
-          values
-        );
+        await updateCamera(values);
         setCameras(
-          cameras.map((camera) => (camera.Camera_id === values.Camera_id ? values : camera))
+          cameras.map((camera) =>
+            camera.Camera_id === values.Camera_id ? values : camera
+          )
         );
         message.success("摄像机更新成功！");
       } else {
-        const response = await axios.post(
-          "http://127.0.0.1:8000/api/device/creatCamera",
-          values
-        );
-        const newCamera = response.data
-        setCameras([...cameras, newCamera]);
+        const response = await createCamera(values);
+        setCameras([...cameras, response]);
         message.success("摄像机添加成功！");
       }
       setIsModalOpen(false);
@@ -84,26 +73,26 @@ const Cameras = () => {
     }
   };
 
-  const handleDelete = async (Camera_id) => {
+  const handleDeleteCamera = async (cameraId) => {
     try {
-      await axios.post(`http://localhost:8000/api/device/deleteCamera?camera_id=${Camera_id}`);
-      setCameras(cameras.filter((camera) => camera.Camera_id !== Camera_id));
-      message.success("摄像机删除成功");
+      await deleteCamera(cameraId);
+      setCameras(cameras.filter((camera) => camera.Camera_id !== cameraId));
+      message.success("摄像机删除成功！");
     } catch (error) {
-      console.error("删除摄像机失败:", error);
+      console.error(error);
       message.error("删除摄像机失败");
     }
   };
 
   const columns = [
     { title: "摄像机编号", dataIndex: "Camera_id", key: "Camera_id" },
-    { title: "摄像机名称", dataIndex: "name", key: "Camera_id" },
-    { title: "描述", dataIndex: "description", key: "Camera_id" },
-    { title: "源地址", dataIndex: "Camera_addr", key: "Camera_id" },
-    { title: "状态", dataIndex: "state", key: "Camera_id" },
-    { title: "宽", dataIndex: "frame_width", key: "Camera_id" },
-    { title: "高", dataIndex: "frame_height", key: "Camera_id" },
-    { title: "MAC", dataIndex: "MAC", key: "Camera_id" },
+    { title: "摄像机名称", dataIndex: "name", key: "name" },
+    { title: "描述", dataIndex: "description", key: "description" },
+    { title: "源地址", dataIndex: "Camera_addr", key: "Camera_addr" },
+    { title: "状态", dataIndex: "state", key: "state" },
+    { title: "宽", dataIndex: "frame_width", key: "frame_width" },
+    { title: "高", dataIndex: "frame_height", key: "frame_height" },
+    { title: "MAC", dataIndex: "MAC", key: "MAC" },
     {
       title: "操作",
       key: "action",
@@ -115,7 +104,7 @@ const Cameras = () => {
           <Popconfirm
             title="确认删除？"
             description="删除后数据无法恢复"
-            onConfirm={() => handleDelete(record.Camera_id)}
+            onConfirm={() => handleDeleteCamera(record.Camera_id)}
             icon={<QuestionCircleOutlined style={{ color: "red" }} />}
           >
             <Button
@@ -145,7 +134,7 @@ const Cameras = () => {
       <Table
         columns={columns}
         dataSource={cameras.filter((camera) => camera.state !== "deleted")}
-        rowKey="id"
+        rowKey="Camera_id"
       />
       <Modal
         title={isEditing ? "编辑摄像机" : "添加摄像机"}

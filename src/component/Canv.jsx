@@ -3,7 +3,7 @@ import { useRef, useEffect } from "react";
 
 
 
-const Canv = ({ shape }) => {
+const Canv = ({ shape , lineWidth = 2}) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const Canv = ({ shape }) => {
       context.clearRect(0, 0, width, height);
       context.strokeStyle = "#FF0088";
       context.fillStyle = "#FF0088";
-      context.lineWidth = 2;
+      context.lineWidth = lineWidth;
       const scale = width / 960;
       console.log("绘制形状", shape, scale);
       //绘制图形
@@ -89,7 +89,7 @@ const Canv = ({ shape }) => {
     return () => {
       window.removeEventListener("resize", resizeCanvas);
     };
-  }, [shape]);
+  }, [shape,lineWidth]);
 
   return (
     <canvas
@@ -108,6 +108,7 @@ const Canv = ({ shape }) => {
 
 Canv.propTypes = {
   shape: PropTypes.object.isRequired,
+  lineWidth: PropTypes.number,
 };
 
 export default Canv;

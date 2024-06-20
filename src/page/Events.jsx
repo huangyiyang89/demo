@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Table,
   Flex,
@@ -9,18 +9,25 @@ import {
   Button,
   Image,
   Segmented,
+  Card,
+  Row,
+  Col,
 } from "antd";
 import EventModal from "../component/EventModal";
+import EventImage from "../component/EventImage";
+
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
 
 //mock table data
+import { get_cameras } from "../mock"; 
+
 const data = [
   {
     key: "1",
     camera: "camera1",
     detect_photo: "./images/event1.jpg",
-    full_photo: "./images/event1.jpg",
+    photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -30,7 +37,7 @@ const data = [
     key: "2",
     camera: "camera1",
     detect_photo: "./images/event1.jpg",
-    full_photo: "./images/event1.jpg",
+    photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -40,7 +47,7 @@ const data = [
     key: "3",
     camera: "camera1",
     detect_photo: "./images/event1.jpg",
-    full_photo: "./images/event1.jpg",
+    photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -50,7 +57,7 @@ const data = [
     key: "4",
     camera: "camera1",
     detect_photo: "./images/event1.jpg",
-    full_photo: "./images/event1.jpg",
+    photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -60,7 +67,7 @@ const data = [
     key: "5",
     camera: "camera1",
     detect_photo: "./images/event1.jpg",
-    full_photo: "./images/event1.jpg",
+    photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -70,7 +77,7 @@ const data = [
     key: "6",
     camera: "camera1",
     detect_photo: "./images/event1.jpg",
-    full_photo: "./images/event1.jpg",
+    photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -80,7 +87,7 @@ const data = [
     key: "7",
     camera: "camera1",
     detect_photo: "./images/event1.jpg",
-    full_photo: "./images/event1.jpg",
+    photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -90,7 +97,7 @@ const data = [
     key: "8",
     camera: "camera1",
     detect_photo: "./images/event1.jpg",
-    full_photo: "./images/event1.jpg",
+    photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
@@ -100,13 +107,14 @@ const data = [
     key: "9",
     camera: "camera1",
     detect_photo: "./images/event1.jpg",
-    full_photo: "./images/event1.jpg",
+    photo: "./images/event1.jpg",
     type: "区域入侵",
     area_name: "禁止进入区",
     time: "2024-04-12 16:45:11",
     state: "已上传",
   },
 ];
+
 const onChange = (pagination, filters, sorter, extra) => {
   console.log("params", pagination, filters, sorter, extra);
 };
@@ -142,7 +150,7 @@ const Events = () => {
   const [open, setOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const openModal = (event) => {
-    console.log(selectedEvent)
+    console.log(selectedEvent);
     setSelectedEvent(event);
     setOpen(true);
   };
@@ -150,6 +158,9 @@ const Events = () => {
     setOpen(false);
     setSelectedEvent(null);
   };
+
+  //view mode
+  const [viewMode, setViewMode] = useState("table"); // 'table' or 'card'
 
   //table columns
   const columns = [
@@ -160,7 +171,6 @@ const Events = () => {
         target: "full-header",
       },
     },
-
     {
       title: "检测照",
       dataIndex: "detect_photo",
@@ -179,7 +189,7 @@ const Events = () => {
     },
     {
       title: "全景照",
-      dataIndex: "full_photo",
+      dataIndex: "photo",
       showSorterTooltip: {
         target: "full-header",
       },
@@ -235,8 +245,8 @@ const Events = () => {
         target: "full-header",
       },
       render: (text, record) => (
-        <Button type="primary" size="small" onClick={() => openModal(record)}>
-          查看
+        <Button type="primary" size="middle" onClick={() => openModal(record)}>
+          查看详情
         </Button>
       ),
     },
@@ -264,7 +274,7 @@ const Events = () => {
             </Tag.CheckableTag>
           ))}
         </Flex>
-        <Flex>
+        <Flex gap="small">
           {/* <Button type="primary" icon={<ReloadOutlined />}></Button> */}
           <RangePicker
             showTime={{
@@ -283,17 +293,47 @@ const Events = () => {
               console.log(value); // string
             }}
           />
+          <Button
+            onClick={() => setViewMode(viewMode === "table" ? "card" : "table")}
+          >
+            {viewMode === "table" ? "卡片视图" : "表格视图"}
+          </Button>
         </Flex>
       </Flex>
 
-      <Table
-        columns={columns}
-        dataSource={data}
-        onChange={onChange}
-        showSorterTooltip={{
-          target: "sorter-icon",
-        }}
-      />
+      {viewMode === "table" ? (
+        <Table
+          columns={columns}
+          dataSource={data}
+          onChange={onChange}
+          showSorterTooltip={{
+            target: "sorter-icon",
+          }}
+        />
+      ) : (
+        <Row gutter={16}>
+          {data.map((item) => (
+            <Col span={8} key={item.key}>
+              <Card cover={<EventImage event={item} />}>
+                <Card.Meta
+                  title={
+                    <Flex justify="space-between">
+                      <span>{item.camera}</span>
+                      <span>{item.type}</span>
+                    </Flex>
+                  }
+                  description={
+                    <Flex justify="space-between">
+                      <span>{item.area_name} </span>
+                      <span>{item.time}</span>
+                    </Flex>
+                  }
+                />
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
 
       <EventModal
         event={{

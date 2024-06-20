@@ -14,12 +14,12 @@ const Live = () => {
       <Row gutter={[18, 32]} style={{ margin: -24 }}>
         {get_cameras.map((camera) => (
           <Col
-            key={camera.id}
+            key={camera.Camera_id}
             span={12}
             style={{ background: "rgba(211, 211, 211, 0.3)" }}
           >
             <div>
-              <CameraLayout key={camera.id} camera={camera} />
+              <CameraLayout key={camera.Camera_id} camera={camera} />
             </div>
           </Col>
         ))}

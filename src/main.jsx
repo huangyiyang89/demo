@@ -9,7 +9,6 @@ import ErrorPage from "./error-page";
 import App from "./page/App.jsx";
 import Live from "./page/Live.jsx";
 import Events from "./page/Events.jsx";
-import { AreaEditor } from "./page/AreaEditor.jsx";
 import EventVideoPlayer from "./page/EventVideoPlayer.jsx";
 import Replay from "./page/Replay.jsx";
 import Cameras from "./page/Cameras.jsx";
@@ -39,10 +38,6 @@ const router = createBrowserRouter([
             element: <EventVideoPlayer />,
           },
         ],
-      },
-      {
-        path: "config",
-        element: <AreaEditor />,
       },
       {
         path: "event",

@@ -1,5 +1,6 @@
 import { PropTypes } from "prop-types";
 import { Layout, List, Image } from "antd";
+import EventImage from "./EventImage";
 import VideoJs from "./VideoJs";
 import "../assets/styles.css";
 import Canv from "./Canv";
@@ -66,7 +67,19 @@ const CameraLayout = ({ camera }) => {
                 margin: 8,
               }}
             >
-              <Image src={`./images/event1.jpg`} />
+              <EventImage
+                event={{
+                  id: "202401020320",
+                  description: "禁止吸烟",
+                  type: 5,
+                  time: "2024-06-08 12:24:11",
+                  photo: "./images/event1.jpg",
+                  thumb: "hgfeliqhdlwfqhliwdqwd",
+                  detect_photo:
+                    "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?undefined",
+                  replay_url: "https://media.w3.org/2010/05/sintel/trailer_hd.mp4",
+                }}
+              />
               <div
                 style={{
                   display: "flex",
@@ -85,16 +98,14 @@ const CameraLayout = ({ camera }) => {
       <Layout>
         <Header style={headerStyle}>{camera.name}</Header>
         <Content style={contentStyle}>
-          <div style={{ flex: 1 ,position:"relative"}}>
+          <div style={{ flex: 1, position: "relative" }}>
             <VideoJs
               options={{
-                sources: [
-                  { src: camera.src},
-                ],
+                sources: [{ src: camera.Camera_addr }],
               }}
             />
-            {camera.regions.map((region, index) => (
-              <Canv key={index} shape={region.shape}></Canv>
+            {camera.areas.map((area, index) => (
+              <Canv key={index} shape={area}></Canv>
             ))}
           </div>
         </Content>

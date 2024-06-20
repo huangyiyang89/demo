@@ -36,7 +36,7 @@ export const VideoJs = ({ options, onReady }) => {
       player.autoplay(combinedOptions.autoplay);
       player.src(combinedOptions.sources);
     }
-  }, [options, videoRef, onReady]);
+  }, [options,videoRef]);
 
   useEffect(() => {
     const player = playerRef.current;

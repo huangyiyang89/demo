@@ -24,10 +24,9 @@ const App = () => {
     setIsLoggedIn(status);
   };
 
-
   const location = useLocation();
   const selectedKey = location.pathname;
-  console.log(location,selectedKey)
+
   return (
     <ConfigProvider locale={zhCN}>
       {isLoggedIn ? (
@@ -62,18 +61,13 @@ const App = () => {
                     {
                       key: "/cameras",
                       icon: <VideoCameraOutlined />,
-                      label: <Link to="/cameras">通道设置</Link>,
+                      label: <Link to="/cameras">录像通道</Link>,
                     },
                     {
                       key: "/areas",
                       icon: <VideoCameraOutlined />,
-                      label: <Link to="/areas">区域列表</Link>,
-                    },
-                    {
-                      key: "/config",
-                      icon: <VideoCameraOutlined />,
-                      label: <Link to="/config">区域设置</Link>,
-                    },
+                      label: <Link to="/areas">检测区域</Link>,
+                    }
                   ],
                 },
               ]}

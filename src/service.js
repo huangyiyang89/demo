@@ -2,6 +2,35 @@ import axios from "axios";
 
 export const api_host = "http://localhost:8000";
 
+function request(options) {
+  let axiosInstance = axios.create({
+    baseURL: api_host,
+    timeout: 3000
+  });
+
+  options = Object.assign({}, options, { axiosInstance });
+
+  return new Promise((resolve, reject) => {
+    axiosInstance(options)
+      .then(response => {
+        resolve(response.data);
+      })
+      .catch(error => {
+        reject(error);
+      });
+  });
+}
+
+function post(endpoint, payload) {
+  return request({
+    method: 'post',
+    url: endpoint,
+    data: payload
+  });
+}
+
+
+
 const handleResponse = (response, expectedStatus) => {
   if (response.status === expectedStatus) {
     return response.data;
@@ -115,6 +144,9 @@ export const fetchEventTypes = async () => {
 
 // 将字符串点坐标转换为{x,y}
 export const convertPolygonPoints = (coordString) => {
+  if(!coordString){
+    return [];
+  }
   const coords = coordString.split(";");
   const coordArray = [];
   for (let i = 0; i < coords.length; i += 2) {

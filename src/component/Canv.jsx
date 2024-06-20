@@ -19,7 +19,6 @@ const Canv = ({ shape , lineWidth = 2}) => {
 
     const drawLines = () => {
       //init canvas
-      console.log("shape", shape);
       if (!canvas) return;
       if (!shape || shape.type == undefined) return;
 
@@ -29,7 +28,6 @@ const Canv = ({ shape , lineWidth = 2}) => {
       context.fillStyle = "#FF0088";
       context.lineWidth = lineWidth;
       const scale = width / 960;
-      console.log("绘制形状", shape, scale);
       //绘制图形
       if (shape.type == "line") {
         let lines = shape.data;
@@ -67,7 +65,6 @@ const Canv = ({ shape , lineWidth = 2}) => {
       }
 
       if (shape.type == "polygon") {
-        console.log("polygon");
         let points = shape.data;
         if (points.length > 0) {
           context.beginPath();

@@ -8,6 +8,7 @@ import {
   Popconfirm,
   Typography,
   message,
+  Flex,
 } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
@@ -25,7 +26,6 @@ import {
 const { Title } = Typography;
 
 const Areas = () => {
-  const playerRef = useRef(null);
   const [areas, setAreas] = useState([]);
   const [cameras, setCameras] = useState([]);
   const [selectedCamera, setSelectedCamera] = useState(null);
@@ -48,11 +48,10 @@ const Areas = () => {
     }
   }, []);
 
+  const refreshData = () => {
+    fetchAreas().then((data) => setAreas(data));
+  };
   const showModal = (area = null) => {
-    if (!selectedCamera) {
-      message.info("请选择一个摄像机");
-      return;
-    }
     setCurrentArea(area);
     setIsEditing(!!area);
     form.setFieldsValue(area || {});
@@ -62,6 +61,7 @@ const Areas = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setCurrentArea(null);
+    refreshData();
   };
 
   const handleOk = async () => {
@@ -81,7 +81,7 @@ const Areas = () => {
   };
 
   const columns = [
-    { title: "区域编号", dataIndex: "id", key: "id" },
+    { title: "编号", dataIndex: "id", key: "id" },
     { title: "区域名称", dataIndex: "name", key: "id" },
     {
       title: "摄像机",
@@ -110,12 +110,26 @@ const Areas = () => {
       key: "action",
       render: (text, record) => (
         <span>
-          <Button type="primary" size="small" onClick={() => showModal(record)}>
+          <Button
+            type="primary"
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              const camera = cameras.find(
+                (cam) => cam.Camera_id === record.Camera_id
+              );
+              showModal({ ...record, camera });
+            }}
+          >
             编辑
           </Button>
           <Popconfirm
             title="确认删除？"
-            onConfirm={() => deleteArea(record.id)}
+            onConfirm={(e) => {
+              e.stopPropagation();
+              deleteArea(record.id);
+              refreshData();
+            }}
             icon={<QuestionCircleOutlined style={{ color: "red" }} />}
           >
             <Button
@@ -123,6 +137,7 @@ const Areas = () => {
               size="small"
               danger
               style={{ marginLeft: "8px" }}
+              onClick={(e) => e.stopPropagation()}
             >
               删除
             </Button>
@@ -134,7 +149,14 @@ const Areas = () => {
 
   const onRowClick = (record) => {
     return {
-      onClick: () => {
+      onClick: (event) => {
+        if (
+          event.target.tagName === "BUTTON" ||
+          event.target.tagName === "SPAN"
+        ) {
+          return; // 如果点击的是按钮，则不触发行选择
+        }
+
         const selectedIndex = selectedRowKeys.indexOf(record.id);
         let newSelectedRowKeys = [...selectedRowKeys];
         if (selectedIndex >= 0) {
@@ -149,22 +171,8 @@ const Areas = () => {
           newSelectedRowKeys.includes(area.id)
         );
         setSelectedArea(newSelectedArea);
-        console.log(selectedArea);
       },
     };
-  };
-
-  const handlePlayerReady = (player) => {
-    playerRef.current = player;
-
-    // You can handle player events here, for example:
-    player.on("waiting", () => {
-      videojs.log("player is waiting");
-    });
-
-    player.on("dispose", () => {
-      videojs.log("player will dispose");
-    });
   };
 
   const filteredAreas = selectedCamera
@@ -175,28 +183,38 @@ const Areas = () => {
     <div>
       <Title level={4}>区域设置</Title>
 
-      <div style={{ display: "flex", gap: "64px" }}>
-        <div style={{ flex: 1 }}>
-          <Select
-            options={cameras.map((camera) => ({
-              value: camera.Camera_id,
-              label: camera.name,
-            }))}
-            placeholder="选择摄像机"
-            onChange={(e) => {
-              const selectedCamera = cameras.find(
-                (camera) => camera.Camera_id === e
-              );
-              setSelectedCamera(selectedCamera);
-            }}
-          ></Select>
-          <Button
-            type="primary"
-            onClick={() => showModal()}
-            style={{ marginBottom: "10px", alignSelf: "flex-end" }}
-          >
-            添加区域
-          </Button>
+      <div
+        style={{
+          display: "flex",
+          gap: "64px",
+          marginTop: "20px",
+          marginBottom: "10px",
+        }}
+      >
+        <div style={{ flex: 2 }}>
+          <Flex justify="space-between">
+            <Button
+              type="primary"
+              onClick={() => showModal()}
+              style={{ marginBottom: "10px", alignSelf: "flex-end" }}
+            >
+              添加检测区域
+            </Button>
+            <Select
+              allowClear
+              options={cameras.map((camera) => ({
+                value: camera.Camera_id,
+                label: camera.name,
+              }))}
+              placeholder="选择摄像机筛选"
+              onChange={(e) => {
+                const selectedCamera = cameras.find(
+                  (camera) => camera.Camera_id === e
+                );
+                setSelectedCamera(selectedCamera);
+              }}
+            ></Select>
+          </Flex>
           <Table
             rowSelection={{
               selectedRowKeys,
@@ -217,15 +235,7 @@ const Areas = () => {
           />
         </div>
         <div style={{ flex: 1, position: "relative" }}>
-          <VideoJs
-            onReady={handlePlayerReady}
-            options={{
-              sources: [
-                { src: selectedCamera ? selectedCamera.Camera_addr : null },
-              ],
-            }}
-            style={{ width: "100%" }}
-          />
+          <VideoJs src={selectedCamera ? selectedCamera.Camera_addr : null} />
           {selectedArea.map((area) => (
             <Canv
               key={area.id}
@@ -247,8 +257,8 @@ const Areas = () => {
         footer={[]}
       >
         <AreaEditor
-          key={selectedCamera ? selectedCamera.Camera_id : "new"}
-          camera={selectedCamera}
+          key={currentArea ? currentArea.id : "new"}
+          camera={currentArea?.camera}
           area={currentArea}
           onClose={closeModal}
         />

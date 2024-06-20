@@ -19,8 +19,6 @@ import EventImage from "../component/EventImage";
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
 
-//mock table data
-import { get_cameras } from "../mock"; 
 
 const data = [
   {

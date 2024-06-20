@@ -5,7 +5,7 @@ const DrawPad = ({
   onStartDrawingPolygon,
   onStartDrawingLine,
   onDrawingComplete,
-  data = null
+  data = null,
 }) => {
   const canvasRef = useRef(null);
   const [points, setPoints] = useState([]);
@@ -14,18 +14,6 @@ const DrawPad = ({
   const [currentPos, setCurrentPos] = useState(null);
   const [lines, setLines] = useState([]);
   const [startLine, setStartLine] = useState(null);
-
-  
-  // 初始数据
-  useEffect(() => {
-    if (data) {
-      if (data.type === "polygon" && data.data.length > 0) {
-        setPoints(data.points);
-      } else if (data.type === "line" && data.data.length > 0) {
-        setLines(data.lines);
-      }
-    }
-  }, [data]);
 
   useEffect(() => {
     //初始化
@@ -100,10 +88,19 @@ const DrawPad = ({
     if (startLine && currentPos && isDrawingLine) {
       drawLine(context, startLine, currentPos);
     }
-
   }, [points, currentPos, isDrawingPolygon, isDrawingLine, startLine, lines]);
 
+  // 初始数据
+  useEffect(() => {
+    if (data) {
 
+      if (data.type === "polygon" && data.data.length > 0) {
+        setPoints(data.data);
+      } else if (data.type === "line" && data.data.length > 0) {
+        setLines(data.data);
+      }
+    }
+  }, [data]);
 
   const handleCanvasClick = (e) => {
     const rect = e.target.getBoundingClientRect();
@@ -121,7 +118,10 @@ const DrawPad = ({
         setCurrentPos(null);
         if (lines.length + 1 >= 2) {
           setIsDrawingLine(false);
-          onDrawingComplete({type:"line",data:[...lines, { start: startLine, end: { x, y } }]});
+          onDrawingComplete({
+            type: "line",
+            data: [...lines, { start: startLine, end: { x, y } }],
+          });
         }
       }
     }
@@ -145,7 +145,7 @@ const DrawPad = ({
     // 闭合多边形
     if (points.length > 1) {
       setPoints([...points, points[0]]);
-      onDrawingComplete({type:"polygon",data:[...points, points[0]]});
+      onDrawingComplete({ type: "polygon", data: [...points, points[0]] });
     }
   };
 
@@ -165,9 +165,7 @@ const DrawPad = ({
       setLines([]);
       setStartLine(null);
     }
-  }, [onStartDrawingPolygon,onStartDrawingLine]);
-
-
+  }, [onStartDrawingPolygon, onStartDrawingLine]);
 
   return (
     <canvas

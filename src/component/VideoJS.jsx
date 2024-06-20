@@ -3,18 +3,17 @@ import videojs from "video.js";
 import PropTypes from "prop-types";
 import "video.js/dist/video-js.css";
 
-export const VideoJs = ({ options, onReady }) => {
+export const VideoJs = ({ src, options, onReady }) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
 
   useEffect(() => {
     const defaultOptions = {
-      autoplay: false,
+      autoplay: true,
       controls: true,
       fluid: true,
       aspectRatio: "16:9",
     };
-
     const combinedOptions = Object.assign({}, defaultOptions, options);
 
     if (!playerRef.current) {
@@ -34,9 +33,9 @@ export const VideoJs = ({ options, onReady }) => {
     } else {
       const player = playerRef.current;
       player.autoplay(combinedOptions.autoplay);
-      player.src(combinedOptions.sources);
+      player.src(src);
     }
-  }, [options,videoRef]);
+  }, [src, options, onReady]);
 
   useEffect(() => {
     const player = playerRef.current;
@@ -56,6 +55,7 @@ export const VideoJs = ({ options, onReady }) => {
   );
 };
 VideoJs.propTypes = {
+  src: PropTypes.string,
   options: PropTypes.object,
   onReady: PropTypes.func,
 };

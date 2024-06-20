@@ -12,7 +12,13 @@ import {
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
 import { useLocation } from "react-router-dom";
-import { fetchCameras, deleteCamera, createCamera,updateCamera, updateArea } from "../service";
+import {
+  fetchCameras,
+  deleteCamera,
+  createCamera,
+  updateCamera,
+  updateArea,
+} from "../service";
 
 const { Title } = Typography;
 
@@ -124,13 +130,17 @@ const Cameras = () => {
   return (
     <div>
       <Title level={4}>摄像机设置</Title>
-      <Button
-        type="primary"
-        onClick={() => showModal()}
-        style={{ marginTop: "20px", marginBottom: "10px" }}
+      <div
+        style={{
+          gap: "64px",
+          marginTop: "20px",
+          marginBottom: "10px",
+        }}
       >
-        添加摄像机
-      </Button>
+        <Button type="primary" onClick={() => showModal()}>
+          添加摄像机
+        </Button>
+      </div>
       <Table
         columns={columns}
         dataSource={cameras.filter((camera) => camera.state !== "deleted")}

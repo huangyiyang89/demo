@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import EventView from "./EventView";
 const EventModal = ({ event, open, onClose }) => {
   return (
-    <Modal open={open} onCancel={onClose} footer={[]} width={"80vw"}>
+    <Modal open={open} onCancel={onClose} footer={[]} width={"80vw"} destroyOnClose>
       <EventView event={event}></EventView>
     </Modal>
   );

@@ -106,7 +106,7 @@ const Areas = () => {
       title: "摄像机",
       dataIndex: "Camera_id",
       key: "id",
-      width: 160,
+      width: 100,
       render: (text) => {
         const camera = cameras.find((camera) => camera.Camera_id === text);
         return camera ? camera.name : text;
@@ -117,7 +117,7 @@ const Areas = () => {
       dataIndex: "event_type",
       key: "id",
       ellipsis: true,
-      width: 160,
+      width: 300,
       render: (text) => getEventTypeNames(text),
     },
     // {

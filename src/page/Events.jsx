@@ -15,7 +15,9 @@ import {
 } from "antd";
 import EventModal from "../component/EventModal";
 import EventImage from "../component/EventImage";
-import { fetchEventTypes, fetchEvents, localtime } from "../service";
+import { fetchCameras, fetchEventTypes, fetchEvents, localtime } from "../service";
+import dayjs from 'dayjs';
+
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -29,6 +31,7 @@ const onOk = (value) => {
 };
 
 const Events = () => {
+
   //data
   const [events, setEvents] = useState([]);
   //modal
@@ -39,8 +42,9 @@ const Events = () => {
   //tags
   const [allTags, setAllTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [inputRange,setInputRange] = useState({start:dayjs().startOf('d'), end:dayjs().endOf("d")});
 
-  
+
   useEffect(() => {
     fetchEvents().then((data) => {
       setEvents(data);
@@ -48,6 +52,9 @@ const Events = () => {
     fetchEventTypes().then((data) => {
       setAllTags(data.map((eventType) => eventType.name));
     });
+    fetchCameras().then((data) => {
+      console.log(data);
+    })
   }, []);
 
   const openModal = (event) => {
@@ -182,20 +189,24 @@ const Events = () => {
         <Flex gap="small">
           {/* <Button type="primary" icon={<ReloadOutlined />}></Button> */}
           <RangePicker
+            value={[inputRange.start, inputRange.end]}
             showTime={{
               format: "HH:mm",
             }}
             format="YYYY-MM-DD HH:mm"
             onChange={(value, dateString) => {
-              console.log("Selected Time: ", value);
-              console.log("Formatted Selected Time: ", dateString);
-            }}
+              console.log(dateString)
+              setInputRange({start:value[0],end:value[1]});
+            }
+          }
             onOk={onOk}
           />
           <Segmented
             options={["今天", "本周", "本月"]}
             onChange={(value) => {
-              console.log(value); // string
+              if(value==="今天"){setInputRange({start:dayjs().startOf("d"),end:dayjs().endOf("d")});}
+              if(value==="本周"){setInputRange({start:dayjs().startOf("w"),end:dayjs().endOf("w")});}
+              if(value==="本月"){setInputRange({start:dayjs().startOf("M"),end:dayjs().endOf("M")});}
             }}
           />
           <Button

@@ -4,6 +4,7 @@ import EventImage from "./EventImage";
 import VideoJs from "./VideoJs";
 import "../assets/styles.css";
 import Canv from "./Canv";
+import {localtime} from "../service"
 
 const { Sider, Header, Content, Footer } = Layout;
 
@@ -41,25 +42,26 @@ const footerStyle = {
   padding: 0,
 };
 
-const textStyle = { color: "white", fontSize: 12 };
+const textStyle = { color: "white", fontSize: 8 };
 
-const CameraLayout = ({ camera }) => {
+const CameraLayout = ({ camera=null }) => {
   return (
     <Layout style={layoutStyle}>
-      <Sider style={siderStyle}>
+      <Sider style={siderStyle} width={"10vw"}>
         <List
           style={{
             overflowY: "auto",
-            width: 200,
+            width: "100%",
             position: "absolute ",
             left: 0,
             top: 0,
             bottom: 0,
           }}
         >
-          {Array.from({ length: 10 }).map((_, index) => (
+
+          {camera?.events?.map((event) => (
             <List.Item
-              key={index}
+              key={event.id}
               style={{
                 padding: 0,
                 border: 0,
@@ -68,27 +70,18 @@ const CameraLayout = ({ camera }) => {
               }}
             >
               <EventImage
-                event={{
-                  id: "202401020320",
-                  description: "禁止吸烟",
-                  type: 5,
-                  time: "2024-06-08 12:24:11",
-                  photo: "./images/event1.jpg",
-                  thumb: "hgfeliqhdlwfqhliwdqwd",
-                  detect_photo:
-                    "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?undefined",
-                  replay_url: "https://media.w3.org/2010/05/sintel/trailer_hd.mp4",
-                }}
+                event={event}
               />
               <div
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
                   width: "100%",
+                  
                 }}
               >
-                <span style={textStyle}>安全帽检测</span>
-                <span style={textStyle}>2024-04-03 12:12:33</span>
+                <span style={textStyle}>{event.event}</span>
+                <span style={textStyle}>{localtime(event.time)}</span>
               </div>
             </List.Item>
           ))}
@@ -104,8 +97,8 @@ const CameraLayout = ({ camera }) => {
                 sources: [{ src: camera.Camera_addr }],
               }}
             />
-            {camera.areas.map((area, index) => (
-              <Canv key={index} shape={area}></Canv>
+            {camera?.areas?.map((area) => (
+              <Canv key={area.id} area={area}></Canv>
             ))}
           </div>
         </Content>

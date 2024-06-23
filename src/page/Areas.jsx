@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   Button,
@@ -7,7 +7,6 @@ import {
   Select,
   Popconfirm,
   Typography,
-  message,
   Flex,
 } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
@@ -21,6 +20,7 @@ import {
   fetchAreas,
   fetchEventTypes,
   deleteArea,
+  localtime,
 } from "../service";
 
 const { Title } = Typography;
@@ -31,41 +31,56 @@ const Areas = () => {
   const [selectedCamera, setSelectedCamera] = useState(null);
   const [eventTypes, setEventTypes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentArea, setCurrentArea] = useState(null);
+  const [isEditing, setIsEditing] = useState(null);
+  const [editingArea, setEditingArea] = useState(null);
   const [form] = Form.useForm();
   const [filter, setFilter] = useState("");
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [selectedArea, setSelectedArea] = useState([]);
+  const [selectedAreas, setSelectedAreas] = useState([]);
 
   useEffect(() => {
+    refreshData();
+  }, []);
+
+  const refreshData = async () => {
     try {
-      fetchAreas().then((data) => setAreas(data));
-      fetchCameras().then((data) => setCameras(data));
-      fetchEventTypes().then((data) => setEventTypes(data));
+      const cameras = await fetchCameras();
+      const areas = await fetchAreas();
+      const eventTypes = await fetchEventTypes();
+      const areasWithDetails = areas.map((area) => ({
+        ...area,
+        camera: cameras.find((camera) => camera.Camera_id === area.Camera_id),
+      }));
+      setAreas(areasWithDetails);
+      setCameras(cameras);
+      setEventTypes(eventTypes);
     } catch (error) {
       console.error("Failed to fetch", error);
     }
-  }, []);
-
-  const refreshData = () => {
-    fetchAreas().then((data) => setAreas(data));
   };
-  const showModal = (area = null) => {
-    setCurrentArea(area);
-    setIsEditing(!!area);
+
+  const showNewModal = () => {
+    setEditingArea(null);
+    setIsEditing(false);
+    setIsModalOpen(true);
+  };
+
+  const showEditModal = (area = null) => {
+    setEditingArea(area);
+    setIsEditing(true);
     form.setFieldsValue(area || {});
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
+  const handleModalClosed = () => {
     setIsModalOpen(false);
-    setCurrentArea(null);
-    refreshData();
+    setEditingArea(null);
   };
 
-  const handleOk = async () => {
-    closeModal();
+  const handleUpdate = async () => {
+    setIsModalOpen(false);
+    setEditingArea(null);
+    refreshData();
   };
 
   const getEventTypeNames = (eventTypeStr) => {
@@ -81,12 +96,13 @@ const Areas = () => {
   };
 
   const columns = [
-    { title: "编号", dataIndex: "id", key: "id" },
-    { title: "区域名称", dataIndex: "name", key: "id" },
+    { title: "ID", dataIndex: "id", key: "id" ,width:50},
+    { title: "区域名称", dataIndex: "name", key: "id",width:100 },
     {
       title: "摄像机",
       dataIndex: "Camera_id",
       key: "id",
+      width: 160,
       render: (text) => {
         const camera = cameras.find((camera) => camera.Camera_id === text);
         return camera ? camera.name : text;
@@ -96,17 +112,27 @@ const Areas = () => {
       title: "事件类型",
       dataIndex: "event_type",
       key: "id",
+      ellipsis: true,
+      width: 160,
       render: (text) => getEventTypeNames(text),
     },
     {
-      title: "区域类型",
+      title: "类型",
       dataIndex: "area_type",
       key: "id",
+      width: 80,
       render: (text) => (text === 0 ? "多边形" : text),
     },
-    { title: "时间戳", dataIndex: "time", key: "id" },
+    {
+      title: "时间戳",
+      dataIndex: "time",
+      key: "id",
+      width: 160,
+      render: (time) => <span>{localtime(time)}</span>,
+    },
     {
       title: "操作",
+      width: 140,
       key: "action",
       render: (text, record) => (
         <span>
@@ -118,7 +144,7 @@ const Areas = () => {
               const camera = cameras.find(
                 (cam) => cam.Camera_id === record.Camera_id
               );
-              showModal({ ...record, camera });
+              showEditModal({ ...record, camera });
             }}
           >
             编辑
@@ -170,7 +196,7 @@ const Areas = () => {
         const newSelectedArea = areas.filter((area) =>
           newSelectedRowKeys.includes(area.id)
         );
-        setSelectedArea(newSelectedArea);
+        setSelectedAreas(newSelectedArea);
       },
     };
   };
@@ -195,23 +221,26 @@ const Areas = () => {
           <Flex justify="space-between">
             <Button
               type="primary"
-              onClick={() => showModal()}
+              onClick={() => showNewModal()}
               style={{ marginBottom: "10px", alignSelf: "flex-end" }}
             >
               添加检测区域
             </Button>
             <Select
               allowClear
+              style={{ width: "200px" }}
               options={cameras.map((camera) => ({
                 value: camera.Camera_id,
                 label: camera.name,
               }))}
-              placeholder="选择摄像机筛选"
+              placeholder="选择摄像机"
               onChange={(e) => {
                 const selectedCamera = cameras.find(
                   (camera) => camera.Camera_id === e
                 );
                 setSelectedCamera(selectedCamera);
+                setSelectedRowKeys([]);
+                setSelectedAreas([]);
               }}
             ></Select>
           </Flex>
@@ -223,7 +252,7 @@ const Areas = () => {
                 const newSelectedArea = areas.filter((area) =>
                   keys.includes(area.id)
                 );
-                setSelectedArea(newSelectedArea);
+                setSelectedAreas(newSelectedArea);
               },
             }}
             columns={columns}
@@ -236,7 +265,7 @@ const Areas = () => {
         </div>
         <div style={{ flex: 1, position: "relative" }}>
           <VideoJs src={selectedCamera ? selectedCamera.Camera_addr : null} />
-          {selectedArea.map((area) => (
+          {selectedAreas.map((area) => (
             <Canv
               key={area.id}
               shape={{
@@ -251,16 +280,16 @@ const Areas = () => {
       <Modal
         title={isEditing ? "编辑检测区域" : "添加检测区域"}
         open={isModalOpen}
-        onOk={handleOk}
-        onCancel={closeModal}
+        onCancel={handleModalClosed}
         width={1334}
         footer={[]}
+        destroyOnClose={true}
       >
         <AreaEditor
-          key={currentArea ? currentArea.id : "new"}
-          camera={currentArea?.camera}
-          area={currentArea}
-          onClose={closeModal}
+          key={editingArea ? editingArea.id : null}
+          camera={editingArea?.camera}
+          area={editingArea}
+          onUpdate={handleUpdate}
         />
       </Modal>
     </div>

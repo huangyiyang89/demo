@@ -8,7 +8,7 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import { fetchCameras, fetchEventTypes } from "../service";
 
-export const AreaEditor = ({ camera = null, area = null, onClose }) => {
+export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
   const [drawPolygon, setDrawPolygon] = useState(false);
   const [drawLine, setDrawLine] = useState(false);
   const [areaId, setAreaId] = useState(area?.id || null);
@@ -26,6 +26,7 @@ export const AreaEditor = ({ camera = null, area = null, onClose }) => {
   const [eventTypes, setEventTypes] = useState([]);
 
   useEffect(() => {
+    
     fetchCameras().then((data) => setCameras(data));
     fetchEventTypes().then((data) => setEventTypes(data));
   }, []);
@@ -38,11 +39,13 @@ export const AreaEditor = ({ camera = null, area = null, onClose }) => {
 
   useEffect(() => {
     if (area) {
+      console.log(area)
       setAreaId(area.id);
       setAreaName(area.name);
       setSelectedDetectTypesString(area.event_type);
       setAreaDescription(area.description);
       setDrawingData(area.area_coordinate || "");
+      setSelectedCamera(area.camera);
     }
   }, [area]);
 
@@ -61,14 +64,25 @@ export const AreaEditor = ({ camera = null, area = null, onClose }) => {
     }
   }, [eventTypes, selectedDetectTypesString]);
 
+
+  const resetState = () => {
+    setDrawingData("");
+    setAreaId(null);
+    setAreaName("");
+    setSelectedDetectTypes([]);
+    setAreaDescription("");
+    setSelectedCamera(null);
+
+  };
+
   const createArea = (data) => {
     axios
       .post(api_host + "/api/device/creatArea", data)
       .then((response) => {
         if (response.status === 201) {
           message.success("数据保存成功");
-          setAreaId(response.data.id); // 假设返回的数据中有区域ID
-          onClose();
+          onUpdate();
+          resetState();
         } else {
           message.error("数据保存失败," + response);
         }
@@ -85,7 +99,8 @@ export const AreaEditor = ({ camera = null, area = null, onClose }) => {
       .then((response) => {
         if (response.status === 200) {
           message.success("数据更新成功");
-          onClose();
+          onUpdate();
+          resetState();
         } else {
           message.error("数据更新失败");
         }
@@ -107,6 +122,7 @@ export const AreaEditor = ({ camera = null, area = null, onClose }) => {
   };
 
   const handleDrawingComplete = (points) => {
+    console.log("drawing complete")
     setDrawingData(points.data.flatMap((obj) => Object.values(obj)).join(";"));
     setDrawPolygon(false);
     setDrawLine(false);
@@ -153,7 +169,7 @@ export const AreaEditor = ({ camera = null, area = null, onClose }) => {
           <DrawPad
             data={{
               type: "polygon",
-              data: convertPolygonPoints(area?.area_coordinate),
+              data: convertPolygonPoints(drawingData),
             }}
             onStartDrawingPolygon={drawPolygon}
             onStartDrawingLine={drawLine}
@@ -215,7 +231,7 @@ export const AreaEditor = ({ camera = null, area = null, onClose }) => {
 
 // PropTypes validation
 AreaEditor.propTypes = {
-  camera: PropTypes.object, // camera prop is optional, used for default camera selection
-  area: PropTypes.object, // area prop is optional, used for editing existing areas
-  onClose: PropTypes.func.isRequired, // onClose callback to close the modal
+  camera: PropTypes.object, 
+  area: PropTypes.object, 
+  onUpdate: PropTypes.func.isRequired, 
 };

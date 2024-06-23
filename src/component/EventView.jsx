@@ -1,23 +1,24 @@
 import { PropTypes } from "prop-types";
 import { Flex, Descriptions, Image } from "antd";
 import VideoJs from "./VideoJs";
+import { localtime } from "../service";
 
 export const EventView = ({ event }) => {
   const items = [
     {
       key: "1",
       label: "事件编号",
-      children: event.key,
+      children: event.id,
     },
     {
       key: "2",
       label: "事件时间",
-      children: event.time,
+      children: localtime(event.time),
     },
     {
       key: "3",
-      label: "摄像机",
-      children: event.camera,
+      label: "摄像机编号",
+      children: event.Camera_id,
     },
     
     {
@@ -28,12 +29,12 @@ export const EventView = ({ event }) => {
     {
       key: "5",
       label: "事件类型",
-      children: event.type,
+      children: event.event,
     },
     {
       key: "6",
       label: "检测照片",
-      children: <Image src={event.photo} width={"10vw"}></Image>,
+      children: <Image src={event.image} width={"10vw"}></Image>,
     },
   ];
   return (

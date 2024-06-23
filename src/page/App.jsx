@@ -14,7 +14,7 @@ import Login from "./Login";
 
 const { Header, Sider, Content } = Layout;
 const App = () => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -78,6 +78,7 @@ const App = () => {
               style={{
                 padding: 0,
                 background: colorBgContainer,
+                height:32,
               }}
             >
               <Button
@@ -85,9 +86,9 @@ const App = () => {
                 icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                 onClick={() => setCollapsed(!collapsed)}
                 style={{
-                  fontSize: "16px",
-                  width: 64,
-                  height: 64,
+                  fontSize: "14px",
+                  width: 32,
+                  height: 32,
                 }}
               />
             </Header>
@@ -95,7 +96,7 @@ const App = () => {
               style={{
                 margin: "24px 16px",
                 padding: 24,
-                minHeight: "calc(100vh - 112px)",
+                minHeight: "calc(100vh - 80px)",
                 background: colorBgContainer,
                 borderRadius: borderRadiusLG,
               }}

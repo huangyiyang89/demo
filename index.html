@@ -3,11 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/react.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Demo</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
+
+  <!-- <script>
+    function adjustZoom() {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      // Calculate the zoom level (for example, we can use a base width of 1200px)
+      const baseWidth = 2560;
+      const zoomLevel = width / baseWidth;
+
+      document.body.style.zoom = zoomLevel;
+    }
+
+    // Initial adjustment
+    adjustZoom();
+
+    // Adjust zoom level when the window is resized
+    window.addEventListener('resize', adjustZoom);
+  </script> -->
 </html>

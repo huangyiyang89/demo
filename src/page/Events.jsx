@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   Flex,
@@ -15,138 +15,44 @@ import {
 } from "antd";
 import EventModal from "../component/EventModal";
 import EventImage from "../component/EventImage";
+import { fetchEventTypes, fetchEvents, localtime } from "../service";
+import { render } from "react-dom";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
 
-
-const data = [
-  {
-    key: "1",
-    camera: "camera1",
-    detect_photo: "./images/event1.jpg",
-    photo: "./images/event1.jpg",
-    type: "区域入侵",
-    area_name: "禁止进入区",
-    time: "2024-04-12 16:45:11",
-    state: "已上传",
-  },
-  {
-    key: "2",
-    camera: "camera1",
-    detect_photo: "./images/event1.jpg",
-    photo: "./images/event1.jpg",
-    type: "区域入侵",
-    area_name: "禁止进入区",
-    time: "2024-04-12 16:45:11",
-    state: "已上传",
-  },
-  {
-    key: "3",
-    camera: "camera1",
-    detect_photo: "./images/event1.jpg",
-    photo: "./images/event1.jpg",
-    type: "区域入侵",
-    area_name: "禁止进入区",
-    time: "2024-04-12 16:45:11",
-    state: "已上传",
-  },
-  {
-    key: "4",
-    camera: "camera1",
-    detect_photo: "./images/event1.jpg",
-    photo: "./images/event1.jpg",
-    type: "区域入侵",
-    area_name: "禁止进入区",
-    time: "2024-04-12 16:45:11",
-    state: "已上传",
-  },
-  {
-    key: "5",
-    camera: "camera1",
-    detect_photo: "./images/event1.jpg",
-    photo: "./images/event1.jpg",
-    type: "区域入侵",
-    area_name: "禁止进入区",
-    time: "2024-04-12 16:45:11",
-    state: "已上传",
-  },
-  {
-    key: "6",
-    camera: "camera1",
-    detect_photo: "./images/event1.jpg",
-    photo: "./images/event1.jpg",
-    type: "区域入侵",
-    area_name: "禁止进入区",
-    time: "2024-04-12 16:45:11",
-    state: "已上传",
-  },
-  {
-    key: "7",
-    camera: "camera1",
-    detect_photo: "./images/event1.jpg",
-    photo: "./images/event1.jpg",
-    type: "区域入侵",
-    area_name: "禁止进入区",
-    time: "2024-04-12 16:45:11",
-    state: "已上传",
-  },
-  {
-    key: "8",
-    camera: "camera1",
-    detect_photo: "./images/event1.jpg",
-    photo: "./images/event1.jpg",
-    type: "区域入侵",
-    area_name: "禁止进入区",
-    time: "2024-04-12 16:45:11",
-    state: "已上传",
-  },
-  {
-    key: "9",
-    camera: "camera1",
-    detect_photo: "./images/event1.jpg",
-    photo: "./images/event1.jpg",
-    type: "区域入侵",
-    area_name: "禁止进入区",
-    time: "2024-04-12 16:45:11",
-    state: "已上传",
-  },
-];
-
 const onChange = (pagination, filters, sorter, extra) => {
   console.log("params", pagination, filters, sorter, extra);
 };
-
-//tag data
-const tagsData = [
-  "全部",
-  "入侵",
-  "跌倒",
-  "烟火",
-  "积水",
-  "反光衣",
-  "打架",
-  "抽烟",
-];
 
 const onOk = (value) => {
   console.log("onOk: ", value);
 };
 
 const Events = () => {
-  //tags
-  const [selectedTags, setSelectedTags] = useState(["全部"]);
-  const handleChange = (tag, checked) => {
-    const nextSelectedTags = checked
-      ? [...selectedTags, tag]
-      : selectedTags.filter((t) => t !== tag);
-    console.log("You are interested in: ", nextSelectedTags);
-    setSelectedTags(nextSelectedTags);
-  };
-
+  const [filters, setFilters] = useState([]);
+  const [events, setEvents] = useState([]);
   //modal
   const [open, setOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  //view mode
+  const [viewMode, setViewMode] = useState("table"); // 'table' or 'card'
+
+  const [selectedTags, setSelectedTags] = useState([]);
+
+  useEffect(() => {
+    fetchEvents().then((data) => {
+      setEvents(data);
+    });
+    fetchEventTypes().then((data) => {
+      setFilters(
+        data.map((eventType) => {
+          return { value: eventType.name, name: eventType.name };
+        })
+      );
+    });
+  }, []);
+
   const openModal = (event) => {
     console.log(selectedEvent);
     setSelectedEvent(event);
@@ -156,68 +62,64 @@ const Events = () => {
     setOpen(false);
     setSelectedEvent(null);
   };
+  const handleTagChange = (tag, checked) => {
+    const nextSelectedTags = checked
+      ? [...selectedTags, tag]
+      : selectedTags.filter((t) => t !== tag);
+    setSelectedTags(nextSelectedTags);
+    filterEvents(nextSelectedTags);
+  };
 
-  //view mode
-  const [viewMode, setViewMode] = useState("table"); // 'table' or 'card'
-
+  const filterEvents = (tags) => {
+    if (tags.length === 0) {
+      setFilteredEvents(events);
+    } else {
+      const filtered = events.filter((event) => tags.includes(event.event));
+      setFilteredEvents(filtered);
+    }
+  };
   //table columns
   const columns = [
     {
       title: "序号",
-      dataIndex: "key",
+      dataIndex: "id",
       showSorterTooltip: {
         target: "full-header",
       },
     },
     {
       title: "检测照",
-      dataIndex: "detect_photo",
+      dataIndex: "image",
       showSorterTooltip: {
         target: "full-header",
       },
       render: (text, record) => (
         <Image
           width={108}
-          src={record.detect_photo}
+          src={record.image}
           preview={{
-            src: record.detect_photo,
+            src: record.image,
           }}
         />
       ),
     },
     {
-      title: "全景照",
-      dataIndex: "photo",
-      showSorterTooltip: {
-        target: "full-header",
-      },
-      render: (text, record) => (
-        <Image
-          width={108}
-          src={record.detect_photo}
-          preview={{
-            src: record.detect_photo,
-          }}
-        />
-      ),
-    },
-    {
-      title: "摄像机",
-      dataIndex: "camera",
+      title: "摄像机编号",
+      dataIndex: "Camera_id",
       showSorterTooltip: {
         target: "full-header",
       },
     },
     {
-      title: "类型",
-      dataIndex: "type",
+      title: "事件类型",
+      dataIndex: "event",
       showSorterTooltip: {
         target: "full-header",
       },
     },
     {
       title: "区域名称",
-      dataIndex: "area_name",
+      dataIndex: "area",
       showSorterTooltip: {
         target: "full-header",
       },
@@ -228,13 +130,15 @@ const Events = () => {
       showSorterTooltip: {
         target: "full-header",
       },
+      render: (text, record) => <span>{localtime(record.time)}</span>,
     },
     {
       title: "状态",
-      dataIndex: "state",
+      dataIndex: "is_upload",
       showSorterTooltip: {
         target: "full-header",
       },
+      render: (text, record) => <span>{record.is_upload?"已上传":"未上传"}</span>,
     },
     {
       title: "操作",
@@ -258,18 +162,12 @@ const Events = () => {
         display: "flex",
       }}
     >
-      <Title level={4}>事件列表</Title>
+     <Title level={4}>事件列表</Title>
 
       <Flex gap="small" wrap align="center" justify="space-between">
         <Flex>
-          {tagsData.map((tag) => (
-            <Tag.CheckableTag
-              key={tag}
-              checked={selectedTags.includes(tag)}
-              onChange={(checked) => handleChange(tag, checked)}
-            >
-              {tag}
-            </Tag.CheckableTag>
+          {filters.map((tag) => (
+            <Tag.CheckableTag key={tag.name}>{tag.name}</Tag.CheckableTag>
           ))}
         </Flex>
         <Flex gap="small">
@@ -302,28 +200,28 @@ const Events = () => {
       {viewMode === "table" ? (
         <Table
           columns={columns}
-          dataSource={data}
+          dataSource={events}
           onChange={onChange}
           showSorterTooltip={{
             target: "sorter-icon",
           }}
         />
       ) : (
-        <Row gutter={16}>
-          {data.map((item) => (
-            <Col span={8} key={item.key}>
-              <Card cover={<EventImage event={item} />}>
+        <Row gutter={[8,12]}>
+          {events.map((event) => (
+            <Col span={8} key={event.key}>
+              <Card cover={<EventImage event={event} />}>
                 <Card.Meta
                   title={
                     <Flex justify="space-between">
-                      <span>{item.camera}</span>
-                      <span>{item.type}</span>
+                      <span>{event.Camera_id}</span>
+                      <span>{event.event}</span>
                     </Flex>
                   }
                   description={
                     <Flex justify="space-between">
-                      <span>{item.area_name} </span>
-                      <span>{item.time}</span>
+                      <span>{event.area} </span>
+                      <span>{localtime(event.time)}</span>
                     </Flex>
                   }
                 />
@@ -334,12 +232,7 @@ const Events = () => {
       )}
 
       <EventModal
-        event={{
-          id: "2024022411221",
-          camera: "摄像头1",
-          detect_type: "抽烟",
-          pic_url: "./images/event1.jpg",
-        }}
+        event={selectedEvent}
         open={open}
         onClose={handleClose}
       ></EventModal>

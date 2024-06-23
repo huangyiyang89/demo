@@ -15,13 +15,17 @@ const DrawPad = ({
   const [lines, setLines] = useState([]);
   const [startLine, setStartLine] = useState(null);
 
+
+
+
   useEffect(() => {
     //初始化
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
-    const { width, height } = canvas.getBoundingClientRect();
-    canvas.width = width;
-    canvas.height = height;
+    // const { width, height } = canvas.getBoundingClientRect();
+
+    canvas.width = 960;
+    canvas.height = 540;
     context.clearRect(0, 0, canvas.width, canvas.height);
     //设置绘图样式
     context.lineWidth = 2;

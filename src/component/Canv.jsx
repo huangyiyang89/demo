@@ -1,11 +1,11 @@
+import { useState } from "react";
 import { PropTypes } from "prop-types";
 import { useRef, useEffect } from "react";
+import { convertPolygonPoints } from "../service";
 
-
-
-const Canv = ({ shape , lineWidth = 2}) => {
+const Canv = ({ shape = null, area = null, lineWidth = 2 }) => {
   const canvasRef = useRef(null);
-
+  const [currentShape, setCurrentShape] = useState(shape);
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
@@ -20,7 +20,14 @@ const Canv = ({ shape , lineWidth = 2}) => {
     const drawLines = () => {
       //init canvas
       if (!canvas) return;
-      if (!shape || shape.type == undefined) return;
+      if ((!shape || shape.type == undefined) && !area) return;
+
+      if (!currentShape) {
+        setCurrentShape({
+          type: "polygon",
+          data: convertPolygonPoints(area?.area_coordinate),
+        });
+      }
 
       const { width, height } = canvas;
       context.clearRect(0, 0, width, height);
@@ -29,8 +36,8 @@ const Canv = ({ shape , lineWidth = 2}) => {
       context.lineWidth = lineWidth;
       const scale = width / 960;
       //绘制图形
-      if (shape.type == "line") {
-        let lines = shape.data;
+      if (currentShape?.type == "line") {
+        let lines = currentShape.data;
         lines.forEach((line, index) => {
           context.beginPath();
           context.moveTo(line.start.x * scale, line.start.y * scale);
@@ -64,8 +71,8 @@ const Canv = ({ shape , lineWidth = 2}) => {
         });
       }
 
-      if (shape.type == "polygon") {
-        let points = shape.data;
+      if (currentShape?.type == "polygon") {
+        let points = currentShape.data;
         if (points.length > 0) {
           context.beginPath();
           context.moveTo(points[0].x * scale, points[0].y * scale);
@@ -86,7 +93,7 @@ const Canv = ({ shape , lineWidth = 2}) => {
     return () => {
       window.removeEventListener("resize", resizeCanvas);
     };
-  }, [shape,lineWidth]);
+  }, [shape, currentShape, area, lineWidth]);
 
   return (
     <canvas
@@ -106,6 +113,7 @@ const Canv = ({ shape , lineWidth = 2}) => {
 Canv.propTypes = {
   shape: PropTypes.object.isRequired,
   lineWidth: PropTypes.number,
+  area: PropTypes.object,
 };
 
 export default Canv;

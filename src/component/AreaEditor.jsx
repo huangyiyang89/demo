@@ -81,7 +81,7 @@ export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
       .then((response) => {
         if (response.status === 201) {
           message.success("数据保存成功");
-          onUpdate();
+          onUpdate && onUpdate(response.data);
           resetState();
         } else {
           message.error("数据保存失败," + response);
@@ -99,7 +99,7 @@ export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
       .then((response) => {
         if (response.status === 200) {
           message.success("数据更新成功");
-          onUpdate();
+          onUpdate && onUpdate(response.data);
           resetState();
         } else {
           message.error("数据更新失败");

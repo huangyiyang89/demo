@@ -16,7 +16,6 @@ import {
 import EventModal from "../component/EventModal";
 import EventImage from "../component/EventImage";
 import { fetchEventTypes, fetchEvents, localtime } from "../service";
-import { render } from "react-dom";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -30,26 +29,24 @@ const onOk = (value) => {
 };
 
 const Events = () => {
-  const [filters, setFilters] = useState([]);
+  //data
   const [events, setEvents] = useState([]);
   //modal
   const [open, setOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   //view mode
   const [viewMode, setViewMode] = useState("table"); // 'table' or 'card'
-
+  //tags
+  const [allTags, setAllTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
 
+  
   useEffect(() => {
     fetchEvents().then((data) => {
       setEvents(data);
     });
     fetchEventTypes().then((data) => {
-      setFilters(
-        data.map((eventType) => {
-          return { value: eventType.name, name: eventType.name };
-        })
-      );
+      setAllTags(data.map((eventType) => eventType.name));
     });
   }, []);
 
@@ -66,18 +63,22 @@ const Events = () => {
     const nextSelectedTags = checked
       ? [...selectedTags, tag]
       : selectedTags.filter((t) => t !== tag);
+    console.log(nextSelectedTags);
     setSelectedTags(nextSelectedTags);
-    filterEvents(nextSelectedTags);
+
+    // if (selectedTags.length === 0) {
+    //   setFilteredEvents(events);
+    // } else {
+    //   setFilteredEvents(
+    //     events.filter((event) => selectedTags.includes(event.event))
+    //   );
+    // }
   };
 
-  const filterEvents = (tags) => {
-    if (tags.length === 0) {
-      setFilteredEvents(events);
-    } else {
-      const filtered = events.filter((event) => tags.includes(event.event));
-      setFilteredEvents(filtered);
-    }
-  };
+  const filteredEvents = events.filter(
+    (event) => selectedTags.length === 0 || selectedTags.includes(event.event)
+  );
+
   //table columns
   const columns = [
     {
@@ -138,7 +139,9 @@ const Events = () => {
       showSorterTooltip: {
         target: "full-header",
       },
-      render: (text, record) => <span>{record.is_upload?"已上传":"未上传"}</span>,
+      render: (text, record) => (
+        <span>{record.is_upload ? "已上传" : "未上传"}</span>
+      ),
     },
     {
       title: "操作",
@@ -162,12 +165,18 @@ const Events = () => {
         display: "flex",
       }}
     >
-     <Title level={4}>事件列表</Title>
+      <Title level={4}>事件列表</Title>
 
       <Flex gap="small" wrap align="center" justify="space-between">
         <Flex>
-          {filters.map((tag) => (
-            <Tag.CheckableTag key={tag.name}>{tag.name}</Tag.CheckableTag>
+          {allTags.map((tag) => (
+            <Tag.CheckableTag
+              key={tag}
+              checked={selectedTags.includes(tag)}
+              onChange={(checked) => handleTagChange(tag, checked)}
+            >
+              {tag}
+            </Tag.CheckableTag>
           ))}
         </Flex>
         <Flex gap="small">
@@ -198,17 +207,10 @@ const Events = () => {
       </Flex>
 
       {viewMode === "table" ? (
-        <Table
-          columns={columns}
-          dataSource={events}
-          onChange={onChange}
-          showSorterTooltip={{
-            target: "sorter-icon",
-          }}
-        />
+        <Table columns={columns} dataSource={filteredEvents} onChange={onChange} />
       ) : (
-        <Row gutter={[8,12]}>
-          {events.map((event) => (
+        <Row gutter={[8, 12]}>
+          {filteredEvents.map((event) => (
             <Col span={8} key={event.key}>
               <Card cover={<EventImage event={event} />}>
                 <Card.Meta

@@ -78,7 +78,7 @@ const App = () => {
               style={{
                 padding: 0,
                 background: colorBgContainer,
-                height:32,
+                height:64,
               }}
             >
               <Button
@@ -87,8 +87,8 @@ const App = () => {
                 onClick={() => setCollapsed(!collapsed)}
                 style={{
                   fontSize: "14px",
-                  width: 32,
-                  height: 32,
+                  width: 64,
+                  height: 64,
                 }}
               />
             </Header>

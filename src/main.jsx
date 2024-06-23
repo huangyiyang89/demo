@@ -9,7 +9,6 @@ import ErrorPage from "./error-page";
 import App from "./page/App.jsx";
 import Live from "./page/Live.jsx";
 import Events from "./page/Events.jsx";
-import EventVideoPlayer from "./page/EventVideoPlayer.jsx";
 import Replay from "./page/Replay.jsx";
 import Cameras from "./page/Cameras.jsx";
 import Statistic from "./page/Statistic.jsx";
@@ -32,16 +31,6 @@ const router = createBrowserRouter([
       {
         path: "events",
         element: <Events />,
-        children: [
-          {
-            path: ":id",
-            element: <EventVideoPlayer />,
-          },
-        ],
-      },
-      {
-        path: "event",
-        element: <EventVideoPlayer />,
       },
       {
         path: "replay",

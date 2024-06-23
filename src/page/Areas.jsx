@@ -3,7 +3,6 @@ import {
   Table,
   Button,
   Modal,
-  Form,
   Select,
   Popconfirm,
   Typography,
@@ -33,9 +32,6 @@ const Areas = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(null);
   const [editingArea, setEditingArea] = useState(null);
-  const [form] = Form.useForm();
-  const [filter, setFilter] = useState("");
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedAreas, setSelectedAreas] = useState([]);
 
   useEffect(() => {
@@ -68,7 +64,6 @@ const Areas = () => {
   const showEditModal = (area = null) => {
     setEditingArea(area);
     setIsEditing(true);
-    form.setFieldsValue(area || {});
     setIsModalOpen(true);
   };
 
@@ -77,7 +72,16 @@ const Areas = () => {
     setEditingArea(null);
   };
 
-  const handleUpdate = async () => {
+  //修改新增成功都触发
+  const handleUpdate = async (data) => {
+    if (isEditing && editingArea) {
+      console.log(data);
+      const newAreas = selectedAreas
+        .filter((area) => area.id != editingArea.id)
+        .concat(data);
+      setSelectedAreas(newAreas);
+      console.log(newAreas);
+    }
     setIsModalOpen(false);
     setEditingArea(null);
     refreshData();
@@ -96,8 +100,8 @@ const Areas = () => {
   };
 
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id" ,width:50},
-    { title: "区域名称", dataIndex: "name", key: "id",width:100 },
+    { title: "ID", dataIndex: "id", key: "id", width: 50 },
+    { title: "区域名称", dataIndex: "name", key: "id", width: 100 },
     {
       title: "摄像机",
       dataIndex: "Camera_id",
@@ -116,15 +120,15 @@ const Areas = () => {
       width: 160,
       render: (text) => getEventTypeNames(text),
     },
+    // {
+    //   title: "类型",
+    //   dataIndex: "area_type",
+    //   key: "id",
+    //   width: 80,
+    //   render: (text) => (text === 0 ? "多边形" : text),
+    // },
     {
-      title: "类型",
-      dataIndex: "area_type",
-      key: "id",
-      width: 80,
-      render: (text) => (text === 0 ? "多边形" : text),
-    },
-    {
-      title: "时间戳",
+      title: "修改时间",
       dataIndex: "time",
       key: "id",
       width: 160,
@@ -154,6 +158,9 @@ const Areas = () => {
             onConfirm={(e) => {
               e.stopPropagation();
               deleteArea(record.id);
+              setSelectedAreas(
+                selectedAreas.filter((id) => id != record.id)
+              );
               refreshData();
             }}
             icon={<QuestionCircleOutlined style={{ color: "red" }} />}
@@ -183,27 +190,16 @@ const Areas = () => {
           return; // 如果点击的是按钮，则不触发行选择
         }
 
-        const selectedIndex = selectedRowKeys.indexOf(record.id);
-        let newSelectedRowKeys = [...selectedRowKeys];
-        if (selectedIndex >= 0) {
-          newSelectedRowKeys.splice(selectedIndex, 1);
+        if (selectedAreas.includes(record)) {
+          setSelectedAreas(
+            selectedAreas.filter((area) => area.id != record.id)
+          );
         } else {
-          newSelectedRowKeys.push(record.id);
+          setSelectedAreas(selectedAreas.concat(record));
         }
-        setSelectedRowKeys(newSelectedRowKeys);
-
-        // Update selectedArea based on newSelectedRowKeys
-        const newSelectedArea = areas.filter((area) =>
-          newSelectedRowKeys.includes(area.id)
-        );
-        setSelectedAreas(newSelectedArea);
       },
     };
   };
-
-  const filteredAreas = selectedCamera
-    ? areas.filter((area) => area.Camera_id === selectedCamera.Camera_id)
-    : areas;
 
   return (
     <div>
@@ -217,7 +213,7 @@ const Areas = () => {
           marginBottom: "10px",
         }}
       >
-        <div style={{ flex: 2 }}>
+        <div style={{ flex: 1 }}>
           <Flex justify="space-between">
             <Button
               type="primary"
@@ -239,26 +235,26 @@ const Areas = () => {
                   (camera) => camera.Camera_id === e
                 );
                 setSelectedCamera(selectedCamera);
-                setSelectedRowKeys([]);
+                setSelectedAreas([]);
                 setSelectedAreas([]);
               }}
             ></Select>
           </Flex>
           <Table
             rowSelection={{
-              selectedRowKeys,
-              onChange: (keys) => {
-                setSelectedRowKeys(keys);
-                const newSelectedArea = areas.filter((area) =>
-                  keys.includes(area.id)
-                );
-                setSelectedAreas(newSelectedArea);
+              selectedRowKeys:selectedAreas.map(area=>area.id),
+              onChange: (keys,rows) => {
+                setSelectedAreas(rows);
               },
             }}
             columns={columns}
-            dataSource={filteredAreas.filter((area) =>
-              area.name.includes(filter)
-            )}
+            dataSource={
+              selectedCamera
+                ? areas.filter(
+                    (area) => area.Camera_id === selectedCamera.Camera_id
+                  )
+                : areas
+            }
             rowKey="id"
             onRow={onRowClick}
           />
@@ -267,7 +263,7 @@ const Areas = () => {
           <VideoJs src={selectedCamera ? selectedCamera.Camera_addr : null} />
           {selectedAreas.map((area) => (
             <Canv
-              key={area.id}
+              key={area.area_coordinate}
               shape={{
                 type: "polygon",
                 data: convertPolygonPoints(area.area_coordinate),

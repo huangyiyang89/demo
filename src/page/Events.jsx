@@ -12,12 +12,18 @@ import {
   Card,
   Row,
   Col,
+  message,
 } from "antd";
 import EventModal from "../component/EventModal";
 import EventImage from "../component/EventImage";
-import { fetchCameras, fetchEventTypes, fetchEvents, localtime } from "../service";
-import dayjs from 'dayjs';
-
+import {
+  fetchCameras,
+  fetchEventTypes,
+  fetchEvents,
+  localtime,
+} from "../service";
+import dayjs from "dayjs";
+import { render } from "react-dom";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -31,7 +37,6 @@ const onOk = (value) => {
 };
 
 const Events = () => {
-
   //data
   const [events, setEvents] = useState([]);
   //modal
@@ -41,21 +46,40 @@ const Events = () => {
   const [viewMode, setViewMode] = useState("table"); // 'table' or 'card'
   //tags
   const [allTags, setAllTags] = useState([]);
-  const [selectedTags, setSelectedTags] = useState([]);
-  const [inputRange,setInputRange] = useState({start:dayjs().startOf('d'), end:dayjs().endOf("d")});
-
+  const [selectedTagNames, setSelectedTags] = useState([]);
+  const [inputRange, setInputRange] = useState({
+    start: dayjs().startOf("d"),
+    end: dayjs().endOf("d"),
+  });
 
   useEffect(() => {
-    fetchEvents().then((data) => {
-      setEvents(data);
-    });
-    fetchEventTypes().then((data) => {
-      setAllTags(data.map((eventType) => eventType.name));
-    });
-    fetchCameras().then((data) => {
-      console.log(data);
-    })
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    try {
+      const cameras = await fetchCameras();
+      const events = await fetchEvents();
+      const eventTypes = await fetchEventTypes();
+      const allTags = eventTypes.map((eventType) => ({name:eventType.name,count:0}));
+
+      events.forEach((event) => {
+        event.camera = cameras.find(
+          (camera) => camera.Camera_id === event.Camera_id
+        );
+        allTags.forEach((tag) => {
+          if (event.event === tag.name) {
+            tag.count++;
+          }
+        })
+      });
+
+      setEvents(events);
+      setAllTags(allTags);
+    } catch (error) {
+      message.error(error);
+    }
+  };
 
   const openModal = (event) => {
     console.log(selectedEvent);
@@ -66,10 +90,10 @@ const Events = () => {
     setOpen(false);
     setSelectedEvent(null);
   };
-  const handleTagChange = (tag, checked) => {
+  const handleTagChange = (tagName, checked) => {
     const nextSelectedTags = checked
-      ? [...selectedTags, tag]
-      : selectedTags.filter((t) => t !== tag);
+      ? [...selectedTagNames, tagName]
+      : selectedTagNames.filter((t) => t !== tagName);
     console.log(nextSelectedTags);
     setSelectedTags(nextSelectedTags);
 
@@ -83,7 +107,7 @@ const Events = () => {
   };
 
   const filteredEvents = events.filter(
-    (event) => selectedTags.length === 0 || selectedTags.includes(event.event)
+    (event) => selectedTagNames.length === 0 || selectedTagNames.includes(event.event)
   );
 
   //table columns
@@ -112,11 +136,14 @@ const Events = () => {
       ),
     },
     {
-      title: "摄像机编号",
-      dataIndex: "Camera_id",
+      title: "摄像机",
+      dataIndex: "camera",
       showSorterTooltip: {
         target: "full-header",
       },
+      render: (text, record) => (
+        <span>{record.camera ? record.camera.name : "已删除"}</span>
+      ),
     },
     {
       title: "事件类型",
@@ -176,13 +203,14 @@ const Events = () => {
 
       <Flex gap="small" wrap align="center" justify="space-between">
         <Flex>
+          <Tag.CheckableTag checked={selectedTagNames.length==0} onChange={()=>setSelectedTags([])}>{"全部"+" "+events.length}</Tag.CheckableTag>
           {allTags.map((tag) => (
             <Tag.CheckableTag
-              key={tag}
-              checked={selectedTags.includes(tag)}
-              onChange={(checked) => handleTagChange(tag, checked)}
+              key={tag.name}
+              checked={selectedTagNames.includes(tag.name)}
+              onChange={(checked) => handleTagChange(tag.name, checked)}
             >
-              {tag}
+              {tag.name+" "+tag.count}
             </Tag.CheckableTag>
           ))}
         </Flex>
@@ -195,18 +223,32 @@ const Events = () => {
             }}
             format="YYYY-MM-DD HH:mm"
             onChange={(value, dateString) => {
-              console.log(dateString)
-              setInputRange({start:value[0],end:value[1]});
-            }
-          }
+              console.log(dateString);
+              setInputRange({ start: value[0], end: value[1] });
+            }}
             onOk={onOk}
           />
           <Segmented
             options={["今天", "本周", "本月"]}
             onChange={(value) => {
-              if(value==="今天"){setInputRange({start:dayjs().startOf("d"),end:dayjs().endOf("d")});}
-              if(value==="本周"){setInputRange({start:dayjs().startOf("w"),end:dayjs().endOf("w")});}
-              if(value==="本月"){setInputRange({start:dayjs().startOf("M"),end:dayjs().endOf("M")});}
+              if (value === "今天") {
+                setInputRange({
+                  start: dayjs().startOf("d"),
+                  end: dayjs().endOf("d"),
+                });
+              }
+              if (value === "本周") {
+                setInputRange({
+                  start: dayjs().startOf("w"),
+                  end: dayjs().endOf("w"),
+                });
+              }
+              if (value === "本月") {
+                setInputRange({
+                  start: dayjs().startOf("M"),
+                  end: dayjs().endOf("M"),
+                });
+              }
             }}
           />
           <Button
@@ -218,7 +260,11 @@ const Events = () => {
       </Flex>
 
       {viewMode === "table" ? (
-        <Table columns={columns} dataSource={filteredEvents} onChange={onChange} />
+        <Table
+          columns={columns}
+          dataSource={filteredEvents}
+          onChange={onChange}
+        />
       ) : (
         <Row gutter={[8, 12]}>
           {filteredEvents.map((event) => (
@@ -227,7 +273,7 @@ const Events = () => {
                 <Card.Meta
                   title={
                     <Flex justify="space-between">
-                      <span>{event.Camera_id}</span>
+                      <span>{event.camera ? event.camera.name : "已删除"}</span>
                       <span>{event.event}</span>
                     </Flex>
                   }

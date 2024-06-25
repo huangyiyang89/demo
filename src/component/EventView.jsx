@@ -17,8 +17,8 @@ export const EventView = ({ event }) => {
     },
     {
       key: "3",
-      label: "摄像机编号",
-      children: event.Camera_id,
+      label: "摄像机",
+      children: event.camera?.name,
     },
     
     {
@@ -41,7 +41,7 @@ export const EventView = ({ event }) => {
     <div style={{ background: "#fff", padding: 0 }}>
       <Flex gap={24} style={{ margin: 0 }}>
         <Flex vertical={true} gap={36}>
-          <Descriptions column={1} bordered layout={"vertical"} items={items} />
+          <Descriptions title="事件详情" column={1} bordered layout={"vertical"} items={items} />
         </Flex>
         <div style={{ flex: 1}}>
           <VideoJs

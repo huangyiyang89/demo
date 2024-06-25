@@ -34,7 +34,7 @@ const Live = () => {
 
   return (
     <>
-      <Row gutter={[16, 16]} style={{ margin: -24 }}>
+      <Row gutter={[16, 16]} style={{ margin: -24 }} he>
         {currentCameras.map((camera) => (
           <Col
             key={camera.Camera_id}

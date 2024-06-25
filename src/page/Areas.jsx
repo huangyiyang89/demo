@@ -100,13 +100,13 @@ const Areas = () => {
   };
 
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id", width: 50 },
-    { title: "区域名称", dataIndex: "name", key: "id", width: 100 },
+    { title: "ID", dataIndex: "id", key: "id",width:55,},
+    { title: "区域名称", dataIndex: "name", key: "id",width:90,},
     {
       title: "摄像机",
       dataIndex: "Camera_id",
       key: "id",
-      width: 100,
+      width:80,
       render: (text) => {
         const camera = cameras.find((camera) => camera.Camera_id === text);
         return camera ? camera.name : text;
@@ -117,7 +117,6 @@ const Areas = () => {
       dataIndex: "event_type",
       key: "id",
       ellipsis: true,
-      width: 300,
       render: (text) => getEventTypeNames(text),
     },
     // {
@@ -131,13 +130,13 @@ const Areas = () => {
       title: "修改时间",
       dataIndex: "time",
       key: "id",
-      width: 160,
+      width:160,
       render: (time) => <span>{localtime(time)}</span>,
     },
     {
       title: "操作",
-      width: 140,
       key: "action",
+      width:135,
       render: (text, record) => (
         <span>
           <Button
@@ -213,7 +212,7 @@ const Areas = () => {
           marginBottom: "10px",
         }}
       >
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 2 }}>
           <Flex justify="space-between">
             <Button
               type="primary"
@@ -259,7 +258,7 @@ const Areas = () => {
             onRow={onRowClick}
           />
         </div>
-        <div style={{ flex: 1, position: "relative" }}>
+        <div style={{ flex: 1, position: "relative",maxWidth:600 }}>
           <VideoJs src={selectedCamera ? selectedCamera.Camera_addr : null} />
           {selectedAreas.map((area) => (
             <Canv

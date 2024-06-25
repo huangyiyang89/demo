@@ -17,7 +17,6 @@ import {
   deleteCamera,
   createCamera,
   updateCamera,
-  updateArea,
 } from "../service";
 
 const { Title } = Typography;
@@ -26,7 +25,6 @@ const Cameras = () => {
   const [cameras, setCameras] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [currentCamera, setCurrentCamera] = useState(null);
   const [form] = Form.useForm();
   const location = useLocation();
 
@@ -41,7 +39,6 @@ const Cameras = () => {
     };
     getCameras();
     if (location.state?.openModal) {
-      setCurrentCamera(null);
       setIsEditing(false);
       form.setFieldsValue({});
       setIsModalOpen(true);
@@ -49,7 +46,6 @@ const Cameras = () => {
   }, [location.state, form]);
 
   const showModal = (camera = null) => {
-    setCurrentCamera(camera);
     setIsEditing(!!camera);
     form.setFieldsValue(camera || {});
     setIsModalOpen(true);

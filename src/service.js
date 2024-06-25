@@ -2,33 +2,6 @@ import axios from "axios";
 
 export const api_host = "http://home.huangyiyang.com:8001";
 
-function request(options) {
-  let axiosInstance = axios.create({
-    baseURL: api_host,
-    timeout: 3000,
-  });
-
-  options = Object.assign({}, options, { axiosInstance });
-
-  return new Promise((resolve, reject) => {
-    axiosInstance(options)
-      .then((response) => {
-        resolve(response.data);
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
-}
-
-function post(endpoint, payload) {
-  return request({
-    method: "post",
-    url: endpoint,
-    data: payload,
-  });
-}
-
 const handleResponse = (response, expectedStatus) => {
   if (response.status === expectedStatus) {
     return response.data;
@@ -170,6 +143,7 @@ export const convertPolygonPoints = (coordString) => {
   return coordArray;
 };
 
+// 转换时间戳为可读时间
 export const localtime = (timestamp) => {
   return new Date(timestamp * 1000).toLocaleString();
 };

@@ -1,5 +1,5 @@
 import { PropTypes } from "prop-types";
-import { Layout, List, Image } from "antd";
+import { Layout, List } from "antd";
 import EventImage from "./EventImage";
 import VideoJs from "./VideoJs";
 import "../assets/styles.css";

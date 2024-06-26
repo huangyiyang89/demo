@@ -13,6 +13,7 @@ import Replay from "./page/Replay.jsx";
 import Cameras from "./page/Cameras.jsx";
 import Statistic from "./page/Statistic.jsx";
 import Areas from "./page/Areas.jsx";
+import Videotest from "./page/Videotest.jsx";
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
       {
         path: "areas",
         element: <Areas />,
+      },
+      {
+        path: "test",
+        element: <Videotest />,
       },
     ],
   },

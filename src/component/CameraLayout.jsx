@@ -94,7 +94,10 @@ const CameraLayout = ({ camera=null }) => {
           <div style={{ flex: 1, position: "relative" }}>
             <VideoJs
               options={{
-                sources: [{ src: camera.Camera_addr }],
+                sources: [{
+                  src: camera.Camera_addr,
+                  type: 'video/x-flv'
+                }],
               }}
             />
             {camera?.areas?.map((area) => (

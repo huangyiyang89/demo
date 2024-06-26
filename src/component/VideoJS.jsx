@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import videojs from "video.js";
 import PropTypes from "prop-types";
 import "video.js/dist/video-js.css";
+import "videojs-flvjs-es6";
 
 export const VideoJs = ({ src, options, onReady }) => {
   const videoRef = useRef(null);
@@ -13,6 +14,14 @@ export const VideoJs = ({ src, options, onReady }) => {
       controls: true,
       fluid: true,
       aspectRatio: "16:9",
+      flvjs: {
+        mediaDataSource: {
+          isLive: true,
+          cors: true,
+          withCredentials: false,
+        },
+      techOrder: ['html5', 'flvjs'],
+    }
     };
     const combinedOptions = Object.assign({}, defaultOptions, options);
 

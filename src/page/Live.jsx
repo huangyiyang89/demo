@@ -1,5 +1,5 @@
 import "../component/VideoJs";
-import { Col, Row } from "antd";
+import { Col, Row, message } from "antd";
 import { fetchAreas, fetchCameras, fetchEvents } from "../service";
 import PlusOutlined from "@ant-design/icons/PlusOutlined";
 import CameraLayout from "../component/CameraLayout";
@@ -17,15 +17,24 @@ const Live = () => {
         const events = await fetchEvents();
         const areas = await fetchAreas();
 
-        const camerasWithDetails = cameras.map((camera) => ({
+        if (events.length) {
+          events?.foreach((event) => {
+            event.camera = cameras.find(event.Camera_id);
+          });
+        }
+
+        const camerasWithDetails = cameras?.map((camera) => ({
           ...camera,
-          events: events.filter((event) => event.Camera_id === camera.Camera_id),
-          areas: areas.filter((area) => area.Camera_id === camera.Camera_id),
+          events: events?.filter(
+            (event) => event.Camera_id === camera.Camera_id
+          ),
+          areas: areas?.filter((area) => area.Camera_id === camera.Camera_id),
         }));
 
         setCurrentCameras(camerasWithDetails);
       } catch (error) {
         console.error("Failed to fetch", error);
+        message.error(error);
       }
     };
 

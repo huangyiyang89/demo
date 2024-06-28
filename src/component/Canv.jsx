@@ -111,7 +111,7 @@ const Canv = ({ shape = null, area = null, lineWidth = 2 }) => {
 };
 
 Canv.propTypes = {
-  shape: PropTypes.object.isRequired,
+  shape: PropTypes.object,
   lineWidth: PropTypes.number,
   area: PropTypes.object,
 };

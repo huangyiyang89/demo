@@ -87,17 +87,18 @@ const Cameras = () => {
   };
 
   const columns = [
-    { title: "摄像机编号", dataIndex: "Camera_id", key: "Camera_id" },
-    { title: "摄像机名称", dataIndex: "name", key: "name" },
-    { title: "描述", dataIndex: "description", key: "description" },
-    { title: "源地址", dataIndex: "Camera_addr", key: "Camera_addr" },
-    { title: "状态", dataIndex: "state", key: "state" },
-    { title: "宽", dataIndex: "frame_width", key: "frame_width" },
-    { title: "高", dataIndex: "frame_height", key: "frame_height" },
-    { title: "MAC", dataIndex: "MAC", key: "MAC" },
+    { title: "摄像机编号", dataIndex: "Camera_id", key: "Camera_id" ,ellipsis: true},
+    { title: "摄像机名称", dataIndex: "name", key: "name" ,ellipsis: true},
+    { title: "描述", dataIndex: "description", key: "description" ,ellipsis: true},
+    { title: "源地址", dataIndex: "Camera_addr", key: "Camera_addr" ,ellipsis: true},
+    { title: "状态", dataIndex: "state", key: "state" ,ellipsis: true},
+    { title: "宽", dataIndex: "frame_width", key: "frame_width" ,ellipsis: true},
+    { title: "高", dataIndex: "frame_height", key: "frame_height" ,ellipsis: true},
+    { title: "MAC", dataIndex: "MAC", key: "MAC" ,ellipsis: true},
     {
       title: "操作",
       key: "action",
+      width: 135,
       render: (text, record) => (
         <span>
           <Button type="primary" size="small" onClick={() => showModal(record)}>

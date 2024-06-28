@@ -7,6 +7,7 @@ import { api_host, convertPolygonPoints } from "../service";
 import axios from "axios";
 import PropTypes from "prop-types";
 import { fetchCameras, fetchEventTypes } from "../service";
+import FlvPlayer from "./FlvPlayer";
 
 export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
   const [drawPolygon, setDrawPolygon] = useState(false);
@@ -165,7 +166,7 @@ export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
             textAlign: "center",
           }}
         >
-          <VideoJs src={selectedCamera?.Camera_addr} />
+          <FlvPlayer url={selectedCamera ? "/api/stream/rtsp?url="+selectedCamera.Camera_addr : ""}></FlvPlayer>
           <DrawPad
             data={{
               type: "polygon",
@@ -186,6 +187,7 @@ export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
             placeholder="选择摄像机"
             onChange={(value) => {
               const camera = cameras.find((cam) => cam.Camera_id === value);
+              console.log(camera);
               setSelectedCamera(camera);
             }}
           />

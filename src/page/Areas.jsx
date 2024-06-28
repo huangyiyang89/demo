@@ -21,6 +21,7 @@ import {
   deleteArea,
   localtime,
 } from "../service";
+import FlvPlayer from "../component/FlvPlayer";
 
 const { Title } = Typography;
 
@@ -101,12 +102,12 @@ const Areas = () => {
 
   const columns = [
     { title: "ID", dataIndex: "id", key: "id",width:55,},
-    { title: "区域名称", dataIndex: "name", key: "id",width:90,},
+    { title: "区域名称", dataIndex: "name", key: "id",ellipsis: true},
     {
       title: "摄像机",
       dataIndex: "Camera_id",
+      ellipsis: true,
       key: "id",
-      width:80,
       render: (text) => {
         const camera = cameras.find((camera) => camera.Camera_id === text);
         return camera ? camera.name : text;
@@ -130,7 +131,7 @@ const Areas = () => {
       title: "修改时间",
       dataIndex: "time",
       key: "id",
-      width:160,
+      ellipsis: true,
       render: (time) => <span>{localtime(time)}</span>,
     },
     {
@@ -259,7 +260,7 @@ const Areas = () => {
           />
         </div>
         <div style={{ flex: 1, position: "relative",maxWidth:600 }}>
-          <VideoJs src={selectedCamera ? selectedCamera.Camera_addr : null} />
+          <FlvPlayer url={selectedCamera ? selectedCamera.Camera_addr : ""}></FlvPlayer>
           {selectedAreas.map((area) => (
             <Canv
               key={area.area_coordinate}

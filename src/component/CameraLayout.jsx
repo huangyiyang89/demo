@@ -5,6 +5,7 @@ import VideoJs from "./VideoJs";
 import "../assets/styles.css";
 import Canv from "./Canv";
 import {localtime} from "../service"
+import FlvPlayer from "./FlvPlayer";
 
 const { Sider, Header, Content, Footer } = Layout;
 
@@ -91,15 +92,8 @@ const CameraLayout = ({ camera=null }) => {
       <Layout>
         <Header style={headerStyle}>{camera.name}</Header>
         <Content style={contentStyle}>
-          <div style={{ flex: 1, position: "relative" }}>
-            <VideoJs
-              options={{
-                sources: [{
-                  src: camera.Camera_addr,
-                  type: 'video/x-flv'
-                }],
-              }}
-            />
+          <div style={{ width:"100%", position: "relative",paddingBottom: "56.25%",height: 0}}>
+            <FlvPlayer url={camera.Camera_addr}></FlvPlayer>
             {camera?.areas?.map((area) => (
               <Canv key={area.id} area={area}></Canv>
             ))}

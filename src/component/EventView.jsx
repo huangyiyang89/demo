@@ -1,66 +1,78 @@
 import { PropTypes } from "prop-types";
-import { Flex, Descriptions, Image } from "antd";
+import { Flex, Descriptions, Image,Typography } from "antd";
 import VideoJs from "./VideoJs";
 import { localtime } from "../service";
-
-export const EventView = ({ event }) => {
-  const items = [
+const { Title } = Typography;
+export const EventView = ({ event = null }) => {
+  const event_items = [
     {
-      key: "1",
-      label: "事件编号",
-      children: event.id,
-    },
-    {
-      key: "2",
-      label: "事件时间",
-      children: localtime(event.time),
-    },
-    {
-      key: "3",
-      label: "摄像机",
-      children: event.camera?.name,
-    },
-    
-    {
-      key: "4",
-      label: "检测区域",
-      children: event.area,
-    },
-    {
-      key: "5",
+      key: 1,
       label: "事件类型",
-      children: event.event,
+      children: event?.event,
     },
     {
-      key: "6",
+      key: 2,
+      label: "事件时间",
+      children: localtime(event?.time),
+    },
+    {
+      key: 3,
       label: "检测照片",
-      children: <Image src={event.image} width={"10vw"}></Image>,
+      children: <Image src={event?.image} width={"10vw"}></Image>,
     },
   ];
-  return (
-    <div style={{ background: "#fff", padding: 0 }}>
+  const camera_items = [
+    {
+      key: 4,
+      label: "摄像机",
+      children: event?.camera?.name,
+    },
+    {
+      key: 5,
+      label: "摄像机描述",
+      children: event?.camera?.description,
+    },
+    {
+      key: 6,
+      label: "检测区域",
+      children: event?.area,
+    },
+  ];
+  return event ? (
+    <div style={{ background: "#fff", padding: 16 }}>
       <Flex gap={24} style={{ margin: 0 }}>
         <Flex vertical={true} gap={36}>
-          <Descriptions title="事件详情" column={1} bordered layout={"vertical"} items={items} />
+          <Descriptions
+            column={1}
+            bordered
+            items={event_items}
+            size="small"
+          />
+          <Descriptions
+            column={1}
+            bordered
+            items={camera_items}
+            size="small"
+          />
         </Flex>
-        <div style={{ flex: 1}}>
+        <div style={{ flex: 2 }}>
           <VideoJs
             options={{
-              sources: [
-                { src: "https://media.w3.org/2010/05/sintel/trailer_hd.mp4" },
-              ],
+              sources: [{ src: event.src }],
             }}
             style={{ width: "100% " }}
           ></VideoJs>
         </div>
       </Flex>
     </div>
+  ) : (
+    ""
   );
 };
 
 //propstype
 EventView.propTypes = {
-  event: PropTypes.object.isRequired,
+  event: PropTypes.object,
 };
 
 export default EventView;

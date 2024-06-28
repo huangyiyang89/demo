@@ -13,8 +13,8 @@ import {
   Row,
   Col,
   message,
+  Modal,
 } from "antd";
-import EventModal from "../component/EventModal";
 import EventImage from "../component/EventImage";
 import {
   fetchCameras,
@@ -23,7 +23,7 @@ import {
   localtime,
 } from "../service";
 import dayjs from "dayjs";
-import { render } from "react-dom";
+import EventView from "../component/EventView";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -61,7 +61,10 @@ const Events = () => {
       const cameras = await fetchCameras();
       const events = await fetchEvents();
       const eventTypes = await fetchEventTypes();
-      const allTags = eventTypes.map((eventType) => ({name:eventType.name,count:0}));
+      const allTags = eventTypes.map((eventType) => ({
+        name: eventType.name,
+        count: 0,
+      }));
 
       events.forEach((event) => {
         event.camera = cameras.find(
@@ -71,7 +74,7 @@ const Events = () => {
           if (event.event === tag.name) {
             tag.count++;
           }
-        })
+        });
       });
 
       setEvents(events);
@@ -87,6 +90,7 @@ const Events = () => {
     setOpen(true);
   };
   const handleClose = () => {
+    console.log("closed");
     setOpen(false);
     setSelectedEvent(null);
   };
@@ -107,7 +111,8 @@ const Events = () => {
   };
 
   const filteredEvents = events.filter(
-    (event) => selectedTagNames.length === 0 || selectedTagNames.includes(event.event)
+    (event) =>
+      selectedTagNames.length === 0 || selectedTagNames.includes(event.event)
   );
 
   //table columns
@@ -203,14 +208,19 @@ const Events = () => {
 
       <Flex gap="small" wrap align="center" justify="space-between">
         <Flex>
-          <Tag.CheckableTag checked={selectedTagNames.length==0} onChange={()=>setSelectedTags([])}>{"全部"+" "+events.length}</Tag.CheckableTag>
+          <Tag.CheckableTag
+            checked={selectedTagNames.length == 0}
+            onChange={() => setSelectedTags([])}
+          >
+            {"全部" + " " + events.length}
+          </Tag.CheckableTag>
           {allTags.map((tag) => (
             <Tag.CheckableTag
               key={tag.name}
               checked={selectedTagNames.includes(tag.name)}
               onChange={(checked) => handleTagChange(tag.name, checked)}
             >
-              {tag.name+" "+tag.count}
+              {tag.name + " " + tag.count}
             </Tag.CheckableTag>
           ))}
         </Flex>
@@ -289,12 +299,18 @@ const Events = () => {
           ))}
         </Row>
       )}
-
-      <EventModal
-        event={selectedEvent}
+      <Modal
         open={open}
-        onClose={handleClose}
-      ></EventModal>
+        onCancel={handleClose}
+        footer={[]}
+        width={"70vw"}
+        destroyOnClose
+        closable={false}
+        centered
+        maskClosable={true}
+      >
+        <EventView event={selectedEvent}></EventView>
+      </Modal>
     </Space>
   );
 };

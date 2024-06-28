@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const api_host = "http://home.huangyiyang.com:8001";
+export const api_host = "";
 
 const handleResponse = (response, expectedStatus) => {
   if (response.status === expectedStatus) {

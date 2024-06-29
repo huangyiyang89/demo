@@ -10,20 +10,30 @@ const FlvPlayer = ({ camera = null ,url="", isLive = false, onError }) => {
     let play_url = url;
     let play_type="flv";
     let play_live= isLive;
-    let hostname = window.location.hostname
+    let hostname = window.location.hostname;
+    let host = window.location.host;
 
     if (flvjs.isSupported()) {
-      
+      //服务器代理模式
       if(camera){
         play_url = `ws://${hostname}:8005/camera/${camera.Camera_id}.live.flv`
         play_type="flv";
         play_live = true;
       }
-      else if(url.includes(".flv")){
+      //api代理模式
+      else if(url.includes("rtsp://")){
+        
+        play_url = `ws://${host}/api/stream/rtspws?url=${url}`
+        console.log(play_url);
+        play_type="flv";
+        play_live = true;
+      //flv文件直接播放
+      }else if(url.includes(".flv")){
         play_url = url;
         play_type="flv";
         play_live = false;
       }
+      //其他
       else{
         play_url = url;
         play_type="mp4";
@@ -64,7 +74,7 @@ const FlvPlayer = ({ camera = null ,url="", isLive = false, onError }) => {
         flvPlayer.destroy();
       };
     }
-  }, [url, isLive,onError]);
+  }, [camera, url,isLive,onError]);
 
   return (
       <video ref={videoRef} controls style={{ height: "100%", width:"100%",top:0,left:0,position:"absolute",background:"black"}} />

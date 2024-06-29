@@ -1,5 +1,5 @@
 import { PropTypes } from "prop-types";
-import { Layout, List } from "antd";
+import { Layout, List, Flex, Row, Col } from "antd";
 import EventImage from "./EventImage";
 import "../assets/styles.css";
 import Canv from "./Canv";
@@ -42,7 +42,7 @@ const footerStyle = {
   padding: 0,
 };
 
-const textStyle = { color: "white", fontSize: 8 };
+const textStyle = { color: "white", fontSize: 10 };
 
 const CameraLayout = ({ camera = null, horizontal = false }) => {
   return (
@@ -99,7 +99,7 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
                   height: 0,
                 }}
               >
-                <FlvPlayer camera={camera}></FlvPlayer>
+                <FlvPlayer url={camera.Camera_addr}></FlvPlayer>
                 {camera?.areas?.map((area) => (
                   <Canv key={area.id} area={area}></Canv>
                 ))}
@@ -109,7 +109,59 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
           </Layout>
         </Layout>
       ) : (
-        ""
+        <>
+          <Flex style={{ width: "100%" }}>
+            <div style={{ width: "100%"}}>
+              <div style={headerStyle}>asdasaaaaad</div>
+              <div
+                style={{
+                  width: "100%",
+                  position: "relative",
+                  paddingBottom: "56.25%",
+                  height: 0,
+                }}
+              >
+                <FlvPlayer url={camera.Camera_addr}></FlvPlayer>
+                {camera?.areas?.map((area) => (
+                  <Canv key={area.id} area={area}></Canv>
+                ))}
+              </div>
+              <div style={footerStyle}>asdasaaaaad</div>
+              <Row gutter={[16, 16]}
+                style={{
+                  height: "10vw",
+                  marginTop: 16,
+                  overflowY:"auto",
+                  backgroundColor:"#001529",
+                  marginLeft:0,
+                  marginRight:0,
+                  padding:8,
+                  paddingTop:16,
+                  
+                }}
+              >
+                {camera?.events?.map((event) => (
+                  <Col key={camera.Camera_id} span={8}>
+                    <div>
+                      <EventImage event={event} />
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          width: "100%",
+                          marginTop: 5,
+                        }}
+                      >
+                        <span style={textStyle}>{event.event}</span>
+                        <span style={textStyle}>{localtime(event.time)}</span>
+                      </div>
+                    </div>
+                  </Col>
+                ))}
+              </Row>
+            </div>
+          </Flex>
+        </>
       )}
     </>
   );

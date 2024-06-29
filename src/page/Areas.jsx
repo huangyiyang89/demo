@@ -11,7 +11,6 @@ import {
 } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
-import VideoJs from "../component/VideoJs";
 import Canv from "../component/Canv";
 import { AreaEditor } from "../component/AreaEditor";
 import {
@@ -102,8 +101,8 @@ const Areas = () => {
   };
 
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id",width:55,},
-    { title: "区域名称", dataIndex: "name", key: "id",ellipsis: true},
+    { title: "ID", dataIndex: "id", key: "id", width: 55 },
+    { title: "区域名称", dataIndex: "name", key: "id", ellipsis: true },
     {
       title: "摄像机",
       dataIndex: "Camera_id",
@@ -138,7 +137,7 @@ const Areas = () => {
     {
       title: "操作",
       key: "action",
-      width:135,
+      width: 135,
       render: (text, record) => (
         <span>
           <Button
@@ -159,9 +158,7 @@ const Areas = () => {
             onConfirm={(e) => {
               e.stopPropagation();
               deleteArea(record.id);
-              setSelectedAreas(
-                selectedAreas.filter((id) => id != record.id)
-              );
+              setSelectedAreas(selectedAreas.filter((id) => id != record.id));
               refreshData();
             }}
             icon={<QuestionCircleOutlined style={{ color: "red" }} />}
@@ -237,14 +234,13 @@ const Areas = () => {
                 );
                 setSelectedCamera(selectedCamera);
                 setSelectedAreas([]);
-                setSelectedAreas([]);
               }}
             ></Select>
           </Flex>
           <Table
             rowSelection={{
-              selectedRowKeys:selectedAreas.map(area=>area.id),
-              onChange: (keys,rows) => {
+              selectedRowKeys: selectedAreas.map((area) => area.id),
+              onChange: (keys, rows) => {
                 setSelectedAreas(rows);
               },
             }}
@@ -260,17 +256,27 @@ const Areas = () => {
             onRow={onRowClick}
           />
         </div>
-        <div style={{ flex: 1, position: "relative",maxWidth:600 }}>
-          <FlvPlayer camera={selectedCamera} onError={err=>message.error(err)}></FlvPlayer>
-          {selectedAreas.map((area) => (
-            <Canv
-              key={area.area_coordinate}
-              shape={{
-                type: "polygon",
-                data: convertPolygonPoints(area.area_coordinate),
-              }}
-            />
-          ))}
+        <div style={{flex:1}}>
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              paddingBottom: "56.25%",
+            }}
+          >
+            <FlvPlayer
+              url={selectedCamera?.Camera_addr}
+            ></FlvPlayer>
+            {selectedAreas.map((area) => (
+              <Canv
+                key={area.area_coordinate}
+                shape={{
+                  type: "polygon",
+                  data: convertPolygonPoints(area.area_coordinate),
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
 

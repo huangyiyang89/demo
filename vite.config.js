@@ -10,6 +10,11 @@ export default defineConfig({
         target: 'http://localhost:8000',
         changeOrigin: true,
       },
+      '/api/stream': {
+        target: 'ws://localhost:8000', // 目标WebSocket服务器地址
+        changeOrigin: true,
+        ws: true, // 确保这是一个WebSocket代理
+      },
     },
   },
 })

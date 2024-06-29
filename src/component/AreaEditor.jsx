@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import DrawPad from "./DrawPad";
-import VideoJs from "./VideoJs";
 import { Input, Select, Flex, Button, Radio, message } from "antd";
 const { TextArea } = Input;
 import { api_host, convertPolygonPoints } from "../service";
@@ -117,10 +116,10 @@ export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
     setDrawLine(false);
   };
 
-  const startDrawingLine = () => {
-    setDrawPolygon(false);
-    setDrawLine(true);
-  };
+  // const startDrawingLine = () => {
+  //   setDrawPolygon(false);
+  //   setDrawLine(true);
+  // };
 
   const handleDrawingComplete = (points) => {
     console.log("drawing complete")

@@ -1,5 +1,5 @@
 import "../component/VideoJs";
-import { Col, Row, message, Empty, Typography, Button } from "antd";
+import { Col, Row, message, Empty, Typography, Button, Flex } from "antd";
 import { fetchAreas, fetchCameras, fetchEvents } from "../service";
 import PlusOutlined from "@ant-design/icons/PlusOutlined";
 import CameraLayout from "../component/CameraLayout";
@@ -73,7 +73,23 @@ const Live = () => {
       ) : (
         ""
       )}
-      {currentCameras.length == 3 ? (
+      {currentCameras.length == 2 ? (
+        <Flex style={{width:"100%"}} gap={32}>
+          <CameraLayout
+            key={currentCameras[0].Camera_id}
+            camera={currentCameras[0]}
+            horizontal
+          />
+          <CameraLayout
+            key={currentCameras[1].Camera_id}
+            camera={currentCameras[1]}
+            horizontal
+          />
+        </Flex>
+      ) : (
+        ""
+      )}
+      {currentCameras.length >= 3 ? (
         <Row gutter={[16, 16]} style={{ margin: -24 }}>
           {currentCameras.map((camera) => (
             <Col
@@ -86,7 +102,7 @@ const Live = () => {
               </div>
             </Col>
           ))}
-          {currentCameras.length === 3 ? (
+          {currentCameras.length === 3 || currentCameras.length === 5 ? (
             <Col key="add" span={12}>
               <Link to="/cameras" key={6} state={{ openModal: true }}>
                 <div

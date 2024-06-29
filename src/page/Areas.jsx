@@ -7,6 +7,7 @@ import {
   Popconfirm,
   Typography,
   Flex,
+  message,
 } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
@@ -260,7 +261,7 @@ const Areas = () => {
           />
         </div>
         <div style={{ flex: 1, position: "relative",maxWidth:600 }}>
-          <FlvPlayer url={selectedCamera ? selectedCamera.Camera_addr : ""}></FlvPlayer>
+          <FlvPlayer url={selectedCamera ? selectedCamera.Camera_addr : ""} onError={err=>message.error(err)}></FlvPlayer>
           {selectedAreas.map((area) => (
             <Canv
               key={area.area_coordinate}

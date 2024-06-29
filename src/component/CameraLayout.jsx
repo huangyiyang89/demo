@@ -1,10 +1,9 @@
 import { PropTypes } from "prop-types";
 import { Layout, List } from "antd";
 import EventImage from "./EventImage";
-import VideoJs from "./VideoJs";
 import "../assets/styles.css";
 import Canv from "./Canv";
-import {localtime} from "../service"
+import { localtime } from "../service";
 import FlvPlayer from "./FlvPlayer";
 
 const { Sider, Header, Content, Footer } = Layout;
@@ -45,7 +44,7 @@ const footerStyle = {
 
 const textStyle = { color: "white", fontSize: 8 };
 
-const CameraLayout = ({ camera=null }) => {
+const CameraLayout = ({ camera = null }) => {
   return (
     <Layout style={layoutStyle}>
       <Sider style={siderStyle} width={"10vw"}>
@@ -59,7 +58,6 @@ const CameraLayout = ({ camera=null }) => {
             bottom: 0,
           }}
         >
-
           {camera?.events?.map((event) => (
             <List.Item
               key={event.id}
@@ -70,15 +68,12 @@ const CameraLayout = ({ camera=null }) => {
                 margin: 8,
               }}
             >
-              <EventImage
-                event={event}
-              />
+              <EventImage event={event} />
               <div
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
                   width: "100%",
-                  
                 }}
               >
                 <span style={textStyle}>{event.event}</span>
@@ -92,8 +87,15 @@ const CameraLayout = ({ camera=null }) => {
       <Layout>
         <Header style={headerStyle}>{camera.name}</Header>
         <Content style={contentStyle}>
-          <div style={{ width:"100%", position: "relative",paddingBottom: "56.25%",height: 0}}>
-            <FlvPlayer url={camera.Camera_addr}></FlvPlayer>
+          <div
+            style={{
+              width: "100%",
+              position: "relative",
+              paddingBottom: "56.25%",
+              height: 0,
+            }}
+          >
+            <FlvPlayer camera={camera}></FlvPlayer>
             {camera?.areas?.map((area) => (
               <Canv key={area.id} area={area}></Canv>
             ))}

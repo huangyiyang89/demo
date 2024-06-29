@@ -20,10 +20,11 @@ const Live = () => {
         if (events.length) {
           events?.forEach((event) => {
             event.camera = cameras.find(
-              (camera) => camera.id === event.Camera_id
+              (camera) => camera.Camera_id === event.Camera_id
             );
           });
         }
+        console.log(events);
 
         const camerasWithDetails = cameras?.map((camera) => ({
           ...camera,
@@ -32,7 +33,7 @@ const Live = () => {
           ),
           areas: areas?.filter((area) => area.Camera_id === camera.Camera_id),
         }));
-
+        console.log(camerasWithDetails);
         setCurrentCameras(camerasWithDetails);
       } catch (error) {
         console.error("Failed to fetch", error);

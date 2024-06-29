@@ -19,6 +19,11 @@ const FlvPlayer = ({ camera = null ,url="", isLive = false, onError }) => {
         play_type="flv";
         play_live = true;
       }
+      else if(url.includes(".flv")){
+        play_url = url;
+        play_type="flv";
+        play_live = false;
+      }
       else{
         play_url = url;
         play_type="mp4";

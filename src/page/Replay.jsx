@@ -1,9 +1,10 @@
 // src/EventVideoPlayer.js
 import { useState, useRef } from "react";
 import { Layout, Select, DatePicker, Button, Flex, message } from "antd";
-import VideoJs from "../component/VideoJs";
 import "antd/dist/reset.css";
 import axios from "axios";
+import Canv from "../component/Canv";
+import FlvPlayer from "../component/FlvPlayer";
 
 const { Sider, Content } = Layout;
 
@@ -13,14 +14,6 @@ const Replay = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [cameras, setCameras] = useState([]);
   const playerRef = useRef(null);
-
-  const videoJsOptions = {
-    autoplay: false,
-    controls: true,
-    fluid: true,
-    aspectRatio: "16:9",
-    sources: [{ src: selectedCamera.Camera_addr, type: "video/mp4" }],
-  };
 
   const fetchCameras = async () => {
     try {
@@ -36,10 +29,6 @@ const Replay = () => {
 
   const handleDateChange = (date, dateString) => {
     setSelectedDate(dateString);
-  };
-
-  const handlePlayerReady = (player) => {
-    playerRef.current = player;
   };
 
   const handleReplayClick = () => {
@@ -89,7 +78,19 @@ const Replay = () => {
         </Flex>
       </Sider>
       <Content>
-        <VideoJs options={videoJsOptions} onReady={handlePlayerReady} />
+      <div
+            style={{
+              width: "100%",
+              position: "relative",
+              paddingBottom: "56.25%",
+              height: 0,
+            }}
+          >
+            <FlvPlayer camera={selectedCamera}></FlvPlayer>
+            {selectedCamera?.areas?.map((area) => (
+              <Canv key={area.id} area={area}></Canv>
+            ))}
+          </div>
       </Content>
     </Layout>
   );

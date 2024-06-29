@@ -54,21 +54,14 @@ const App = () => {
                   label: <Link to="/replay">录像回放</Link>,
                 },
                 {
-                  key: "/appconfig",
+                  key: "/cameras",
+                  icon: <VideoCameraOutlined />,
+                  label: <Link to="/cameras">录像通道</Link>,
+                },
+                {
+                  key: "/areas",
                   icon: <SettingOutlined />,
-                  label: "应用设置",
-                  children: [
-                    {
-                      key: "/cameras",
-                      icon: <VideoCameraOutlined />,
-                      label: <Link to="/cameras">录像通道</Link>,
-                    },
-                    {
-                      key: "/areas",
-                      icon: <VideoCameraOutlined />,
-                      label: <Link to="/areas">检测区域</Link>,
-                    }
-                  ],
+                  label: <Link to="/areas">检测区域</Link>,
                 },
               ]}
             />

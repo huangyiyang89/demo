@@ -64,11 +64,13 @@ const FlvPlayer = ({ camera = null ,url="", isLive = false, onError }) => {
       });
 
 
+      
       if (play_url) {
         flvPlayer.attachMediaElement(videoRef.current);
         flvPlayer.load();
         flvPlayer.play();
       }
+
 
       return () => {
         flvPlayer.destroy();
@@ -77,7 +79,7 @@ const FlvPlayer = ({ camera = null ,url="", isLive = false, onError }) => {
   }, [camera, url,isLive,onError]);
 
   return (
-      <video ref={videoRef} controls style={{ height: "100%", width:"100%",top:0,left:0,position:"absolute",background:"black"}} />
+      <video ref={videoRef} controls disablePictureInPicture muted style={{ height: "100%", width:"100%",top:0,left:0,position:"absolute",background:"black"}} />
   );
 };
 

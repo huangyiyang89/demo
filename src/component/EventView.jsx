@@ -15,25 +15,18 @@ export const EventView = ({ event = null }) => {
       label: "事件时间",
       children: localtime(event?.time),
     },
-    // {
-    //   key: 3,
-    //   label: "检测照片",
-    //   children: <Image src={event?.image} width={"10vw"}></Image>,
-    // },
-  ];
-  const camera_items = [
     {
-      key: 4,
+      key: 3,
       label: "摄像机",
       children: event?.camera?.name,
     },
     {
-      key: 5,
+      key: 4,
       label: "摄像机描述",
       children: event?.camera?.description,
     },
     {
-      key: 6,
+      key: 5,
       label: "检测区域",
       children: event?.area,
     },
@@ -43,7 +36,7 @@ export const EventView = ({ event = null }) => {
       <Flex gap={24} style={{ margin: 0, flex: 1 }}>
         <Flex vertical={true} gap={36}>
 
-          <Descriptions column={1} bordered items={event_items} size="small" />
+          <Descriptions column={1} bordered items={event_items} size="small" style={{maxWidth:300}}  />
           <Image
             src={event.image}
             width={300}
@@ -52,7 +45,6 @@ export const EventView = ({ event = null }) => {
               border: "6px solid rgba(5, 5, 5, 0.06);",
             }}
           ></Image>
-          <Descriptions column={1} bordered items={camera_items} size="small" />
         </Flex>
         <div style={{ position: "relative", width: "100%", flex: 1 }}>
           <div

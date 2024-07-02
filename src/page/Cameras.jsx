@@ -8,6 +8,7 @@ import {
   message,
   Typography,
   Popconfirm,
+  Tag,
 } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
@@ -18,6 +19,7 @@ import {
   createCamera,
   updateCamera,
 } from "../service";
+import { render } from "react-dom";
 
 const { Title } = Typography;
 
@@ -87,18 +89,65 @@ const Cameras = () => {
   };
 
   const columns = [
-    { title: "摄像机编号", dataIndex: "Camera_id", key: "Camera_id" ,ellipsis: true},
-    { title: "摄像机名称", dataIndex: "name", key: "name" ,ellipsis: true},
-    { title: "描述", dataIndex: "description", key: "description" ,ellipsis: true},
-    { title: "源地址", dataIndex: "Camera_addr", key: "Camera_addr" ,ellipsis: true},
-    { title: "状态", dataIndex: "state", key: "state" ,ellipsis: true},
-    { title: "宽", dataIndex: "frame_width", key: "frame_width" ,ellipsis: true},
-    { title: "高", dataIndex: "frame_height", key: "frame_height" ,ellipsis: true},
-    { title: "MAC", dataIndex: "MAC", key: "MAC" ,ellipsis: true},
+    // {
+    //   title: "编号",
+    //   dataIndex: "Camera_id",
+    //   key: "Camera_id",
+    //   ellipsis: true,
+    //   width: 60,
+    // },
+    { title: "摄像机名称", dataIndex: "name", key: "name", ellipsis: true,width:"10%" },
+   
+    {
+      title: "描述",
+      dataIndex: "description",
+      key: "description",
+      ellipsis: true,
+      width: "20%",
+    },
+    {
+      title: "源地址",
+      dataIndex: "Camera_addr",
+      key: "Camera_addr",
+      ellipsis: true,
+      width: "30%",
+    },
+    {
+      title: "MAC",
+      dataIndex: "MAC",
+      key: "MAC",
+      ellipsis: true,
+      width: "20%",
+    },
+    {
+      title: "状态",
+      dataIndex: "state",
+      key: "state",
+      ellipsis: true,
+      width: "10%",
+      render: (text, record) => (
+        <Tag color={record ? "green" : "red"}>{record ? "在线" : "离线"}</Tag>
+      ),
+    },
+    {
+      title: "宽",
+      dataIndex: "frame_width",
+      key: "frame_width",
+      ellipsis: true,
+      width: "10%",
+    },
+    {
+      title: "高",
+      dataIndex: "frame_height",
+      key: "frame_height",
+      ellipsis: true,
+      width: "10%",
+    },
+
     {
       title: "操作",
       key: "action",
-      width: 135,
+      width: 150,
       render: (text, record) => (
         <span>
           <Button type="primary" size="small" onClick={() => showModal(record)}>

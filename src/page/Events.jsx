@@ -123,6 +123,7 @@ const Events = () => {
       showSorterTooltip: {
         target: "full-header",
       },
+      width: 60,
     },
     {
       title: "检测照",
@@ -130,6 +131,7 @@ const Events = () => {
       showSorterTooltip: {
         target: "full-header",
       },
+      ellipsis: true,
       render: (text, record) => (
         <Image
           width={108}
@@ -137,6 +139,7 @@ const Events = () => {
           preview={{
             src: record.image,
           }}
+          style={{borderRadius:"4px"}}
         />
       ),
     },
@@ -146,6 +149,7 @@ const Events = () => {
       showSorterTooltip: {
         target: "full-header",
       },
+      ellipsis: true,
       render: (text, record) => (
         <span>{record.camera ? record.camera.name : "已删除"}</span>
       ),
@@ -153,6 +157,7 @@ const Events = () => {
     {
       title: "事件类型",
       dataIndex: "event",
+      ellipsis: true,
       showSorterTooltip: {
         target: "full-header",
       },
@@ -160,6 +165,7 @@ const Events = () => {
     {
       title: "区域名称",
       dataIndex: "area",
+      ellipsis: true,
       showSorterTooltip: {
         target: "full-header",
       },
@@ -167,6 +173,7 @@ const Events = () => {
     {
       title: "时间",
       dataIndex: "time",
+      ellipsis: true,
       showSorterTooltip: {
         target: "full-header",
       },
@@ -175,9 +182,10 @@ const Events = () => {
     {
       title: "状态",
       dataIndex: "is_upload",
-      showSorterTooltip: {
-        target: "full-header",
-      },
+      ellipsis: true,
+        showSorterTooltip: {
+          target: "full-header",
+        },
       render: (text, record) => (
         <span>{record.is_upload ? "已上传" : "未上传"}</span>
       ),
@@ -188,6 +196,7 @@ const Events = () => {
       showSorterTooltip: {
         target: "full-header",
       },
+      width:150,
       render: (text, record) => (
         <Button type="primary" size="middle" onClick={() => openModal(record)}>
           查看详情

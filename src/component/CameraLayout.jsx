@@ -13,7 +13,7 @@ const layoutStyle = {
 };
 
 const siderStyle = {
-  backgroundColor: "#202020",
+  backgroundColor: "rgb(0, 21, 41)",
   height: "auto",
 };
 
@@ -95,7 +95,7 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
                 style={{
                   width: "100%",
                   position: "relative",
-                  paddingBottom: "56.25%",
+                  paddingBottom: "75%",
                   height: 0,
                 }}
               >
@@ -112,7 +112,7 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
         <>
           <Flex style={{ width: "100%" }}>
             <div style={{ width: "100%"}}>
-              <div style={headerStyle}>asdasaaaaad</div>
+              <div style={headerStyle}>{camera.name}</div>
               <div
                 style={{
                   width: "100%",
@@ -126,7 +126,7 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
                   <Canv key={area.id} area={area}></Canv>
                 ))}
               </div>
-              <div style={footerStyle}>asdasaaaaad</div>
+              <div style={footerStyle}>{camera.description}</div>
               <Row gutter={[16, 16]}
                 style={{
                   height: "10vw",

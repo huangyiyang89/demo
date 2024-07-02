@@ -1,5 +1,4 @@
-import "../component/VideoJs";
-import { Col, Row, message, Empty, Typography, Button, Flex } from "antd";
+import { Col, Row, message, Empty, Typography, Button, Flex ,Tag, Spin} from "antd";
 import { fetchAreas, fetchCameras, fetchEvents } from "../service";
 import PlusOutlined from "@ant-design/icons/PlusOutlined";
 import CameraLayout from "../component/CameraLayout";
@@ -10,7 +9,12 @@ const { Title } = Typography;
 
 const Live = () => {
   const [currentCameras, setCurrentCameras] = useState([]);
-
+  const [checkedCameraIds, setCheckedCameraIds] = useState([]);
+  const [loading,setLoading] = useState(true);
+ 
+  const filteredCameras = checkedCameraIds.map((id) =>
+    currentCameras.find((camera) => camera.Camera_id === id))
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -33,8 +37,10 @@ const Live = () => {
           ),
           areas: areas?.filter((area) => area.Camera_id === camera.Camera_id),
         }));
-        console.log(camerasWithDetails);
+
         setCurrentCameras(camerasWithDetails);
+        setCheckedCameraIds(camerasWithDetails.map((camera) => camera.Camera_id));
+        setLoading(false)
       } catch (error) {
         console.error("Failed to fetch", error);
         message.error(error);
@@ -45,8 +51,26 @@ const Live = () => {
   }, []);
 
   return (
+    loading?<Flex style={{height:"100%",alignItems:"center",justifyContent:"center"}}><Spin size="large"></Spin></Flex>:
     <>
-      {currentCameras.length == null ? (
+      <div style={{position:"absolute",top:0,height:64,alignContent:'center',width:"80vw",marginLeft:50}}>
+        {currentCameras.map((camera) => (
+          <Tag.CheckableTag
+          style={{marginRight:16}}
+          key={camera.Camera_id}
+          checked={checkedCameraIds.includes(camera.Camera_id)}
+          onChange={(checked) =>
+            setCheckedCameraIds(
+              checked
+                ? [...checkedCameraIds, camera.Camera_id]
+                : checkedCameraIds.filter((id) => id !== camera.Camera_id)
+            )}
+        >
+          {camera.name} <span style={{color:camera.state?"lightgreen":"red",background:"balck",fill:"green"}}>{(camera.state?"online":"offline")}</span>
+        </Tag.CheckableTag>
+        ))}
+      </div>
+      {currentCameras.length == 0 ? (
         <Empty
           image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
           imageStyle={{
@@ -63,35 +87,28 @@ const Live = () => {
       ) : (
         ""
       )}
-      {currentCameras.length == 1 ? (
+      {filteredCameras.length == 1 ? (
         <div style={{ display: "flex", maxHeight: "calc(-112px + 100vh);" }}>
           <CameraLayout
-            key={currentCameras[0].Camera_id}
-            camera={currentCameras[0]}
+            key={filteredCameras[0].Camera_id}
+            camera={filteredCameras[0]}
           />
         </div>
       ) : (
         ""
       )}
-      {currentCameras.length == 2 ? (
-        <Flex style={{width:"100%"}} gap={32}>
-          <CameraLayout
-            key={currentCameras[0].Camera_id}
-            camera={currentCameras[0]}
-            horizontal
-          />
-          <CameraLayout
-            key={currentCameras[1].Camera_id}
-            camera={currentCameras[1]}
-            horizontal
-          />
+      {filteredCameras.length == 2 ? (
+        <Flex style={{ width: "100%" }} gap={32}>
+          {filteredCameras.map((camera) => (
+            <CameraLayout key={camera.Camera_id} camera={camera} horizontal />
+          ))}
         </Flex>
       ) : (
         ""
       )}
-      {currentCameras.length >= 3 ? (
+      {filteredCameras.length >= 3 ? (
         <Row gutter={[16, 16]} style={{ margin: -24 }}>
-          {currentCameras.map((camera) => (
+          {filteredCameras.map((camera) => (
             <Col
               key={camera.Camera_id}
               span={12}
@@ -102,7 +119,8 @@ const Live = () => {
               </div>
             </Col>
           ))}
-          {currentCameras.length === 3 || currentCameras.length === 5 ? (
+          
+          {/* {filteredCameras.length === 3 || filteredCameras.length === 5 ? (
             <Col key="add" span={12}>
               <Link to="/cameras" key={6} state={{ openModal: true }}>
                 <div
@@ -131,7 +149,7 @@ const Live = () => {
             </Col>
           ) : (
             ""
-          )}
+          )} */}
         </Row>
       ) : (
         ""

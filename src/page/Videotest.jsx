@@ -1,41 +1,19 @@
-import VideoJs from "../component/VideoJs"
-import React from 'react';
-
 const Videotest = () => {
-    const playerRef = React.useRef(null);
+  return (
+    <>
+      <div style={{position: "relative", width: 960, height:540,paddingBottom: "56.25%"}}>
+        <video
+          controls=""
+          style={{height: "100%", width: "100%", top: 0, left: 0,position: "absolute", background: "black",}}
+        ></video>
+        <canvas
+          
+          
+          style={{position: "absolute",top: 0,left: 0,width:"100%",height:"100%"}}
+        ></canvas>
+      </div>
+    </>
+  );
+};
 
-    const videoJsOptions = {
-      autoplay: true,
-      controls: true,
-      responsive: true,
-      fluid: true,
-      sources: [{
-        src: 'http://sf1-cdn-tos.huoshanstatic.com/obj/media-fe/xgplayer_doc_video/flv/xgplayer-demo-480p.flv',
-        type: 'video/x-flv'
-      }]
-    };
-  
-    const handlePlayerReady = (player) => {
-      playerRef.current = player;
-  
-      // You can handle player events here, for example:
-      player.on('waiting', () => {
-        console.log('player is waiting');
-      });
-  
-      player.on('dispose', () => {
-        console.log('player will dispose');
-      });
-    };
-  
-    return (
-      <>
-        <div>Rest of app here</div>
-        <VideoJs options={videoJsOptions} onReady={handlePlayerReady} />
-        <div>Rest of app here</div>
-      </>
-    );
-  }
-  
-  export default Videotest;
-  
+export default Videotest;

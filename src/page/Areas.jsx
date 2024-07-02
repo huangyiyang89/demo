@@ -7,7 +7,6 @@ import {
   Popconfirm,
   Typography,
   Flex,
-  message,
 } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
@@ -88,6 +87,12 @@ const Areas = () => {
     refreshData();
   };
 
+  const handleDelete = async (id) => {
+    await deleteArea(id);
+    setSelectedAreas(selectedAreas.filter((area) => area.id !== id));
+    refreshData();
+  };
+
   const getEventTypeNames = (eventTypeStr) => {
     const eventTypeIds = eventTypeStr.split(";");
     return eventTypeIds
@@ -101,13 +106,14 @@ const Areas = () => {
   };
 
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id", width: 55 },
-    { title: "区域名称", dataIndex: "name", key: "id", ellipsis: true },
+    // { title: "ID", dataIndex: "id", key: "id", width: 60  },
+    { title: "区域名称", dataIndex: "name", key: "id", ellipsis: true,width:"20%", },
     {
       title: "摄像机",
       dataIndex: "Camera_id",
       ellipsis: true,
       key: "id",
+      width:"20%",
       render: (text) => {
         const camera = cameras.find((camera) => camera.Camera_id === text);
         return camera ? camera.name : text;
@@ -118,6 +124,7 @@ const Areas = () => {
       dataIndex: "event_type",
       key: "id",
       ellipsis: true,
+      width:"30%",
       render: (text) => getEventTypeNames(text),
     },
     // {
@@ -132,12 +139,13 @@ const Areas = () => {
       dataIndex: "time",
       key: "id",
       ellipsis: true,
+      width:"20%",
       render: (time) => <span>{localtime(time)}</span>,
     },
     {
       title: "操作",
       key: "action",
-      width: 135,
+      width: 150,
       render: (text, record) => (
         <span>
           <Button
@@ -157,9 +165,7 @@ const Areas = () => {
             title="确认删除？"
             onConfirm={(e) => {
               e.stopPropagation();
-              deleteArea(record.id);
-              setSelectedAreas(selectedAreas.filter((id) => id != record.id));
-              refreshData();
+              handleDelete(record.id);
             }}
             icon={<QuestionCircleOutlined style={{ color: "red" }} />}
           >

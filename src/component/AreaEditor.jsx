@@ -72,7 +72,6 @@ export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
     setSelectedDetectTypes([]);
     setAreaDescription("");
     setSelectedCamera(null);
-
   };
 
   const createArea = (data) => {
@@ -165,7 +164,7 @@ export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
             textAlign: "center",
           }}
         >
-          <FlvPlayer url={selectedCamera ? "/api/stream/rtsp?url="+selectedCamera.Camera_addr : ""}></FlvPlayer>
+          <FlvPlayer url={selectedCamera ? selectedCamera.Camera_addr : ""}></FlvPlayer>
           <DrawPad
             data={{
               type: "polygon",

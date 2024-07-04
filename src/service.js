@@ -2,6 +2,27 @@ import axios from "axios";
 
 export const api_host = "";
 
+export const fetchAll =async () => {
+  
+  
+  const requestCameras = axios.post(`${api_host}/api/device/cameras`);
+  const requestAreas = axios.post(`${api_host}/api/device/areas`);
+  const requestEvents = axios.post(`${api_host}/api/device/allevents`);
+  try {
+    const [camerasResponse,areasResponse,eventsResponse] = await axios.all([
+      requestCameras, requestAreas, requestEvents
+    ]);
+    return {
+      cameras: camerasResponse.data,
+      areas: areasResponse.data,
+      events: eventsResponse.data,
+    };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error; 
+  }
+}
+
 const handleResponse = (response, expectedStatus) => {
   if (response.status === expectedStatus) {
     return response.data;

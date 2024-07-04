@@ -44,8 +44,8 @@ const Cameras = () => {
   }, [])
 
   useEffect(() => {
-    refreshData();
     if (location.state?.openModal) {
+      refreshData();
       setIsEditing(false);
       form.setFieldsValue({});
       setIsModalOpen(true);

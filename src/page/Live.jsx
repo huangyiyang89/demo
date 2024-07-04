@@ -1,5 +1,5 @@
 import { Col, Row, message, Empty, Typography, Button, Flex ,Tag, Spin} from "antd";
-import { fetchAreas, fetchCameras, fetchEvents } from "../service";
+import { fetchAll } from "../service";
 import CameraLayout from "../component/CameraLayout";
 import "../assets/styles.css";
 import { Link } from "react-router-dom";
@@ -17,10 +17,9 @@ const Live = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const cameras = await fetchCameras();
-        const events = await fetchEvents();
-        const areas = await fetchAreas();
-        if (events.length) {
+        const {cameras,areas,events} = await fetchAll();
+
+        if (events?.length) {
           events?.forEach((event) => {
             event.camera = cameras.find(
               (camera) => camera.Camera_id === event.Camera_id

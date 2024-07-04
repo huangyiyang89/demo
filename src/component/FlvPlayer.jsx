@@ -24,7 +24,6 @@ const FlvPlayer = ({ camera = null ,url="", isLive = false, onError }) => {
       else if(url.includes("rtsp://")){
         
         play_url = `ws://${host}/api/stream/rtspws?url=${url}`
-        console.log(play_url);
         play_type="flv";
         play_live = true;
       //flv文件直接播放
@@ -46,25 +45,20 @@ const FlvPlayer = ({ camera = null ,url="", isLive = false, onError }) => {
         url: play_url,
         isLive: play_live,
       });
-      console.log("flvPlayer", flvPlayer);
-      flvPlayer.on(flvjs.Events.ERROR,(errorType, errorDetail, errorInfo) => {
-        console.log("errorType", errorType);
-        console.log("errorDetail", errorDetail);
-        console.log("errorInfo", errorInfo);
-        // 视频出错后销毁重建
-        
-        flvPlayer.detachMediaElement();
-    })
 
+    //   flvPlayer.on(flvjs.Events.ERROR,(errorType, errorDetail, errorInfo) => {
+    //     console.log("errorType", errorType);
+    //     console.log("errorDetail", errorDetail);
+    //     console.log("errorInfo", errorInfo);
+    //     // 视频出错后销毁重建
+    //     flvPlayer.detachMediaElement();
+    // })
 
       flvPlayer.on(flvjs.Events.ERROR, (err) => {
         flvPlayer.detachMediaElement();
         onError(err)
-        console.log("flvplayer error:",err)
       });
 
-
-      
       if (play_url) {
         flvPlayer.attachMediaElement(videoRef.current);
         flvPlayer.load();
@@ -73,7 +67,13 @@ const FlvPlayer = ({ camera = null ,url="", isLive = false, onError }) => {
 
 
       return () => {
-        flvPlayer.destroy();
+        if(!flvPlayer) return;
+        try {
+          flvPlayer.detachMediaElement();
+          flvPlayer.destroy();
+        } catch (error) {
+          console.error("flvPlayer destroy error:");
+        }
       };
     }
   }, [camera, url,isLive,onError]);

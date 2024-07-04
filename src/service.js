@@ -129,15 +129,15 @@ export const fetchEventTypes = async () => {
 };
 
 // 将字符串点坐标转换为{x,y}
-export const convertPolygonPoints = (coordString) => {
+export const convertPolygonPoints = (coordString,scale=1) => {
   if (!coordString) {
     return [];
   }
   const coords = coordString.split(";");
   const coordArray = [];
   for (let i = 0; i < coords.length; i += 2) {
-    const x = parseInt(coords[i], 10);
-    const y = parseInt(coords[i + 1], 10);
+    const x = parseInt(coords[i], 10)*scale;
+    const y = parseInt(coords[i + 1], 10)*scale;
     coordArray.push({ x, y });
   }
   return coordArray;

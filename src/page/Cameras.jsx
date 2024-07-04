@@ -19,7 +19,6 @@ import {
   createCamera,
   updateCamera,
 } from "../service";
-import { render } from "react-dom";
 
 const { Title } = Typography;
 
@@ -30,16 +29,22 @@ const Cameras = () => {
   const [form] = Form.useForm();
   const location = useLocation();
 
+
+
+  const refreshData = async () => {
+    try {
+      const camerasData = await fetchCameras();
+      setCameras(camerasData);
+    } catch (error) {
+      message.error("获取摄像机数据失败");
+    }
+  };
   useEffect(() => {
-    const getCameras = async () => {
-      try {
-        const camerasData = await fetchCameras();
-        setCameras(camerasData);
-      } catch (error) {
-        message.error("获取摄像机数据失败");
-      }
-    };
-    getCameras();
+    refreshData();
+  }, [])
+
+  useEffect(() => {
+    refreshData();
     if (location.state?.openModal) {
       setIsEditing(false);
       form.setFieldsValue({});
@@ -49,6 +54,7 @@ const Cameras = () => {
 
   const showModal = (camera = null) => {
     setIsEditing(!!camera);
+    form.resetFields(); 
     form.setFieldsValue(camera || {});
     setIsModalOpen(true);
   };
@@ -58,11 +64,7 @@ const Cameras = () => {
       const values = await form.validateFields();
       if (isEditing) {
         await updateCamera(values);
-        setCameras(
-          cameras.map((camera) =>
-            camera.Camera_id === values.Camera_id ? values : camera
-          )
-        );
+        refreshData();
         message.success("摄像机更新成功！");
       } else {
         const response = await createCamera(values);
@@ -88,16 +90,57 @@ const Cameras = () => {
     }
   };
 
+  const validateAspectRatio = () => {
+    
+    const frameWidth = form.getFieldValue("frame_width");
+    const frameHeight = form.getFieldValue("frame_height");
+
+    if (!frameWidth || !frameHeight) {
+      return Promise.resolve();
+    }
+
+
+    const aspectRatio = frameWidth / frameHeight;
+
+    if (aspectRatio === 16 / 9 || aspectRatio === 4 / 3) {
+      return Promise.resolve();
+    } else {
+      return Promise.reject("宽高比必须是 16:9 或 4:3 ");
+    }
+  };
+
+  const handleWidthChange = (e) => {
+    const width = e.target.value;
+    const height = form.getFieldValue("frame_height");
+
+    if (height) {
+      const aspectRatio = width / height;
+
+      if (aspectRatio === 16 / 9) {
+        form.setFieldsValue({ frame_height: Math.round(width / (16 / 9)) });
+      } else if (aspectRatio === 4 / 3) {
+        form.setFieldsValue({ frame_height: Math.round(width / (4 / 3)) });
+      }
+    }
+  };
+
+  const handleHeightChange = (e) => {
+    const height = e.target.value;
+    const width = form.getFieldValue("frame_width");
+
+    if (width) {
+      const aspectRatio = width / height;
+
+      if (aspectRatio === 16 / 9) {
+        form.setFieldsValue({ frame_width: Math.round(height * (16 / 9)) });
+      } else if (aspectRatio === 4 / 3) {
+        form.setFieldsValue({ frame_width: Math.round(height * (4 / 3)) });
+      }
+    }
+  };
+
   const columns = [
-    // {
-    //   title: "编号",
-    //   dataIndex: "Camera_id",
-    //   key: "Camera_id",
-    //   ellipsis: true,
-    //   width: 60,
-    // },
-    { title: "摄像机名称", dataIndex: "name", key: "name", ellipsis: true,width:"10%" },
-   
+    { title: "摄像机名称", dataIndex: "name", key: "name", ellipsis: true, width: "10%" },
     {
       title: "描述",
       dataIndex: "description",
@@ -126,7 +169,9 @@ const Cameras = () => {
       ellipsis: true,
       width: "10%",
       render: (text, record) => (
-        <Tag color={record ? "green" : "red"}>{record ? "在线" : "离线"}</Tag>
+        <Tag color={record.state === 1 ? "green" : "red"}>
+          {record.state === 1 ? "在线" : "离线"}
+        </Tag>
       ),
     },
     {
@@ -143,7 +188,6 @@ const Cameras = () => {
       ellipsis: true,
       width: "10%",
     },
-
     {
       title: "操作",
       key: "action",
@@ -219,28 +263,28 @@ const Cameras = () => {
           <Form.Item
             name="Camera_addr"
             label="源地址"
-            rules={[{ required: true, message: "请输入源地址!" }]}
+            rules={[{ required: true, message: "请输入源地址!" },{ pattern: /^(rtsp|http):\/\/[^\s$.?#].[^\s]*$/, message: "请输入有效的 url地址!" }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="frame_width"
             label="宽"
-            rules={[{ required: true, message: "请输入宽!" }]}
+            rules={[{ required: true, message: "请输入宽!" }, { validator: validateAspectRatio }]}
           >
-            <Input />
+            <Input onChange={handleWidthChange} />
           </Form.Item>
           <Form.Item
             name="frame_height"
             label="高"
-            rules={[{ required: true, message: "请输入高!" }]}
+            rules={[{ required: true, message: "请输入高!" }, { validator: validateAspectRatio }]}
           >
-            <Input />
+            <Input onChange={handleHeightChange} />
           </Form.Item>
           <Form.Item
             name="MAC"
             label="MAC地址"
-            rules={[{ required: true, message: "请输入MAC地址!" }]}
+            rules={[{ required: true, message: "请输入MAC地址!" },{pattern:"^([0-9a-fA-F]{2}(:|-)){5}[0-9a-fA-F]{2}$",message:"请输入正确的MAC地址！如 11:22:33:44:55:66 或 11-22-33-44-55-66 "}]}
           >
             <Input />
           </Form.Item>

@@ -1,6 +1,5 @@
 import { Col, Row, message, Empty, Typography, Button, Flex ,Tag, Spin} from "antd";
 import { fetchAreas, fetchCameras, fetchEvents } from "../service";
-import PlusOutlined from "@ant-design/icons/PlusOutlined";
 import CameraLayout from "../component/CameraLayout";
 import "../assets/styles.css";
 import { Link } from "react-router-dom";
@@ -28,8 +27,6 @@ const Live = () => {
             );
           });
         }
-        console.log(events);
-
         const camerasWithDetails = cameras?.map((camera) => ({
           ...camera,
           events: events?.filter(

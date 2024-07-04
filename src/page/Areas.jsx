@@ -10,10 +10,8 @@ import {
 } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
-import Canv from "../component/Canv";
 import { AreaEditor } from "../component/AreaEditor";
 import {
-  convertPolygonPoints,
   fetchCameras,
   fetchAreas,
   fetchEventTypes,
@@ -21,6 +19,7 @@ import {
   localtime,
 } from "../service";
 import FlvPlayer from "../component/FlvPlayer";
+import PolygonCanv from "../component/PolygonCanv";
 
 const { Title } = Typography;
 
@@ -50,6 +49,11 @@ const Areas = () => {
       setAreas(areasWithDetails);
       setCameras(cameras);
       setEventTypes(eventTypes);
+
+      //默认选中第一格摄像机
+      if (!selectedCamera && cameras && cameras.length > 0) {
+        setSelectedCamera(cameras[0]);
+      }
     } catch (error) {
       console.error("Failed to fetch", error);
     }
@@ -80,8 +84,8 @@ const Areas = () => {
         .filter((area) => area.id != editingArea.id)
         .concat(data);
       setSelectedAreas(newAreas);
-      console.log(newAreas);
     }
+
     setIsModalOpen(false);
     setEditingArea(null);
     refreshData();
@@ -107,13 +111,19 @@ const Areas = () => {
 
   const columns = [
     // { title: "ID", dataIndex: "id", key: "id", width: 60  },
-    { title: "区域名称", dataIndex: "name", key: "id", ellipsis: true,width:"20%", },
+    {
+      title: "区域名称",
+      dataIndex: "name",
+      key: "id",
+      ellipsis: true,
+      width: "20%",
+    },
     {
       title: "摄像机",
       dataIndex: "Camera_id",
       ellipsis: true,
       key: "id",
-      width:"20%",
+      width: "20%",
       render: (text) => {
         const camera = cameras.find((camera) => camera.Camera_id === text);
         return camera ? camera.name : text;
@@ -124,7 +134,7 @@ const Areas = () => {
       dataIndex: "event_type",
       key: "id",
       ellipsis: true,
-      width:"30%",
+      width: "30%",
       render: (text) => getEventTypeNames(text),
     },
     // {
@@ -139,7 +149,7 @@ const Areas = () => {
       dataIndex: "time",
       key: "id",
       ellipsis: true,
-      width:"20%",
+      width: "20%",
       render: (time) => <span>{localtime(time)}</span>,
     },
     {
@@ -187,10 +197,7 @@ const Areas = () => {
   const onRowClick = (record) => {
     return {
       onClick: (event) => {
-        if (
-          event.target.tagName === "BUTTON" ||
-          event.target.tagName === "SPAN"
-        ) {
+        if (event.target.tagName === "BUTTON") {
           return; // 如果点击的是按钮，则不触发行选择
         }
 
@@ -227,7 +234,6 @@ const Areas = () => {
               添加检测区域
             </Button>
             <Select
-              allowClear
               style={{ width: "200px" }}
               options={cameras.map((camera) => ({
                 value: camera.Camera_id,
@@ -241,6 +247,7 @@ const Areas = () => {
                 setSelectedCamera(selectedCamera);
                 setSelectedAreas([]);
               }}
+              value={selectedCamera?.Camera_id}
             ></Select>
           </Flex>
           <Table
@@ -262,25 +269,26 @@ const Areas = () => {
             onRow={onRowClick}
           />
         </div>
-        <div style={{flex:1}}>
+        <div style={{ flex: 1 }}>
           <div
             style={{
               position: "relative",
               width: "100%",
-              paddingBottom: "56.25%",
+              paddingBottom: selectedCamera
+                ? (
+                    (selectedCamera.frame_height / selectedCamera.frame_width) *
+                    100
+                  ).toString() + "%"
+                : "56.25%",
             }}
           >
-            <FlvPlayer
-              url={selectedCamera?.Camera_addr}
-            ></FlvPlayer>
+            <FlvPlayer url={selectedCamera?.Camera_addr}></FlvPlayer>
             {selectedAreas.map((area) => (
-              <Canv
-                key={area.area_coordinate}
-                shape={{
-                  type: "polygon",
-                  data: convertPolygonPoints(area.area_coordinate),
-                }}
-              />
+              <PolygonCanv
+                key={area.id}
+                videoWidth={selectedCamera?.frame_width}
+                data={area.area_coordinate}
+              ></PolygonCanv>
             ))}
           </div>
         </div>
@@ -290,16 +298,22 @@ const Areas = () => {
         title={isEditing ? "编辑检测区域" : "添加检测区域"}
         open={isModalOpen}
         onCancel={handleModalClosed}
-        width={1334}
+        width={
+          selectedCamera?.frame_width / selectedCamera?.frame_height === 16 / 9
+            ? 1324
+            : 1324 - 240
+        }
         footer={[]}
         destroyOnClose={true}
       >
-        <AreaEditor
-          key={editingArea ? editingArea.id : null}
-          camera={editingArea?.camera}
-          area={editingArea}
-          onUpdate={handleUpdate}
-        />
+        <div style={{padding:20}}>
+          <AreaEditor
+            key={editingArea ? editingArea.id : null}
+            camera={selectedCamera}
+            area={editingArea}
+            onUpdate={handleUpdate}
+          />
+        </div>
       </Modal>
     </div>
   );

@@ -5,6 +5,7 @@ import "../assets/styles.css";
 import Canv from "./Canv";
 import { localtime } from "../service";
 import FlvPlayer from "./FlvPlayer";
+import PolygonCanv from "./PolygonCanv";
 
 const { Sider, Header, Content, Footer } = Layout;
 
@@ -45,6 +46,7 @@ const footerStyle = {
 const textStyle = { color: "white", fontSize: 10 };
 
 const CameraLayout = ({ camera = null, horizontal = false }) => {
+  const ratioPadding = camera ? (camera.frame_height/camera.frame_width * 100).toString()+"%" : "56.25%"
   return (
     <>
       {!horizontal ? (
@@ -95,13 +97,14 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
                 style={{
                   width: "100%",
                   position: "relative",
-                  paddingBottom: "75%",
+                  paddingBottom: ratioPadding,
                   height: 0,
                 }}
               >
                 <FlvPlayer url={camera.Camera_addr}></FlvPlayer>
                 {camera?.areas?.map((area) => (
-                  <Canv key={area.id} area={area}></Canv>
+                  <PolygonCanv key={area.id} videoWidth={camera.frame_width} data={area.area_coordinate}></PolygonCanv>
+                  // <Canv key={area.id} area={area}></Canv>
                 ))}
               </div>
             </Content>
@@ -117,13 +120,13 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
                 style={{
                   width: "100%",
                   position: "relative",
-                  paddingBottom: "56.25%",
+                  paddingBottom: ratioPadding,
                   height: 0,
                 }}
               >
                 <FlvPlayer url={camera.Camera_addr}></FlvPlayer>
                 {camera?.areas?.map((area) => (
-                  <Canv key={area.id} area={area}></Canv>
+                  <PolygonCanv key={area.id} videoWidth={camera.frame_width} data={area.area_coordinate}></PolygonCanv>
                 ))}
               </div>
               <div style={footerStyle}>{camera.description}</div>

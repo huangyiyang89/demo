@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
-import DrawPad from "./DrawPad";
 import { Input, Select, Flex, Button, Radio, message } from "antd";
 const { TextArea } = Input;
-import { api_host, convertPolygonPoints } from "../service";
+import { api_host } from "../service";
 import axios from "axios";
 import PropTypes from "prop-types";
 import { fetchCameras, fetchEventTypes } from "../service";
 import FlvPlayer from "./FlvPlayer";
+import PolygonDrawPad from "./PolygonDrawPad";
 
 export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
   const [drawPolygon, setDrawPolygon] = useState(false);
-  const [drawLine, setDrawLine] = useState(false);
   const [areaId, setAreaId] = useState(area?.id || null);
   const [areaName, setAreaName] = useState(area?.name || "");
   const [areaDescription, setAreaDescription] = useState(
@@ -25,8 +24,11 @@ export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
   const [cameras, setCameras] = useState([]);
   const [eventTypes, setEventTypes] = useState([]);
 
+  const aspectRatio = selectedCamera
+    ? selectedCamera.frame_width / selectedCamera.frame_height
+    : 16 / 9;
+
   useEffect(() => {
-    
     fetchCameras().then((data) => setCameras(data));
     fetchEventTypes().then((data) => setEventTypes(data));
   }, []);
@@ -39,7 +41,7 @@ export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
 
   useEffect(() => {
     if (area) {
-      console.log(area)
+      console.log(area);
       setAreaId(area.id);
       setAreaName(area.name);
       setSelectedDetectTypesString(area.event_type);
@@ -63,7 +65,6 @@ export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
       setSelectedDetectTypes(selectedTypes);
     }
   }, [eventTypes, selectedDetectTypesString]);
-
 
   const resetState = () => {
     setDrawingData("");
@@ -111,23 +112,26 @@ export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
   };
 
   const startDrawingPolygon = () => {
+    setDrawingData("");
     setDrawPolygon(true);
-    setDrawLine(false);
   };
 
   // const startDrawingLine = () => {
   //   setDrawPolygon(false);
   //   setDrawLine(true);
-  // };
+  // }; 画半线暂时不需要
 
-  const handleDrawingComplete = (points) => {
-    console.log("drawing complete")
-    setDrawingData(points.data.flatMap((obj) => Object.values(obj)).join(";"));
+  const handleDrawingComplete = (data) => {
+    setDrawingData(data);
     setDrawPolygon(false);
-    setDrawLine(false);
   };
 
   const handleSave = () => {
+    if (!areaName.trim()) {
+      message.error("区域名称不能为空！");
+      return;
+    }
+
     const eventTypeIds = selectedDetectTypes
       .map((typeName) => {
         const eventType = eventTypes.find((event) => event.name === typeName);
@@ -151,33 +155,52 @@ export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
     } else {
       createArea(dataToSubmit);
     }
+    
   };
 
   return (
-    <div style={{ width: 1234, height: 540 }}>
+    <div style={{ width: aspectRatio === 16 / 9 ? 1234 : 1234-240, height: 540 }}>
       <Flex gap="large">
-        <div
-          style={{
-            width: "960px",
-            height: "540px",
-            position: "relative",
-            textAlign: "center",
-          }}
-        >
-          <FlvPlayer url={selectedCamera ? selectedCamera.Camera_addr : ""}></FlvPlayer>
-          <DrawPad
-            data={{
-              type: "polygon",
-              data: convertPolygonPoints(drawingData),
+
+          <div
+            style={{
+              width: aspectRatio === 16 / 9 ? 960 : 720,
+              height: "540px",
+              position: "relative",
+              textAlign: "center",
             }}
-            onStartDrawingPolygon={drawPolygon}
-            onStartDrawingLine={drawLine}
-            onDrawingComplete={handleDrawingComplete}
-          />
-        </div>
-        <Flex vertical gap="middle" style={{ width: "250px" }}>
+          >
+            <FlvPlayer
+              url={selectedCamera ? selectedCamera.Camera_addr : ""}
+            ></FlvPlayer>
+            
+            {/*旧组件 <DrawPad
+              width={aspectRatio === 16 / 9 ? 960 : 720}
+              data={{ 
+                type: "polygon",
+                data: convertPolygonPoints(drawingData),
+              }}
+              onStartDrawingPolygon={drawPolygon}
+              onStartDrawingLine={drawLine}
+              onDrawingComplete={handleDrawingComplete}
+            /> */}
+
+            <PolygonDrawPad
+              videoWidth={selectedCamera?.frame_width}
+              width={aspectRatio === 16 / 9 ? 960 : 720}
+              isDrawing={drawPolygon}
+              onDrawingComplete={handleDrawingComplete}
+              edit_data={drawingData}
+            ></PolygonDrawPad>
+          </div>
+        
+        <Flex
+          vertical
+          gap="middle"
+          style={{ width: "250px", alignItems: "stretch" }}
+        >
           <Select
-            defaultValue={selectedCamera?.Camera_id}
+            defaultValue={camera.Camera_id}
             options={cameras.map((camera) => ({
               value: camera.Camera_id,
               label: camera.name,
@@ -188,6 +211,7 @@ export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
               console.log(camera);
               setSelectedCamera(camera);
             }}
+            disabled
           />
           <Input
             placeholder="设置区域名称"
@@ -231,7 +255,7 @@ export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
 
 // PropTypes validation
 AreaEditor.propTypes = {
-  camera: PropTypes.object, 
-  area: PropTypes.object, 
-  onUpdate: PropTypes.func.isRequired, 
+  camera: PropTypes.object.isRequired,
+  area: PropTypes.object,
+  onUpdate: PropTypes.func.isRequired,
 };

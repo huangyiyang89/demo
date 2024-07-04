@@ -2,6 +2,8 @@ import { useRef, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 const DrawPad = ({
+  width = 960,
+  height = 540,
   onStartDrawingPolygon,
   onStartDrawingLine,
   onDrawingComplete,
@@ -15,17 +17,14 @@ const DrawPad = ({
   const [lines, setLines] = useState([]);
   const [startLine, setStartLine] = useState(null);
 
-
-
-
   useEffect(() => {
     //初始化
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
     // const { width, height } = canvas.getBoundingClientRect();
 
-    canvas.width = 960;
-    canvas.height = 540;
+    canvas.width = width;
+    canvas.height = height;
     context.clearRect(0, 0, canvas.width, canvas.height);
     //设置绘图样式
     context.lineWidth = 2;
@@ -92,12 +91,20 @@ const DrawPad = ({
     if (startLine && currentPos && isDrawingLine) {
       drawLine(context, startLine, currentPos);
     }
-  }, [points, currentPos, isDrawingPolygon, isDrawingLine, startLine, lines]);
+  }, [
+    height,
+    width,
+    points,
+    currentPos,
+    isDrawingPolygon,
+    isDrawingLine,
+    startLine,
+    lines
+  ]);
 
   // 初始数据
   useEffect(() => {
     if (data) {
-
       if (data.type === "polygon" && data.data.length > 0) {
         setPoints(data.data);
       } else if (data.type === "line" && data.data.length > 0) {
@@ -196,10 +203,13 @@ const DrawPad = ({
 };
 
 DrawPad.propTypes = {
+  width: PropTypes.number,
+  height: PropTypes.number,
   onStartDrawingPolygon: PropTypes.bool.isRequired,
   onStartDrawingLine: PropTypes.bool.isRequired,
   onDrawingComplete: PropTypes.func.isRequired,
   data: PropTypes.object,
+  widescreen: PropTypes.bool,
 };
 
 export default DrawPad;

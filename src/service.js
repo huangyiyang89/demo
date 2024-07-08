@@ -7,7 +7,7 @@ export const fetchAll =async () => {
   
   const requestCameras = axios.post(`${api_host}/api/device/cameras`);
   const requestAreas = axios.post(`${api_host}/api/device/areas`);
-  const requestEvents = axios.post(`${api_host}/api/device/allevents`);
+  const requestEvents = axios.post(`${api_host}/api/device/liveevents?limit=10`);
   try {
     const [camerasResponse,areasResponse,eventsResponse] = await axios.all([
       requestCameras, requestAreas, requestEvents
@@ -134,6 +134,28 @@ export const updateArea = async (area) => {
 export const fetchEvents = async () => {
   try {
     const response = await axios.post(api_host + "/api/device/allevents");
+    return handleResponse(response, 200);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const fetchPagingEvents = async (start_time,end_time, current, page_size) => {
+  try {
+    const response = await axios.post(
+      api_host + `/api/device/pagingevents?start_time=${start_time}&end_time=${end_time}&current_page=${current}&page_size=${page_size}`
+    );
+    return handleResponse(response, 200);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const fetchTimeEvents = async (start_time,end_time) => {
+  try {
+    const response = await axios.post(
+      api_host + `/api/device/timeevents?start_time=${start_time}&end_time=${end_time}`
+    );
     return handleResponse(response, 200);
   } catch (error) {
     handleError(error);

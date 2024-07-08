@@ -1,10 +1,10 @@
 // src/EventVideoPlayer.js
 import { useState, useRef } from "react";
-import { Layout, Select, DatePicker, Button, Flex, message } from "antd";
+import { Layout, Select, DatePicker, Button, Flex } from "antd";
 import "antd/dist/reset.css";
-import axios from "axios";
 import Canv from "../component/Canv";
 import FlvPlayer from "../component/FlvPlayer";
+import { fetchCameras } from "../service";
 
 const { Sider, Content } = Layout;
 
@@ -14,17 +14,6 @@ const Replay = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [cameras, setCameras] = useState([]);
   const playerRef = useRef(null);
-
-  const fetchCameras = async () => {
-    try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/device/cameras"
-      );
-      setCameras(response.data);
-    } catch (error) {
-      message.error("获取摄像机数据失败");
-    }
-  };
 
 
   const handleDateChange = (date, dateString) => {

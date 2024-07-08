@@ -42,7 +42,7 @@ const PolygonDrawPad = ({
     e.preventDefault();
     
     // 闭合多边形
-    let finalData = data + currentMouseData();
+    let finalData = data ;
     if (finalData) {
       const firstPoint = finalData.split(";").slice(0, 2).join(";") + ";";
       finalData += firstPoint;

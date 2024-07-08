@@ -10,17 +10,16 @@ import {
   Image,
   Segmented,
   Card,
-  Row,
-  Col,
   message,
   Modal,
+  List,
 } from "antd";
 import EventImage from "../component/EventImage";
 import {
   fetchCameras,
   fetchEventTypes,
-  fetchEvents,
   localtime,
+  fetchTimeEvents,
 } from "../service";
 import dayjs from "dayjs";
 import EventView from "../component/EventView";
@@ -51,15 +50,18 @@ const Events = () => {
     start: dayjs().startOf("d"),
     end: dayjs().endOf("d"),
   });
+  const [loading,setLoading] = useState(false);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    setLoading(true);
+    fetchData(inputRange.start.unix(), inputRange.end.unix());
+    setLoading(false);
+  }, [inputRange]);
 
-  const fetchData = async () => {
+  const fetchData = async (start, end) => {
     try {
       const cameras = await fetchCameras();
-      const events = await fetchEvents();
+      const events = await fetchTimeEvents(start, end);
       const eventTypes = await fetchEventTypes();
       const allTags = eventTypes.map((eventType) => ({
         name: eventType.name,
@@ -139,7 +141,7 @@ const Events = () => {
           preview={{
             src: record.image,
           }}
-          style={{borderRadius:"4px"}}
+          style={{ borderRadius: "4px" }}
         />
       ),
     },
@@ -183,9 +185,9 @@ const Events = () => {
       title: "状态",
       dataIndex: "is_upload",
       ellipsis: true,
-        showSorterTooltip: {
-          target: "full-header",
-        },
+      showSorterTooltip: {
+        target: "full-header",
+      },
       render: (text, record) => (
         <span>{record.is_upload ? "已上传" : "未上传"}</span>
       ),
@@ -196,7 +198,7 @@ const Events = () => {
       showSorterTooltip: {
         target: "full-header",
       },
-      width:150,
+      width: 150,
       render: (text, record) => (
         <Button type="primary" size="middle" onClick={() => openModal(record)}>
           查看详情
@@ -280,14 +282,21 @@ const Events = () => {
 
       {viewMode === "table" ? (
         <Table
+          loading={loading}
           columns={columns}
           dataSource={filteredEvents}
           onChange={onChange}
         />
       ) : (
-        <Row gutter={[8, 12]}>
-          {filteredEvents.map((event) => (
-            <Col span={8} key={event.key}>
+        <List
+          loading={loading}
+          pagination={{
+            pageSize: 12,
+          }}
+          grid={{ column: 4}}
+          dataSource={filteredEvents}
+          renderItem={(event) => (
+            <div style={{margin:16}}>
               <Card cover={<EventImage event={event} />}>
                 <Card.Meta
                   title={
@@ -304,9 +313,9 @@ const Events = () => {
                   }
                 />
               </Card>
-            </Col>
-          ))}
-        </Row>
+            </div>
+          )}
+        />
       )}
       <Modal
         open={open}

@@ -154,7 +154,7 @@ export const AreaEditor = ({ camera, area = null, onUpdate }) => {
       coordinates: pointsToString(polygonData),
       algoparam: algoparam,
     };
-    console.log(dataToSubmit);
+    console.log("dataToSubmit:",dataToSubmit);
     if (areaId) {
       updateArea(areaId, dataToSubmit);
     } else {

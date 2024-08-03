@@ -38,7 +38,6 @@ const CrossDirectionDrawPad = ({
 
   useEffect(() => {
     if (edit_data) {
-      console.log("edit_data",edit_data)
       setData(edit_data);
     }
 

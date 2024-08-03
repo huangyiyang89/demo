@@ -16,6 +16,8 @@ import FlvPlayer from "../component/FlvPlayer";
 import PolygonCanv from "../component/PolygonCanv";
 import axios from "axios";
 import AlgoEditor from "../component/AlgoEditor";
+import CrossLinesCanv from "../component/CrossLinesCanv";
+import CrossDirectionCanv from "../component/CrossDirectionCanv";
 
 const { Title } = Typography;
 
@@ -26,12 +28,14 @@ const Areas = () => {
   const [isAlgoModalOpen, setIsAlgoModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(null);
   const [editingArea, setEditingArea] = useState(null);
-  const [selectedAreas, setSelectedAreas] = useState([]);
+  const [selectedArea, setSelectedArea] = useState(null);
 
   const refreshData = async () => {
     try {
       const response = await axios.get("/api/cameras/");
-      setCameras(response.data);
+      const cameras = response.data;
+      console.log("cameras:", cameras);
+      setCameras(cameras);
     } catch (error) {
       console.error("Failed to fetch", error);
     }
@@ -88,12 +92,8 @@ const Areas = () => {
   //修改新增成功都触发
   const handleUpdate = async (data) => {
     if (isEditing && editingArea) {
-      const newAreas = selectedAreas
-        .filter((area) => area.id != editingArea.id)
-        .concat(data);
-      setSelectedAreas(newAreas);
+      setSelectedArea(data);
     }
-
     refreshData();
     setIsAreaModalOpen(false);
     setIsAlgoModalOpen(false);
@@ -103,7 +103,9 @@ const Areas = () => {
   const handleDelete = async (id) => {
     try {
       await axios.delete("/api/areas/" + id);
-      setSelectedAreas(selectedAreas.filter((area) => area.id !== id));
+      if (selectedArea?.id == id) {
+        setSelectedArea(null);
+      }
       refreshData();
     } catch (error) {
       if (error.response) {
@@ -145,10 +147,14 @@ const Areas = () => {
       key: "algo",
       width: "10%",
       render: (text, record) => (
-        <Button type="primary" size="small" onClick={(e) => {
-          e.stopPropagation();
-          showAlgoModal(record);
-        }}>
+        <Button
+          type="primary"
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            showAlgoModal(record);
+          }}
+        >
           设置
         </Button>
       ),
@@ -171,6 +177,7 @@ const Areas = () => {
           </Button>
           <Popconfirm
             title="确认删除？"
+            description="注意！该区域下所有设置会同步删除。"
             onConfirm={(e) => {
               e.stopPropagation();
               handleDelete(record.id);
@@ -190,7 +197,6 @@ const Areas = () => {
         </div>
       ),
     },
-
   ];
 
   const onRowClick = (record) => {
@@ -199,13 +205,10 @@ const Areas = () => {
         if (event.target.tagName === "BUTTON") {
           return; // 如果点击的是按钮，则不触发行选择
         }
-
-        if (selectedAreas.includes(record)) {
-          setSelectedAreas(
-            selectedAreas.filter((area) => area.id != record.id)
-          );
+        if (record) {
+          setSelectedArea(record);
         } else {
-          setSelectedAreas(selectedAreas.concat(record));
+          setSelectedArea(null);
         }
       },
     };
@@ -213,7 +216,7 @@ const Areas = () => {
 
   return (
     <div>
-      <Title level={4}>检测区域设置</Title>
+      <Title level={4}>检测区域</Title>
 
       <div
         style={{
@@ -230,7 +233,7 @@ const Areas = () => {
               onClick={() => showNewModal()}
               style={{ marginBottom: "10px", alignSelf: "flex-end" }}
             >
-              添加检测区域
+              创建检测区域
             </Button>
             <Select
               style={{ width: "200px" }}
@@ -244,16 +247,21 @@ const Areas = () => {
                   (camera) => camera.id === e
                 );
                 setSelectedCamera(selectedCamera);
-                setSelectedAreas([]);
+                setSelectedArea(null);
               }}
               value={selectedCamera?.name}
             ></Select>
           </Flex>
           <Table
             rowSelection={{
-              selectedRowKeys: selectedAreas.map((area) => area.id),
+              selectedRowKeys: [selectedArea?.id],
+              type: "radio",
               onChange: (keys, rows) => {
-                setSelectedAreas(rows);
+                if (rows[0]) {
+                  setSelectedArea(rows[0]);
+                } else {
+                  setSelectedArea(null);
+                }
               },
             }}
             columns={columns}
@@ -276,13 +284,25 @@ const Areas = () => {
             }}
           >
             <FlvPlayer url={selectedCamera?.ip_addr}></FlvPlayer>
-            {selectedAreas.map((area) => (
-              <PolygonCanv
-                key={area.id}
-                videoWidth={selectedCamera?.frame_width}
-                data={area.coordinates}
-              ></PolygonCanv>
-            ))}
+            {selectedArea ? (
+              <>
+                <PolygonCanv
+                  key={"polygoncanv"+selectedArea.id}
+                  videoWidth={selectedCamera.frame_width}
+                  data={selectedArea.coordinates}
+                ></PolygonCanv>
+                <CrossLinesCanv
+                  key={"crosslinescanv"+selectedArea.id}
+                  videoWidth={selectedCamera.frame_width}
+                  data={selectedArea.algoparam.cross_line}
+                ></CrossLinesCanv>
+                <CrossDirectionCanv
+                  key={"crossdirectioncanv"+selectedArea.id}
+                  videoWidth={selectedCamera.frame_width}
+                  data={selectedArea.algoparam.cross_direction}
+                ></CrossDirectionCanv>
+              </>
+            ) : null}
           </div>
         </div>
       </div>
@@ -301,14 +321,14 @@ const Areas = () => {
       >
         <div style={{ padding: 20 }}>
           <AreaEditor
-            key={editingArea ? "area"+editingArea.id : null}
+            key={editingArea ? "areaeditor" + editingArea.id : null}
             camera={selectedCamera}
             area={editingArea}
             onUpdate={handleUpdate}
           />
         </div>
       </Modal>
-      
+
       <Modal
         title={"编辑检测参数"}
         open={isAlgoModalOpen}
@@ -318,7 +338,7 @@ const Areas = () => {
       >
         <div style={{ padding: 20 }}>
           <AlgoEditor
-            key={editingArea ? "algo"+editingArea.id : null}
+            key={editingArea ? "algoeditor" + editingArea.id : null}
             area={editingArea}
             onUpdate={handleUpdate}
           />

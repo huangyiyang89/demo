@@ -21,7 +21,7 @@ const Live = () => {
       try {
         const response = await axios.get('/api/cameras/');
         const cameras = response.data;
-        console.log(cameras);
+        console.log("cameras:",cameras);
         setCurrentCameras(cameras);
         setCheckedCameraIds(cameras.map((camera) => camera.id));
 
@@ -75,7 +75,7 @@ const Live = () => {
         ""
       )}
       {filteredCameras.length == 1 ? (
-        <div style={{ display: "flex", maxHeight: "calc(-112px + 100vh);" }}>
+        <div style={{ display: "flex", maxHeight: "calc(-112px + 100vh)" }}>
           <CameraLayout
             key={filteredCameras[0].camera_id}
             camera={filteredCameras[0]}

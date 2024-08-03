@@ -62,7 +62,7 @@ const FlvPlayer = ({ camera = null ,url="", isLive = false, onError }) => {
       if (play_url) {
         flvPlayer.attachMediaElement(videoRef.current);
         flvPlayer.load();
-        flvPlayer.play();
+        //flvPlayer.play();
       }
 
 

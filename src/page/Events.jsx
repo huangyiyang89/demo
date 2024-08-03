@@ -18,6 +18,7 @@ import EventImage from "../component/EventImage";
 import dayjs from "dayjs";
 import EventView from "../component/EventView";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -45,9 +46,9 @@ const Events = () => {
   const [inputRange, setInputRange] = useState({
     start: dayjs().startOf("d"),
     end: dayjs().endOf("d"),
+    tag:"今天"
   });
   const [loading, setLoading] = useState(false);
-
 
   const filteredEvents = events.filter((event) =>
     selectedEventtypes.find(
@@ -60,6 +61,7 @@ const Events = () => {
       try {
         const response = await axios.get(`/api/eventtypes/`);
         const eventtypes = response.data;
+        console.log("eventtypes:", eventtypes);
         eventtypes.forEach((type) => {
           type.count = 0;
           type.checked = true;
@@ -83,6 +85,7 @@ const Events = () => {
           `/api/events/?start_time=${start}&end_time=${end}`
         );
         const events = response.data;
+        console.log("events:", events)
         setEvents(events);
       } catch (error) {
         if (error.response) {
@@ -96,7 +99,6 @@ const Events = () => {
     fetchEvents(inputRange.start.unix(), inputRange.end.unix());
     setLoading(false);
   }, [inputRange]);
-
 
   //tag标签增加数量
   useEffect(() => {
@@ -126,8 +128,6 @@ const Events = () => {
     });
     setSelectedEventtypes(new_eventtypes);
   };
-
-  
 
   //table columns
   const columns = [
@@ -228,7 +228,23 @@ const Events = () => {
       }}
     >
       <Title level={4}>事件列表</Title>
-
+      <div>
+        <Link to="/events">
+          <Button
+            size="small"
+            onClick={() => {
+              axios.get(`/api/events/generate_test_data/`);
+              setInputRange({
+                start: dayjs().startOf("w"),
+                end: dayjs().endOf("w"),
+                tag: "本周"
+              });
+            }}
+          >
+            生成测试数据
+          </Button>
+        </Link>
+      </div>
       <Flex gap="small" wrap align="center" justify="space-between">
         <Flex>
           <Tag.CheckableTag
@@ -246,7 +262,7 @@ const Events = () => {
           </Tag.CheckableTag>
           {eventtypes.map((eventtype) => (
             <Tag.CheckableTag
-              key={eventtype.id}
+              key={"tag"+eventtype.id}
               checked={eventtype?.checked}
               onChange={(checked) => handleTagChange(eventtype, checked)}
             >
@@ -269,24 +285,28 @@ const Events = () => {
             onOk={onOk}
           />
           <Segmented
+            value={inputRange.tag}
             options={["今天", "本周", "本月"]}
             onChange={(value) => {
               if (value === "今天") {
                 setInputRange({
                   start: dayjs().startOf("d"),
                   end: dayjs().endOf("d"),
+                  tag: value,
                 });
               }
               if (value === "本周") {
                 setInputRange({
                   start: dayjs().startOf("w"),
                   end: dayjs().endOf("w"),
+                  tag: value,
                 });
               }
               if (value === "本月") {
                 setInputRange({
                   start: dayjs().startOf("M"),
                   end: dayjs().endOf("M"),
+                  tag: value,
                 });
               }
             }}
@@ -301,6 +321,7 @@ const Events = () => {
 
       {viewMode === "table" ? (
         <Table
+          rowKey="id"
           loading={loading}
           columns={columns}
           dataSource={filteredEvents}

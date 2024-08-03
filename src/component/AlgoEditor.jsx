@@ -28,9 +28,10 @@ const AlgoEditor = ({ area, onUpdate }) => {
   // 提交表单时的处理函数
   const onFinish = async (values) => {
     try {
-      await axios.patch(`/api/algoparams/${values.id}`, values);
+      const response = await axios.patch(`/api/algoparams/${area.algoparam.id}`, values);
       message.success("数据更新成功");
-      onUpdate(values);
+      console.log("patch_response:",response.data)
+      onUpdate(response.data);
     } catch (error) {
       if (error.response) {
         message.error(error.response.data.detail);
@@ -43,7 +44,7 @@ const AlgoEditor = ({ area, onUpdate }) => {
   const inputStlye = {
     width: "100%",
   };
-  
+
   return (
     <div>
       <Form
@@ -54,7 +55,6 @@ const AlgoEditor = ({ area, onUpdate }) => {
         onFinish={onFinish}
         onChange={handleChange}
       >
-        <Form.Item name="id" hidden={true}></Form.Item>
         <Form.Item label="NMS值" name="nms_thresh">
           <InputNumber
             step={"0.1"}
@@ -194,7 +194,7 @@ const AlgoEditor = ({ area, onUpdate }) => {
 };
 
 AlgoEditor.propTypes = {
-  area: PropTypes.object.isRequired,
+  area: PropTypes.object,
   onUpdate: PropTypes.func.isRequired,
 };
 

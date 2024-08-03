@@ -30,6 +30,7 @@ const Cameras = () => {
     try {
       const response = await axios.get('/api/cameras/');
       const cameras = response.data;
+      console.log("cameras:",cameras);
       setCameras(cameras);
 
     } catch (error) {
@@ -154,7 +155,7 @@ const Cameras = () => {
       width: "20%",
     },
     {
-      title: "源地址",
+      title: "IP 地址",
       dataIndex: "ip_addr",
       key: "ip_addr",
       ellipsis: true,
@@ -224,7 +225,7 @@ const Cameras = () => {
 
   return (
     <div>
-      <Title level={4}>录像通道设置</Title>
+      <Title level={4}>录像通道</Title>
       <div
         style={{
           gap: "64px",
@@ -267,8 +268,8 @@ const Cameras = () => {
           </Form.Item>
           <Form.Item
             name="ip_addr"
-            label="源地址"
-            rules={[{ required: true, message: "请输入源地址!" },{ pattern: /^(rtsp|http):\/\/[^\s$.?#].[^\s]*$/, message: "请输入有效的url地址!" }]}
+            label="IP 地址"
+            rules={[{ required: true, message: "请输入合法url地址!" },{ pattern: /^(rtsp|http):\/\/[^\s$.?#].[^\s]*$/, message: "请输入有效的url地址!" }]}
           >
             <Input />
           </Form.Item>

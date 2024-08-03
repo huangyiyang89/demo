@@ -2,9 +2,7 @@
 import { useState, useRef } from "react";
 import { Layout, Select, DatePicker, Button, Flex } from "antd";
 import "antd/dist/reset.css";
-import Canv from "../component/Canv";
 import FlvPlayer from "../component/FlvPlayer";
-import { fetchCameras } from "../service";
 
 const { Sider, Content } = Layout;
 
@@ -38,12 +36,12 @@ const Replay = () => {
           <h4>选择摄像机</h4>
           <Select
             options={cameras.map((camera) => ({
-              value: camera.Camera_id,
+              value: camera.id,
               label: camera.name,
             }))}
             placeholder="选择摄像机"
             onChange={setSelectedCamera}
-            onClick={fetchCameras}
+            onClick={setSelectedCamera}
           />
           <h4 style={{ marginTop: "20px" }}>选择日期</h4>
           <DatePicker
@@ -76,9 +74,6 @@ const Replay = () => {
             }}
           >
             <FlvPlayer camera={selectedCamera}></FlvPlayer>
-            {selectedCamera?.areas?.map((area) => (
-              <Canv key={area.id} area={area}></Canv>
-            ))}
           </div>
       </Content>
     </Layout>

@@ -1,6 +1,5 @@
 import { PropTypes } from "prop-types";
 import { Flex, Descriptions, Image } from "antd";
-import { localtime } from "../service";
 import FlvPlayer from "./FlvPlayer";
 
 export const EventView = ({ event = null }) => {
@@ -8,12 +7,12 @@ export const EventView = ({ event = null }) => {
     {
       key: 1,
       label: "事件类型",
-      children: event?.event,
+      children: event?.eventtype.name,
     },
     {
       key: 2,
       label: "事件时间",
-      children: localtime(event?.time),
+      children: event?.localtime,
     },
     {
       key: 3,
@@ -28,7 +27,7 @@ export const EventView = ({ event = null }) => {
     {
       key: 5,
       label: "检测区域",
-      children: event?.area,
+      children: event?.area_name,
     },
   ];
   return event ? (

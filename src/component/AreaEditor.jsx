@@ -1,248 +1,249 @@
 import { useState, useEffect } from "react";
-import { Input, Select, Flex, Button, Radio, message } from "antd";
+import { Input, Select, Flex, Button, message } from "antd";
 const { TextArea } = Input;
-import { api_host } from "../service";
 import axios from "axios";
 import PropTypes from "prop-types";
-import { fetchCameras, fetchEventTypes } from "../service";
 import FlvPlayer from "./FlvPlayer";
 import PolygonDrawPad from "./PolygonDrawPad";
+import { stringToPoints, pointsToString, arrayToString, stringToArray } from "../service";
+import CrossLinesDrawPad from "./CrossLinesDrawPad";
+import CrossDirectionDrawPad from "./CrossDirectionDrawPad";
 
-export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
-  const [drawPolygon, setDrawPolygon] = useState(false);
+export const AreaEditor = ({ camera, area = null, onUpdate }) => {
+  const [drawingPolygon, setDrawingPolygon] = useState(false);
+  const [drawingCrossLines, setDrawingCrossLines] = useState(false);
+  const [drawingCrossDirection, setDrawingCrossDirection] = useState(false);
+
   const [areaId, setAreaId] = useState(area?.id || null);
   const [areaName, setAreaName] = useState(area?.name || "");
-  const [areaDescription, setAreaDescription] = useState(
-    area?.description || ""
-  );
   const [selectedDetectTypes, setSelectedDetectTypes] = useState([]);
-  const [selectedDetectTypesString, setSelectedDetectTypesString] = useState(
-    area?.event_type || ""
-  );
-  const [drawingData, setDrawingData] = useState(area?.area_coordinate || "");
-  const [selectedCamera, setSelectedCamera] = useState(camera || null);
-  const [cameras, setCameras] = useState([]);
+  const [polygonData, setPolygonData] = useState([]);
+  const [crossLinesData, setCrossLinesData] = useState([]);
+  const [crossDirectionData, setCrossDirectionData] = useState([]);
+
   const [eventTypes, setEventTypes] = useState([]);
 
-  const aspectRatio = selectedCamera
-    ? selectedCamera.frame_width / selectedCamera.frame_height
+  const aspectRatio = camera
+    ? camera.frame_width / camera.frame_height
     : 16 / 9;
 
   useEffect(() => {
-    fetchCameras().then((data) => setCameras(data));
-    fetchEventTypes().then((data) => setEventTypes(data));
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("/api/eventtypes/");
+        const eventTypes = response.data;
+        setEventTypes(eventTypes);
+      } catch (error) {
+        if (error.response) {
+          message.error(error.response.data.detail);
+        } else {
+          message.error(error.message);
+        }
+      }
+    };
+    fetchData();
   }, []);
-
-  // useEffect(() => {
-  //   if (camera) {
-  //     setSelectedCamera(camera);
-  //   }
-  // }, [camera]);
 
   useEffect(() => {
     if (area) {
       console.log(area);
       setAreaId(area.id);
       setAreaName(area.name);
-      setSelectedDetectTypesString(area.event_type);
-      setAreaDescription(area.description);
-      setDrawingData(area.area_coordinate || "");
-      setSelectedCamera(area.camera);
+      setSelectedDetectTypes(stringToArray(area.algoparam?.eventtype_ids));
+      setPolygonData(stringToPoints(area.coordinates));
+      setCrossLinesData(stringToPoints(area.algoparam?.cross_line));
+      setCrossDirectionData(stringToPoints(area.algoparam?.cross_direction));
     }
   }, [area]);
 
-  useEffect(() => {
-    if (eventTypes.length > 0 && selectedDetectTypesString) {
-      const selectedTypes = selectedDetectTypesString
-        .split(";")
-        .map((id) => {
-          const findEventName = eventTypes.find(
-            (event) => event.id === parseInt(id, 10)
-          );
-          return findEventName ? findEventName.name : "";
-        })
-        .filter((name) => name !== "");
-      setSelectedDetectTypes(selectedTypes);
-    }
-  }, [eventTypes, selectedDetectTypesString]);
-
   const resetState = () => {
-    setDrawingData("");
+    setPolygonData([]);
+    setCrossDirectionData([]);
+    setCrossLinesData([]);
     setAreaId(null);
     setAreaName("");
     setSelectedDetectTypes([]);
-    setAreaDescription("");
-    setSelectedCamera(null);
   };
 
-  const createArea = (data) => {
-    axios
-      .post(api_host + "/api/device/creatArea", data)
-      .then((response) => {
-        if (response.status === 201) {
-          message.success("数据保存成功");
-          onUpdate && onUpdate(response.data);
-          resetState();
-        } else {
-          message.error("数据保存失败," + response);
-        }
-      })
-      .catch((error) => {
-        message.error("数据保存失败");
-        console.error("Error:", error);
-      });
+  const createArea = async (data) => {
+    try {
+      const response = await axios.post("/api/areas/", data);
+      const area = response.data;
+      onUpdate && onUpdate(area);
+      resetState();
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.detail);
+      } else {
+        message.error(error.message);
+      }
+    }
   };
 
-  const updateArea = (id, data) => {
-    axios
-      .post(api_host + `/api/device/updateArea?area_id=${id}`, data)
-      .then((response) => {
-        if (response.status === 200) {
-          message.success("数据更新成功");
-          onUpdate && onUpdate(response.data);
-          resetState();
-        } else {
-          message.error("数据更新失败");
-        }
-      })
-      .catch((error) => {
-        message.error("数据更新失败");
-        console.error("Error:", error);
-      });
+  const updateArea = async (id, data) => {
+    try {
+      const response = await axios.patch(`/api/areas/${id}`, data);
+      message.success("数据更新成功");
+      onUpdate && onUpdate(response.data);
+      resetState();
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.detail);
+      } else {
+        message.error(error.message);
+      }
+    }
   };
 
   const startDrawingPolygon = () => {
-    setDrawingData("");
-    setDrawPolygon(true);
+    setPolygonData([]);
+    setDrawingPolygon(true);
+  };
+  const startDrawingCrossLines = () => {
+    setCrossLinesData([]);
+    setDrawingCrossLines(true);
   };
 
-  // const startDrawingLine = () => {
-  //   setDrawPolygon(false);
-  //   setDrawLine(true);
-  // }; 画半线暂时不需要
-
-  const handleDrawingComplete = (data) => {
-    setDrawingData(data);
-    setDrawPolygon(false);
+  const startDrawingCrossDirection = () => {
+    setCrossDirectionData([]);
+    setDrawingCrossDirection(true);
   };
 
-  const handleSave = () => {
+  const handlePolygonComplete = (data) => {
+    setPolygonData(data);
+    setDrawingPolygon(false);
+  };
+
+  const handleCrossLinesComplete = (data) => {
+    setCrossLinesData(data);
+    setDrawingCrossLines(false);
+  };
+
+  const handleCrossDirectionComplete = (data) => {
+    setCrossDirectionData(data);
+    setDrawingCrossDirection(false);
+  };
+
+  const includeCross = () => {
+    if (
+      selectedDetectTypes &&
+      Array.isArray(selectedDetectTypes) &&
+      selectedDetectTypes.includes("1202")
+    ) {
+      return { display: "block" };
+    } else {
+      return { display: "none" };
+    }
+  };
+
+  const handleSave = async () => {
     if (!areaName.trim()) {
       message.error("区域名称不能为空！");
       return;
     }
 
-    const eventTypeIds = selectedDetectTypes
-      .map((typeName) => {
-        const eventType = eventTypes.find((event) => event.name === typeName);
-        return eventType ? eventType.id : null;
-      })
-      .filter((id) => id !== null)
-      .join(";");
-
-    const dataToSubmit = {
-      Camera_id: selectedCamera.Camera_id,
-      name: areaName,
-      description: areaDescription,
-      event_type: eventTypeIds,
-      area_coordinate: drawingData,
-      area_type: 0,
-      time: Math.floor(Date.now() / 1000),
+    const algoparam = {
+      eventtype_ids: arrayToString(selectedDetectTypes),
+      cross_line: pointsToString(crossLinesData),
+      cross_direction: pointsToString(crossDirectionData),
     };
 
+    const dataToSubmit = {
+      camera_id: camera.id,
+      name: areaName,
+      coordinates: pointsToString(polygonData),
+      algoparam: algoparam,
+    };
+    console.log(dataToSubmit);
     if (areaId) {
       updateArea(areaId, dataToSubmit);
     } else {
       createArea(dataToSubmit);
     }
-    
   };
 
   return (
-    <div style={{ width: aspectRatio === 16 / 9 ? 1234 : 1234-240, height: 540 }}>
+    <div
+      style={{ width: aspectRatio === 16 / 9 ? 1234 : 1234 - 240, height: 540 }}
+    >
       <Flex gap="large">
+        <div
+          style={{
+            width: aspectRatio === 16 / 9 ? 960 : 720,
+            height: "540px",
+            position: "relative",
+            textAlign: "center",
+          }}
+        >
+          <FlvPlayer url={camera ? camera.ip_addr : ""}></FlvPlayer>
 
-          <div
-            style={{
-              width: aspectRatio === 16 / 9 ? 960 : 720,
-              height: "540px",
-              position: "relative",
-              textAlign: "center",
-            }}
-          >
-            <FlvPlayer
-              url={selectedCamera ? selectedCamera.Camera_addr : ""}
-            ></FlvPlayer>
-            
-            {/*旧组件 <DrawPad
-              width={aspectRatio === 16 / 9 ? 960 : 720}
-              data={{ 
-                type: "polygon",
-                data: convertPolygonPoints(drawingData),
-              }}
-              onStartDrawingPolygon={drawPolygon}
-              onStartDrawingLine={drawLine}
-              onDrawingComplete={handleDrawingComplete}
-            /> */}
+          <PolygonDrawPad
+            videoWidth={camera?.frame_width}
+            width={aspectRatio === 16 / 9 ? 960 : 720}
+            isDrawing={drawingPolygon}
+            onDrawingComplete={handlePolygonComplete}
+            edit_data={polygonData}
+          ></PolygonDrawPad>
 
-            <PolygonDrawPad
-              videoWidth={selectedCamera?.frame_width}
-              width={aspectRatio === 16 / 9 ? 960 : 720}
-              isDrawing={drawPolygon}
-              onDrawingComplete={handleDrawingComplete}
-              edit_data={drawingData}
-            ></PolygonDrawPad>
-          </div>
-        
+          <CrossLinesDrawPad
+            videoWidth={camera?.frame_width}
+            width={aspectRatio === 16 / 9 ? 960 : 720}
+            isDrawing={drawingCrossLines}
+            onDrawingComplete={handleCrossLinesComplete}
+            edit_data={crossLinesData}
+          ></CrossLinesDrawPad>
+
+          <CrossDirectionDrawPad
+            videoWidth={camera?.frame_width}
+            width={aspectRatio === 16 / 9 ? 960 : 720}
+            isDrawing={drawingCrossDirection}
+            onDrawingComplete={handleCrossDirectionComplete}
+            edit_data={crossDirectionData}
+          ></CrossDirectionDrawPad>
+        </div>
+
         <Flex
           vertical
           gap="middle"
           style={{ width: "250px", alignItems: "stretch" }}
         >
-          <Select
-            defaultValue={camera.Camera_id}
-            options={cameras.map((camera) => ({
-              value: camera.Camera_id,
-              label: camera.name,
-            }))}
-            placeholder="选择摄像机"
-            onChange={(value) => {
-              const camera = cameras.find((cam) => cam.Camera_id === value);
-              console.log(camera);
-              setSelectedCamera(camera);
-            }}
-            disabled
-          />
+          <Input value={camera.name} disabled />
           <Input
             placeholder="设置区域名称"
             value={areaName}
             onChange={(e) => setAreaName(e.target.value)}
+          />
+
+          <Button onClick={startDrawingPolygon}>绘制检测区域</Button>
+          <TextArea
+            rows={3}
+            disabled
+            placeholder="画线数据"
+            value={pointsToString(polygonData)}
           />
           <Select
             placeholder="设置检测类型"
             mode="multiple"
             allowClear
             options={eventTypes.map((eventType) => ({
-              value: eventType.name,
+              value: eventType.id,
               label: eventType.name,
             }))}
             value={selectedDetectTypes}
             onChange={(values) => setSelectedDetectTypes(values)}
           />
-          <Radio.Group>
-            {/* <Radio.Button value="start" onClick={startDrawingLine}>
-              绘制交叉线
-            </Radio.Button> */}
-            <Radio.Button value="end" onClick={startDrawingPolygon}>
-              绘制多边形
-            </Radio.Button>
-          </Radio.Group>
-          <TextArea
-            rows={6}
-            disabled
-            placeholder="画线数据"
-            value={drawingData}
-          />
+          <div style={includeCross()}>
+            <Button style={{ width: "50%" }} onClick={startDrawingCrossLines}>
+              绘制围栏
+            </Button>
+
+            <Button
+              style={{ width: "50%" }}
+              onClick={startDrawingCrossDirection}
+            >
+              绘制方向
+            </Button>
+          </div>
           <div style={{ flex: 1 }}></div>
           <Button type="primary" onClick={handleSave}>
             {areaId ? "更新区域" : "新增区域"}
@@ -255,7 +256,7 @@ export const AreaEditor = ({ camera = null, area = null, onUpdate }) => {
 
 // PropTypes validation
 AreaEditor.propTypes = {
-  camera: PropTypes.object.isRequired,
+  camera: PropTypes.object,
   area: PropTypes.object,
   onUpdate: PropTypes.func.isRequired,
 };

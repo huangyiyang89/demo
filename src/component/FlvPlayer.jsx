@@ -16,7 +16,7 @@ const FlvPlayer = ({ camera = null ,url="", isLive = false, onError }) => {
     if (flvjs.isSupported()) {
       //服务器代理模式
       if(camera){
-        play_url = `ws://${hostname}:8005/camera/${camera.Camera_id}.live.flv`
+        play_url = `ws://${hostname}:8005/camera/${camera.id}.live.flv`
         play_type="flv";
         play_live = true;
       }

@@ -1,9 +1,10 @@
 import { Col, Row, message, Empty, Typography, Button, Flex ,Tag, Spin} from "antd";
-import { fetchAll } from "../service";
 import CameraLayout from "../component/CameraLayout";
 import "../assets/styles.css";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import axios from "axios";
+
 const { Title } = Typography;
 
 const Live = () => {
@@ -12,38 +13,28 @@ const Live = () => {
   const [loading,setLoading] = useState(true);
  
   const filteredCameras = checkedCameraIds.map((id) =>
-    currentCameras.find((camera) => camera.Camera_id === id))
+    currentCameras.find((camera) => camera.id === id))
   
   useEffect(() => {
+    setLoading(true)
     const fetchData = async () => {
       try {
-        const {cameras,areas,events} = await fetchAll();
+        const response = await axios.get('/api/cameras/');
+        const cameras = response.data;
+        console.log(cameras);
+        setCurrentCameras(cameras);
+        setCheckedCameraIds(cameras.map((camera) => camera.id));
 
-        if (events?.length) {
-          events?.forEach((event) => {
-            event.camera = cameras.find(
-              (camera) => camera.Camera_id === event.Camera_id
-            );
-          });
-        }
-        const camerasWithDetails = cameras?.map((camera) => ({
-          ...camera,
-          events: events?.filter(
-            (event) => event.Camera_id === camera.Camera_id
-          ),
-          areas: areas?.filter((area) => area.Camera_id === camera.Camera_id),
-        }));
-
-        setCurrentCameras(camerasWithDetails);
-        setCheckedCameraIds(camerasWithDetails.map((camera) => camera.Camera_id));
-        setLoading(false)
       } catch (error) {
-        console.error("Failed to fetch", error);
-        message.error(error);
+        if (error.response) {
+          message.error(error.response.data.detail);
+        } else {
+          message.error(error.message);
+        }
       }
     };
-
     fetchData();
+    setLoading(false)
   }, []);
 
   return (
@@ -53,13 +44,13 @@ const Live = () => {
         {currentCameras.map((camera) => (
           <Tag.CheckableTag
           style={{marginRight:16}}
-          key={camera.Camera_id}
-          checked={checkedCameraIds.includes(camera.Camera_id)}
+          key={camera.id}
+          checked={checkedCameraIds.includes(camera.id)}
           onChange={(checked) =>
             setCheckedCameraIds(
               checked
-                ? [...checkedCameraIds, camera.Camera_id]
-                : checkedCameraIds.filter((id) => id !== camera.Camera_id)
+                ? [...checkedCameraIds, camera.id]
+                : checkedCameraIds.filter((id) => id !== camera.id)
             )}
         >
           {camera.name} <span style={{color:camera.state?"lightgreen":"red",background:"balck",fill:"green"}}>{(camera.state?"online":"offline")}</span>
@@ -68,7 +59,7 @@ const Live = () => {
       </div>
       {currentCameras.length == 0 ? (
         <Empty
-          image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+          image="/empty.svg"
           imageStyle={{
             height: 200,
           }}
@@ -86,7 +77,7 @@ const Live = () => {
       {filteredCameras.length == 1 ? (
         <div style={{ display: "flex", maxHeight: "calc(-112px + 100vh);" }}>
           <CameraLayout
-            key={filteredCameras[0].Camera_id}
+            key={filteredCameras[0].camera_id}
             camera={filteredCameras[0]}
           />
         </div>
@@ -96,7 +87,7 @@ const Live = () => {
       {filteredCameras.length == 2 ? (
         <Flex style={{ width: "100%" }} gap={32}>
           {filteredCameras.map((camera) => (
-            <CameraLayout key={camera.Camera_id} camera={camera} horizontal />
+            <CameraLayout key={camera.id} camera={camera} horizontal />
           ))}
         </Flex>
       ) : (
@@ -106,12 +97,12 @@ const Live = () => {
         <Row gutter={[16, 16]} style={{ margin: -24 }}>
           {filteredCameras.map((camera) => (
             <Col
-              key={camera.Camera_id}
+              key={camera.id}
               span={12}
               style={{ background: "rgba(211, 211, 211, 0.3)" }}
             >
               <div>
-                <CameraLayout key={camera.Camera_id} camera={camera} />
+                <CameraLayout key={camera.id} camera={camera} />
               </div>
             </Col>
           ))}

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import PolygonCanv from "./PolygonCanv";
+import CrossLinesCanv from "./CrossLinesCanv";
 
-const PolygonDrawPad = ({
+const CrossLinesDrawPad = ({
   videoWidth = 1920,
   width = 960,
   isDrawing = false,
@@ -35,15 +35,8 @@ const PolygonDrawPad = ({
   const handleContextMenu = (e) => {
     if (!isDrawing) return;
     e.preventDefault();
-    
-    // 闭合多边形
 
-    let finalData = [] ;
-    if (data.length>=3) {
-      finalData = [...data, data[0]];
-    }
-    setData(finalData);
-    onDrawingComplete(finalData);
+    onDrawingComplete(data);
     setCurrentPos(null);
   };
 
@@ -80,15 +73,15 @@ const PolygonDrawPad = ({
         pointerEvents: isDrawing? "auto" : "none",
       }}
     >
-      <PolygonCanv
+      <CrossLinesCanv
         videoWidth={videoWidth}
         data={[...data, currentPos?currentPos:[]]}
-      ></PolygonCanv>
+      ></CrossLinesCanv>
     </div>
   );
 };
 
-PolygonDrawPad.propTypes = {
+CrossLinesDrawPad.propTypes = {
   videoWidth: PropTypes.number,
   videoHeight: PropTypes.number,
   width: PropTypes.number,
@@ -101,4 +94,4 @@ PolygonDrawPad.propTypes = {
 ])
 };
 
-export default PolygonDrawPad;
+export default CrossLinesDrawPad;

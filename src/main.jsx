@@ -14,6 +14,8 @@ import Cameras from "./page/Cameras.jsx";
 import Statistic from "./page/Statistic.jsx";
 import Areas from "./page/Areas.jsx";
 import Videotest from "./page/Videotest.jsx";
+import axios from "axios";
+axios.defaults.baseURL = 'http://localhost:8000';
 
 const router = createBrowserRouter([
   {

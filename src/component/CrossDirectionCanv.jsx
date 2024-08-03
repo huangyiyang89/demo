@@ -2,7 +2,7 @@ import { PropTypes } from "prop-types";
 import { useRef, useEffect } from "react";
 import { stringToPoints } from "../service";
 
-const PolygonCanv = ({ videoWidth, data, lineWidth = 2 }) => {
+const CrossDirectionCanv = ({ videoWidth, data, lineWidth = 1 }) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -27,18 +27,26 @@ const PolygonCanv = ({ videoWidth, data, lineWidth = 2 }) => {
       
       const { width, height } = canvas;
       context.clearRect(0, 0, width, height);
-      context.strokeStyle = "#FF0088";
-      context.fillStyle = "#FF0088";
+      context.strokeStyle = "#FF0000";
+      context.fillStyle = "#FF0000";
       context.lineWidth = lineWidth;
       const scale = width / videoWidth;
       //绘制图形
-      if (points?.length > 1) {
+      if (points.length > 1) {
         context.beginPath();
         context.moveTo(points[0].x * scale, points[0].y * scale);
-        points.forEach((point) => {
-          context.lineTo(point.x * scale, point.y * scale);
-        });
-        //context.closePath(); // 可选：闭合路径
+        context.lineTo(points[1].x * scale, points[1].y * scale);
+        //绘制方向箭头
+        let angle = Math.atan2(points[1].y - points[0].y, points[1].x - points[0].x);
+        context.lineTo(
+            points[1].x * scale - 10 * Math.cos(angle - Math.PI / 6),
+            points[1].y * scale - 10 * Math.sin(angle - Math.PI / 6)
+        );
+        context.moveTo(points[1].x * scale, points[1].y * scale);
+        context.lineTo(
+            points[1].x * scale - 10 * Math.cos(angle + Math.PI / 6),
+            points[1].y * scale - 10 * Math.sin(angle + Math.PI / 6)
+        );
         context.stroke();
       }
     };
@@ -77,10 +85,10 @@ const PolygonCanv = ({ videoWidth, data, lineWidth = 2 }) => {
   );
 };
 
-PolygonCanv.propTypes = {
+CrossDirectionCanv.propTypes = {
   videoWidth: PropTypes.number.isRequired,
   data: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
   lineWidth: PropTypes.number,
 };
 
-export default PolygonCanv;
+export default CrossDirectionCanv;

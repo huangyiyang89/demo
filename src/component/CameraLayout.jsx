@@ -2,8 +2,6 @@ import { PropTypes } from "prop-types";
 import { Layout, List, Flex, Row, Col } from "antd";
 import EventImage from "./EventImage";
 import "../assets/styles.css";
-import Canv from "./Canv";
-import { localtime } from "../service";
 import FlvPlayer from "./FlvPlayer";
 import PolygonCanv from "./PolygonCanv";
 
@@ -80,8 +78,8 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
                       width: "100%",
                     }}
                   >
-                    <span style={textStyle}>{event.event}</span>
-                    <span style={textStyle}>{localtime(event.time)}</span>
+                    <span style={textStyle}>{event.eventtype.name}</span>
+                    <span style={textStyle}>{event.localtime}</span>
                   </div>
                 </List.Item>
               ))}
@@ -101,9 +99,9 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
                   height: 0,
                 }}
               >
-                <FlvPlayer url={camera.Camera_addr}></FlvPlayer>
+                <FlvPlayer url={camera.ip_addr}></FlvPlayer>
                 {camera?.areas?.map((area) => (
-                  <PolygonCanv key={area.id} videoWidth={camera.frame_width} data={area.area_coordinate}></PolygonCanv>
+                  <PolygonCanv key={area.id} videoWidth={camera.frame_width} data={area.coordinates}></PolygonCanv>
                   // <Canv key={area.id} area={area}></Canv>
                 ))}
               </div>
@@ -124,9 +122,9 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
                   height: 0,
                 }}
               >
-                <FlvPlayer url={camera.Camera_addr}></FlvPlayer>
+                <FlvPlayer url={camera.ip_addr}></FlvPlayer>
                 {camera?.areas?.map((area) => (
-                  <PolygonCanv key={area.id} videoWidth={camera.frame_width} data={area.area_coordinate}></PolygonCanv>
+                  <PolygonCanv key={area.id} videoWidth={camera.frame_width} data={area.coordinates}></PolygonCanv>
                 ))}
               </div>
               <div style={footerStyle}>{camera.description}</div>
@@ -144,7 +142,7 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
                 }}
               >
                 {camera?.events?.map((event) => (
-                  <Col key={camera.Camera_id} span={8}>
+                  <Col key={camera.id} span={8}>
                     <div>
                       <EventImage event={event} />
                       <div
@@ -155,8 +153,8 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
                           marginTop: 5,
                         }}
                       >
-                        <span style={textStyle}>{event.event}</span>
-                        <span style={textStyle}>{localtime(event.time)}</span>
+                        <span style={textStyle}>{event.eventtype.name}</span>
+                        <span style={textStyle}>{event.localtime}</span>
                       </div>
                     </div>
                   </Col>

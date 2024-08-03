@@ -7,166 +7,164 @@ import {
   Popconfirm,
   Typography,
   Flex,
+  message,
 } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
 import { AreaEditor } from "../component/AreaEditor";
-import {
-  fetchCameras,
-  fetchAreas,
-  fetchEventTypes,
-  deleteArea,
-  localtime,
-} from "../service";
 import FlvPlayer from "../component/FlvPlayer";
 import PolygonCanv from "../component/PolygonCanv";
+import axios from "axios";
+import AlgoEditor from "../component/AlgoEditor";
 
 const { Title } = Typography;
 
 const Areas = () => {
-  const [areas, setAreas] = useState([]);
   const [cameras, setCameras] = useState([]);
   const [selectedCamera, setSelectedCamera] = useState(null);
-  const [eventTypes, setEventTypes] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAreaModalOpen, setIsAreaModalOpen] = useState(false);
+  const [isAlgoModalOpen, setIsAlgoModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(null);
   const [editingArea, setEditingArea] = useState(null);
   const [selectedAreas, setSelectedAreas] = useState([]);
 
-  useEffect(() => {
-    refreshData();
-  }, []);
-
   const refreshData = async () => {
     try {
-      const cameras = await fetchCameras();
-      const areas = await fetchAreas();
-      const eventTypes = await fetchEventTypes();
-      const areasWithDetails = areas.map((area) => ({
-        ...area,
-        camera: cameras.find((camera) => camera.Camera_id === area.Camera_id),
-      }));
-      setAreas(areasWithDetails);
-      setCameras(cameras);
-      setEventTypes(eventTypes);
-
-      //默认选中第一格摄像机
-      if (!selectedCamera && cameras && cameras.length > 0) {
-        setSelectedCamera(cameras[0]);
-      }
+      const response = await axios.get("/api/cameras/");
+      setCameras(response.data);
     } catch (error) {
       console.error("Failed to fetch", error);
     }
   };
 
+  useEffect(() => {
+    refreshData();
+  }, []);
+
+  useEffect(() => {
+    //默认选中第一格摄像机
+    if (!selectedCamera && cameras && cameras.length > 0) {
+      setSelectedCamera(cameras[0]);
+    }
+
+    if (selectedCamera) {
+      setSelectedCamera(
+        cameras.find((camera) => camera.id === selectedCamera.id)
+      );
+    }
+  }, [cameras, selectedCamera]);
+
   const showNewModal = () => {
+    if (!selectedCamera) {
+      message.error("请先设置录像通道！");
+      return;
+    }
     setEditingArea(null);
     setIsEditing(false);
-    setIsModalOpen(true);
+    setIsAreaModalOpen(true);
+    setIsAlgoModalOpen(false);
   };
 
   const showEditModal = (area = null) => {
     setEditingArea(area);
     setIsEditing(true);
-    setIsModalOpen(true);
+    setIsAreaModalOpen(true);
+    setIsAlgoModalOpen(false);
+  };
+
+  const showAlgoModal = (area = null) => {
+    setEditingArea(area);
+    setIsEditing(false);
+    setIsAlgoModalOpen(true);
+    setIsAreaModalOpen(false);
   };
 
   const handleModalClosed = () => {
-    setIsModalOpen(false);
+    setIsAreaModalOpen(false);
+    setIsAlgoModalOpen(false);
     setEditingArea(null);
   };
 
   //修改新增成功都触发
   const handleUpdate = async (data) => {
     if (isEditing && editingArea) {
-      console.log(data);
       const newAreas = selectedAreas
         .filter((area) => area.id != editingArea.id)
         .concat(data);
       setSelectedAreas(newAreas);
     }
 
-    setIsModalOpen(false);
-    setEditingArea(null);
     refreshData();
+    setIsAreaModalOpen(false);
+    setIsAlgoModalOpen(false);
+    setEditingArea(null);
   };
 
   const handleDelete = async (id) => {
-    await deleteArea(id);
-    setSelectedAreas(selectedAreas.filter((area) => area.id !== id));
-    refreshData();
-  };
-
-  const getEventTypeNames = (eventTypeStr) => {
-    const eventTypeIds = eventTypeStr.split(";");
-    return eventTypeIds
-      .map((id) => {
-        const eventType = eventTypes.find(
-          (event) => event.id === parseInt(id, 10)
-        );
-        return eventType ? eventType.name : id;
-      })
-      .join("; ");
+    try {
+      await axios.delete("/api/areas/" + id);
+      setSelectedAreas(selectedAreas.filter((area) => area.id !== id));
+      refreshData();
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.detail);
+      } else {
+        message.error(error.message);
+      }
+    }
   };
 
   const columns = [
     // { title: "ID", dataIndex: "id", key: "id", width: 60  },
     {
-      title: "区域名称",
+      title: "检测区域名称",
       dataIndex: "name",
-      key: "id",
+      key: "name",
       ellipsis: true,
       width: "20%",
     },
     {
       title: "摄像机",
-      dataIndex: "Camera_id",
+      dataIndex: "camera",
       ellipsis: true,
-      key: "id",
+      key: "camera",
       width: "20%",
-      render: (text) => {
-        const camera = cameras.find((camera) => camera.Camera_id === text);
-        return camera ? camera.name : text;
+      render: (camera) => {
+        return camera?.name;
       },
     },
     {
-      title: "事件类型",
-      dataIndex: "event_type",
-      key: "id",
-      ellipsis: true,
-      width: "30%",
-      render: (text) => getEventTypeNames(text),
-    },
-    // {
-    //   title: "类型",
-    //   dataIndex: "area_type",
-    //   key: "id",
-    //   width: 80,
-    //   render: (text) => (text === 0 ? "多边形" : text),
-    // },
-    {
       title: "修改时间",
-      dataIndex: "time",
-      key: "id",
+      dataIndex: "localtime",
+      key: "localtime",
       ellipsis: true,
       width: "20%",
-      render: (time) => <span>{localtime(time)}</span>,
+    },
+    {
+      title: "检测参数",
+      key: "algo",
+      width: "10%",
+      render: (text, record) => (
+        <Button type="primary" size="small" onClick={(e) => {
+          e.stopPropagation();
+          showAlgoModal(record);
+        }}>
+          设置
+        </Button>
+      ),
     },
     {
       title: "操作",
       key: "action",
       width: 150,
       render: (text, record) => (
-        <span>
+        <div>
           <Button
             type="primary"
             size="small"
             onClick={(e) => {
               e.stopPropagation();
-              const camera = cameras.find(
-                (cam) => cam.Camera_id === record.Camera_id
-              );
-              showEditModal({ ...record, camera });
+              showEditModal(record);
             }}
           >
             编辑
@@ -189,9 +187,10 @@ const Areas = () => {
               删除
             </Button>
           </Popconfirm>
-        </span>
+        </div>
       ),
     },
+
   ];
 
   const onRowClick = (record) => {
@@ -214,7 +213,7 @@ const Areas = () => {
 
   return (
     <div>
-      <Title level={4}>区域设置</Title>
+      <Title level={4}>检测区域设置</Title>
 
       <div
         style={{
@@ -236,18 +235,18 @@ const Areas = () => {
             <Select
               style={{ width: "200px" }}
               options={cameras.map((camera) => ({
-                value: camera.Camera_id,
+                value: camera.id,
                 label: camera.name,
               }))}
               placeholder="选择摄像机"
               onChange={(e) => {
                 const selectedCamera = cameras.find(
-                  (camera) => camera.Camera_id === e
+                  (camera) => camera.id === e
                 );
                 setSelectedCamera(selectedCamera);
                 setSelectedAreas([]);
               }}
-              value={selectedCamera?.Camera_id}
+              value={selectedCamera?.name}
             ></Select>
           </Flex>
           <Table
@@ -258,13 +257,7 @@ const Areas = () => {
               },
             }}
             columns={columns}
-            dataSource={
-              selectedCamera
-                ? areas.filter(
-                    (area) => area.Camera_id === selectedCamera.Camera_id
-                  )
-                : areas
-            }
+            dataSource={selectedCamera?.areas}
             rowKey="id"
             onRow={onRowClick}
           />
@@ -282,12 +275,12 @@ const Areas = () => {
                 : "56.25%",
             }}
           >
-            <FlvPlayer url={selectedCamera?.Camera_addr}></FlvPlayer>
+            <FlvPlayer url={selectedCamera?.ip_addr}></FlvPlayer>
             {selectedAreas.map((area) => (
               <PolygonCanv
                 key={area.id}
                 videoWidth={selectedCamera?.frame_width}
-                data={area.area_coordinate}
+                data={area.coordinates}
               ></PolygonCanv>
             ))}
           </div>
@@ -296,7 +289,7 @@ const Areas = () => {
 
       <Modal
         title={isEditing ? "编辑检测区域" : "添加检测区域"}
-        open={isModalOpen}
+        open={isAreaModalOpen}
         onCancel={handleModalClosed}
         width={
           selectedCamera?.frame_width / selectedCamera?.frame_height === 16 / 9
@@ -306,10 +299,26 @@ const Areas = () => {
         footer={[]}
         destroyOnClose={true}
       >
-        <div style={{padding:20}}>
+        <div style={{ padding: 20 }}>
           <AreaEditor
-            key={editingArea ? editingArea.id : null}
+            key={editingArea ? "area"+editingArea.id : null}
             camera={selectedCamera}
+            area={editingArea}
+            onUpdate={handleUpdate}
+          />
+        </div>
+      </Modal>
+      
+      <Modal
+        title={"编辑检测参数"}
+        open={isAlgoModalOpen}
+        onCancel={handleModalClosed}
+        footer={[]}
+        destroyOnClose={true}
+      >
+        <div style={{ padding: 20 }}>
+          <AlgoEditor
+            key={editingArea ? "algo"+editingArea.id : null}
             area={editingArea}
             onUpdate={handleUpdate}
           />

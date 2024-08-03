@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import PolygonCanv from "./PolygonCanv";
+import CrossDirectionCanv from "./CrossDirectionCanv";
 
-const PolygonDrawPad = ({
+const CrossDirectionDrawPad = ({
   videoWidth = 1920,
   width = 960,
   isDrawing = false,
@@ -12,13 +12,19 @@ const PolygonDrawPad = ({
   const [data, setData] = useState([]);
   const [currentPos, setCurrentPos] = useState(null);
 
-  
 
   const handleClick = () => {
     if (!isDrawing) return;
     if (!currentPos) return;
-    setData([...data, currentPos]);
+    let new_data = [...data, currentPos];
+    setData(new_data);
+    if (new_data.length > 1) {
+      onDrawingComplete(new_data);
+      setCurrentPos(null);
+    }
   };
+
+
 
   const handleMouseMove = (e) => {
     if (!isDrawing) return;
@@ -30,25 +36,9 @@ const PolygonDrawPad = ({
     setCurrentPos({ x: Math.round(x), y: Math.round(y) });
   };
 
-
-  //右键事件
-  const handleContextMenu = (e) => {
-    if (!isDrawing) return;
-    e.preventDefault();
-    
-    // 闭合多边形
-
-    let finalData = [] ;
-    if (data.length>=3) {
-      finalData = [...data, data[0]];
-    }
-    setData(finalData);
-    onDrawingComplete(finalData);
-    setCurrentPos(null);
-  };
-
   useEffect(() => {
     if (edit_data) {
+      console.log("edit_data",edit_data)
       setData(edit_data);
     }
 
@@ -64,7 +54,6 @@ const PolygonDrawPad = ({
     <div
       onClick={handleClick}
       onMouseMove={handleMouseMove}
-      onContextMenu={handleContextMenu}
       style={{
         position: "absolute",
         width: "100%",
@@ -80,15 +69,15 @@ const PolygonDrawPad = ({
         pointerEvents: isDrawing? "auto" : "none",
       }}
     >
-      <PolygonCanv
+      <CrossDirectionCanv
         videoWidth={videoWidth}
         data={[...data, currentPos?currentPos:[]]}
-      ></PolygonCanv>
+      ></CrossDirectionCanv>
     </div>
   );
 };
 
-PolygonDrawPad.propTypes = {
+CrossDirectionDrawPad.propTypes = {
   videoWidth: PropTypes.number,
   videoHeight: PropTypes.number,
   width: PropTypes.number,
@@ -101,4 +90,4 @@ PolygonDrawPad.propTypes = {
 ])
 };
 
-export default PolygonDrawPad;
+export default CrossDirectionDrawPad;

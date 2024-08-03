@@ -15,14 +15,9 @@ import {
   List,
 } from "antd";
 import EventImage from "../component/EventImage";
-import {
-  fetchCameras,
-  fetchEventTypes,
-  localtime,
-  fetchTimeEvents,
-} from "../service";
 import dayjs from "dayjs";
 import EventView from "../component/EventView";
+import axios from "axios";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -44,78 +39,95 @@ const Events = () => {
   //view mode
   const [viewMode, setViewMode] = useState("table"); // 'table' or 'card'
   //tags
-  const [allTags, setAllTags] = useState([]);
-  const [selectedTagNames, setSelectedTags] = useState([]);
+  const [eventtypes, setEventtypes] = useState([]);
+  const [selectedEventtypes, setSelectedEventtypes] = useState([]);
+
   const [inputRange, setInputRange] = useState({
     start: dayjs().startOf("d"),
     end: dayjs().endOf("d"),
   });
-  const [loading,setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+
+  const filteredEvents = events.filter((event) =>
+    selectedEventtypes.find(
+      (type) => type.id === event.eventtype_id && type.checked
+    )
+  );
 
   useEffect(() => {
+    const fetchEventTypes = async () => {
+      try {
+        const response = await axios.get(`/api/eventtypes/`);
+        const eventtypes = response.data;
+        eventtypes.forEach((type) => {
+          type.count = 0;
+          type.checked = true;
+        });
+        setEventtypes(eventtypes);
+      } catch (error) {
+        if (error.response) {
+          message.error(error.response.data.detail);
+        } else {
+          message.error(error.message);
+        }
+      }
+    };
+    fetchEventTypes();
+  }, []);
+
+  useEffect(() => {
+    const fetchEvents = async (start, end) => {
+      try {
+        const response = await axios.get(
+          `/api/events/?start_time=${start}&end_time=${end}`
+        );
+        const events = response.data;
+        setEvents(events);
+      } catch (error) {
+        if (error.response) {
+          message.error(error.response.data.detail);
+        } else {
+          message.error(error.message);
+        }
+      }
+    };
     setLoading(true);
-    fetchData(inputRange.start.unix(), inputRange.end.unix());
+    fetchEvents(inputRange.start.unix(), inputRange.end.unix());
     setLoading(false);
   }, [inputRange]);
 
-  const fetchData = async (start, end) => {
-    try {
-      const cameras = await fetchCameras();
-      const events = await fetchTimeEvents(start, end);
-      const eventTypes = await fetchEventTypes();
-      const allTags = eventTypes.map((eventType) => ({
-        name: eventType.name,
-        count: 0,
-      }));
 
-      events.forEach((event) => {
-        event.camera = cameras.find(
-          (camera) => camera.Camera_id === event.Camera_id
-        );
-        allTags.forEach((tag) => {
-          if (event.event === tag.name) {
-            tag.count++;
-          }
-        });
-      });
-
-      setEvents(events);
-      setAllTags(allTags);
-    } catch (error) {
-      message.error(error);
-    }
-  };
+  //tag标签增加数量
+  useEffect(() => {
+    const new_eventtypes = eventtypes.map((type) => {
+      type.count = events.filter(
+        (event) => event.eventtype_id === type.id
+      ).length;
+      return type;
+    });
+    setSelectedEventtypes(new_eventtypes);
+  }, [events, eventtypes]);
 
   const openModal = (event) => {
-    console.log(selectedEvent);
     setSelectedEvent(event);
     setOpen(true);
   };
   const handleClose = () => {
-    console.log("closed");
-    setOpen(false);
     setSelectedEvent(null);
+    setOpen(false);
   };
-  const handleTagChange = (tagName, checked) => {
-    const nextSelectedTags = checked
-      ? [...selectedTagNames, tagName]
-      : selectedTagNames.filter((t) => t !== tagName);
-    console.log(nextSelectedTags);
-    setSelectedTags(nextSelectedTags);
-
-    // if (selectedTags.length === 0) {
-    //   setFilteredEvents(events);
-    // } else {
-    //   setFilteredEvents(
-    //     events.filter((event) => selectedTags.includes(event.event))
-    //   );
-    // }
+  const handleTagChange = (eventtype, checked) => {
+    const new_eventtypes = selectedEventtypes.map((type) => {
+      if (type.id === eventtype.id) {
+        type.checked = checked;
+      }
+      return type;
+    });
+    setSelectedEventtypes(new_eventtypes);
   };
 
-  const filteredEvents = events.filter(
-    (event) =>
-      selectedTagNames.length === 0 || selectedTagNames.includes(event.event)
-  );
+  
 
   //table columns
   const columns = [
@@ -129,7 +141,7 @@ const Events = () => {
     },
     {
       title: "检测照",
-      dataIndex: "image",
+      dataIndex: "image_url",
       showSorterTooltip: {
         target: "full-header",
       },
@@ -137,9 +149,9 @@ const Events = () => {
       render: (text, record) => (
         <Image
           width={108}
-          src={record.image}
+          src={record.image_url}
           preview={{
-            src: record.image,
+            src: record.image_url,
           }}
           style={{ borderRadius: "4px" }}
         />
@@ -158,15 +170,16 @@ const Events = () => {
     },
     {
       title: "事件类型",
-      dataIndex: "event",
+      dataIndex: "eventtype",
       ellipsis: true,
       showSorterTooltip: {
         target: "full-header",
       },
+      render: (text, record) => <span>{record.eventtype.name}</span>,
     },
     {
       title: "区域名称",
-      dataIndex: "area",
+      dataIndex: "area_name",
       ellipsis: true,
       showSorterTooltip: {
         target: "full-header",
@@ -174,22 +187,21 @@ const Events = () => {
     },
     {
       title: "时间",
-      dataIndex: "time",
+      dataIndex: "localtime",
       ellipsis: true,
       showSorterTooltip: {
         target: "full-header",
       },
-      render: (text, record) => <span>{localtime(record.time)}</span>,
     },
     {
       title: "状态",
-      dataIndex: "is_upload",
+      dataIndex: "uploaded",
       ellipsis: true,
       showSorterTooltip: {
         target: "full-header",
       },
       render: (text, record) => (
-        <span>{record.is_upload ? "已上传" : "未上传"}</span>
+        <span>{record.uploaded ? "已上传" : "未上传"}</span>
       ),
     },
     {
@@ -220,18 +232,25 @@ const Events = () => {
       <Flex gap="small" wrap align="center" justify="space-between">
         <Flex>
           <Tag.CheckableTag
-            checked={selectedTagNames.length == 0}
-            onChange={() => setSelectedTags([])}
+            checked={selectedEventtypes.every((type) => type.checked)}
+            onChange={(checked) =>
+              setEventtypes(
+                selectedEventtypes.map((type) => {
+                  type.checked = checked;
+                  return type;
+                })
+              )
+            }
           >
             {"全部" + " " + events.length}
           </Tag.CheckableTag>
-          {allTags.map((tag) => (
+          {eventtypes.map((eventtype) => (
             <Tag.CheckableTag
-              key={tag.name}
-              checked={selectedTagNames.includes(tag.name)}
-              onChange={(checked) => handleTagChange(tag.name, checked)}
+              key={eventtype.id}
+              checked={eventtype?.checked}
+              onChange={(checked) => handleTagChange(eventtype, checked)}
             >
-              {tag.name + " " + tag.count}
+              {eventtype.name + " " + eventtype.count}
             </Tag.CheckableTag>
           ))}
         </Flex>
@@ -293,22 +312,22 @@ const Events = () => {
           pagination={{
             pageSize: 12,
           }}
-          grid={{ column: 4}}
+          grid={{ column: 4 }}
           dataSource={filteredEvents}
           renderItem={(event) => (
-            <div style={{margin:16}}>
+            <div style={{ margin: 16 }}>
               <Card cover={<EventImage event={event} />}>
                 <Card.Meta
                   title={
                     <Flex justify="space-between">
                       <span>{event.camera ? event.camera.name : "已删除"}</span>
-                      <span>{event.event}</span>
+                      <span>{event.eventtype.name}</span>
                     </Flex>
                   }
                   description={
                     <Flex justify="space-between">
-                      <span>{event.area} </span>
-                      <span>{localtime(event.time)}</span>
+                      <span>{event.area_name} </span>
+                      <span>{event.localtime}</span>
                     </Flex>
                   }
                 />

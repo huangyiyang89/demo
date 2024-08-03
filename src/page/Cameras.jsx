@@ -13,12 +13,7 @@ import {
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
 import { useLocation } from "react-router-dom";
-import {
-  fetchCameras,
-  deleteCamera,
-  createCamera,
-  updateCamera,
-} from "../service";
+import axios from "axios";
 
 const { Title } = Typography;
 
@@ -33,10 +28,16 @@ const Cameras = () => {
 
   const refreshData = async () => {
     try {
-      const camerasData = await fetchCameras();
-      setCameras(camerasData);
+      const response = await axios.get('/api/cameras/');
+      const cameras = response.data;
+      setCameras(cameras);
+
     } catch (error) {
-      message.error("获取摄像机数据失败");
+      if (error.response) {
+        message.error(error.response.data.detail);
+      } else {
+        message.error(error.message);
+      }
     }
   };
   useEffect(() => {
@@ -62,14 +63,15 @@ const Cameras = () => {
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
+      console.log(values);
       if (isEditing) {
-        await updateCamera(values);
-        refreshData();
+        await axios.patch(`/api/cameras/${values.id}`, values);
+        setCameras(cameras.map((camera) => (camera.id === values.id? values : camera)));
         message.success("摄像机更新成功！");
       } else {
-        const response = await createCamera(values);
-        setCameras([...cameras, response]);
-        message.success("摄像机添加成功！");
+        const response = await axios.post("/api/cameras/",values);
+        setCameras([...cameras, response.data]);
+        message.success("添加摄像机成功！");
       }
       setIsModalOpen(false);
       form.resetFields();
@@ -79,14 +81,17 @@ const Cameras = () => {
     }
   };
 
-  const handleDeleteCamera = async (cameraId) => {
+  const handleDeleteCamera = async (id) => {
     try {
-      await deleteCamera(cameraId);
-      setCameras(cameras.filter((camera) => camera.Camera_id !== cameraId));
+      await axios.delete(`/api/cameras/${id}`);
+      setCameras(cameras.filter((camera) => camera.id !== id));
       message.success("摄像机删除成功！");
     } catch (error) {
-      console.error(error);
-      message.error("删除摄像机失败");
+      if (error.response) {
+        message.error(error.response.data.detail);
+      } else {
+        message.error(error.message);
+      }
     }
   };
 
@@ -150,15 +155,15 @@ const Cameras = () => {
     },
     {
       title: "源地址",
-      dataIndex: "Camera_addr",
-      key: "Camera_addr",
+      dataIndex: "ip_addr",
+      key: "ip_addr",
       ellipsis: true,
       width: "30%",
     },
     {
-      title: "MAC",
-      dataIndex: "MAC",
-      key: "MAC",
+      title: "mac",
+      dataIndex: "mac",
+      key: "mac",
       ellipsis: true,
       width: "20%",
     },
@@ -193,14 +198,14 @@ const Cameras = () => {
       key: "action",
       width: 150,
       render: (text, record) => (
-        <span>
+        <div>
           <Button type="primary" size="small" onClick={() => showModal(record)}>
             编辑
           </Button>
           <Popconfirm
             title="确认删除？"
-            description="删除后数据无法恢复"
-            onConfirm={() => handleDeleteCamera(record.Camera_id)}
+            description="注意！该摄像机下所有检测区域会同步删除。"
+            onConfirm={() => handleDeleteCamera(record.id)}
             icon={<QuestionCircleOutlined style={{ color: "red" }} />}
           >
             <Button
@@ -212,14 +217,14 @@ const Cameras = () => {
               删除
             </Button>
           </Popconfirm>
-        </span>
+        </div>
       ),
     },
   ];
 
   return (
     <div>
-      <Title level={4}>摄像机设置</Title>
+      <Title level={4}>录像通道设置</Title>
       <div
         style={{
           gap: "64px",
@@ -234,7 +239,7 @@ const Cameras = () => {
       <Table
         columns={columns}
         dataSource={cameras.filter((camera) => camera.state !== "deleted")}
-        rowKey="Camera_id"
+        rowKey="id"
       />
       <Modal
         title={isEditing ? "编辑摄像机" : "添加摄像机"}
@@ -243,7 +248,7 @@ const Cameras = () => {
         onCancel={() => setIsModalOpen(false)}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="Camera_id" label="摄像机编号" hidden>
+          <Form.Item name="id" label="摄像机编号" hidden>
             <Input />
           </Form.Item>
           <Form.Item
@@ -261,9 +266,9 @@ const Cameras = () => {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Camera_addr"
+            name="ip_addr"
             label="源地址"
-            rules={[{ required: true, message: "请输入源地址!" },{ pattern: /^(rtsp|http):\/\/[^\s$.?#].[^\s]*$/, message: "请输入有效的 url地址!" }]}
+            rules={[{ required: true, message: "请输入源地址!" },{ pattern: /^(rtsp|http):\/\/[^\s$.?#].[^\s]*$/, message: "请输入有效的url地址!" }]}
           >
             <Input />
           </Form.Item>
@@ -282,9 +287,9 @@ const Cameras = () => {
             <Input onChange={handleHeightChange} />
           </Form.Item>
           <Form.Item
-            name="MAC"
-            label="MAC地址"
-            rules={[{ required: true, message: "请输入MAC地址!" },{pattern:"^([0-9a-fA-F]{2}(:|-)){5}[0-9a-fA-F]{2}$",message:"请输入正确的MAC地址！如 11:22:33:44:55:66 或 11-22-33-44-55-66 "}]}
+            name="mac"
+            label="mac地址"
+            rules={[{ required: true, message: "请输入mac地址!" },{pattern:"^([0-9a-fA-F]{2}(:|-)){5}[0-9a-fA-F]{2}$",message:"请输入正确的mac地址！如 11:22:33:44:55:66 或 11-22-33-44-55-66 "}]}
           >
             <Input />
           </Form.Item>

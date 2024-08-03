@@ -1,182 +1,42 @@
-import axios from "axios";
+/**
+ * 将数组转换为字符串
+ * 这个函数接受一个数组作为参数，并将其转换为字符串
+ * @param array - 要转换的数组
+ * @returns 返回转换后的字符串
+ */
+export const arrayToString = (array) => {
+  try {
+    return JSON.stringify(array);
+  } catch (error) {
+    console.error('Error converting array to string:', error);
+    return '[]';
+  }
+};
 
-export const api_host = "";
+export const stringToArray = (string) => {
+  try {
+    return JSON.parse(string);
+  } catch (error) {
+    console.error('Error converting string to array:', error);
+    return [];
+  }
+};
 
-export const fetchAll =async () => {
+
+/**
+ * 将坐标字符串转换为多边形点的数组，并根据给定的比例因子进行缩放
+ *
+ * @param {String} coordString - 以逗号分隔的坐标字符串，格式为"[x1,y1,x2,y2,...]"
+ * @param {Number} [scale=1] - 缩放比例因子，默认为1
+ * @return {Array<Array<Number>>} 缩放后的多边形点的二维数组
+ * @throws {Error} 如果输入的坐标字符串格式不正确，将抛出错误
+ */
+export const stringToPoints = (coordString,scale=1) => {
   
-  
-  const requestCameras = axios.post(`${api_host}/api/device/cameras`);
-  const requestAreas = axios.post(`${api_host}/api/device/areas`);
-  const requestEvents = axios.post(`${api_host}/api/device/liveevents?limit=10`);
-  try {
-    const [camerasResponse,areasResponse,eventsResponse] = await axios.all([
-      requestCameras, requestAreas, requestEvents
-    ]);
-    return {
-      cameras: camerasResponse.data,
-      areas: areasResponse.data,
-      events: eventsResponse.data,
-    };
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    throw error; 
-  }
-}
-
-const handleResponse = (response, expectedStatus) => {
-  if (response.status === expectedStatus) {
-    return response.data;
-  } else {
-    throw new Error(`Unexpected response code: ${response.status}`);
-  }
-};
-
-const handleError = (error) => {
-  if (error.response) {
-    console.error(
-      `Server responded with status code ${error.response.status}: ${error.response.data}`
-    );
-    throw new Error(`Server error: ${error.response.status}`);
-  } else if (error.request) {
-    console.error("No response received:", error.request);
-    throw new Error("No response received from server");
-  } else {
-    console.error("Error setting up request:", error.message);
-    throw new Error(`Request setup error: ${error.message}`);
-  }
-};
-
-export const fetchCameras = async () => {
-  try {
-    const response = await axios.post(api_host + "/api/device/cameras");
-    return handleResponse(response, 200);
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const createCamera = async (camera) => {
-  try {
-    const response = await axios.post(
-      api_host + "/api/device/creatCamera",
-      camera
-    );
-    return handleResponse(response, 201);
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const updateCamera = async (camera) => {
-  try {
-    const response = await axios.post(
-      api_host + `/api/device/updateCamera?camera_id=${camera.Camera_id}`,
-      camera
-    );
-    return handleResponse(response, 200);
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const deleteCamera = async (camera_id) => {
-  try {
-    const response = await axios.post(
-      api_host + `/api/device/deleteCamera?camera_id=${camera_id}`
-    );
-    return handleResponse(response, 204);
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const fetchAreas = async () => {
-  try {
-    const response = await axios.post(api_host + "/api/device/areas");
-    return handleResponse(response, 200);
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const createArea = async (area) => {
-  try {
-    const response = await axios.post(api_host + "/api/device/creatArea", area);
-    return handleResponse(response, 201);
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const deleteArea = async (area_id) => {
-  try {
-    const response = await axios.post(
-      api_host + `/api/device/deleteArea?area_id=${area_id}`
-    );
-    return handleResponse(response, 204);
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const updateArea = async (area) => {
-  try {
-    const response = await axios.post(
-      api_host + `/api/device/updateArea?area_id=${area.id}`,
-      area
-    );
-    return handleResponse(response, 200);
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const fetchEvents = async () => {
-  try {
-    const response = await axios.post(api_host + "/api/device/allevents");
-    return handleResponse(response, 200);
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const fetchPagingEvents = async (start_time,end_time, current, page_size) => {
-  try {
-    const response = await axios.post(
-      api_host + `/api/device/pagingevents?start_time=${start_time}&end_time=${end_time}&current_page=${current}&page_size=${page_size}`
-    );
-    return handleResponse(response, 200);
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const fetchTimeEvents = async (start_time,end_time) => {
-  try {
-    const response = await axios.post(
-      api_host + `/api/device/timeevents?start_time=${start_time}&end_time=${end_time}`
-    );
-    return handleResponse(response, 200);
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const fetchEventTypes = async () => {
-  try {
-    const response = await axios.post(api_host + "/api/device/eventTypes");
-    return handleResponse(response, 200);
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-// 将字符串点坐标转换为{x,y}
-export const convertPolygonPoints = (coordString,scale=1) => {
   if (!coordString) {
     return [];
   }
-  const coords = coordString.split(";");
+  const coords = JSON.parse(coordString);
   const coordArray = [];
   for (let i = 0; i < coords.length; i += 2) {
     const x = parseInt(coords[i], 10)*scale;
@@ -185,6 +45,18 @@ export const convertPolygonPoints = (coordString,scale=1) => {
   }
   return coordArray;
 };
+
+/**
+ * 将坐标点数组转换为字符串格式
+ * @param {Array<Array<Number>>} points - 一个二维数组，其中每个子数组表示一个坐标点的[x, y]坐标
+ * @return {String} 格式化后的字符串，其中每个坐标点的格式为"x,y"，所有坐标对都用逗号分隔，并被括号包围
+ */
+export const pointsToString = (points) => {
+  let coordString = points.map((point) => point.x + "," + point.y).join(",");
+  return "["+coordString+"]"
+};
+
+
 
 // 转换时间戳为可读时间
 export const localtime = (timestamp) => {

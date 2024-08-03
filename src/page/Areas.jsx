@@ -216,7 +216,20 @@ const Areas = () => {
 
   return (
     <div>
-      <Title level={4}>检测区域</Title>
+      <Title level={4}>
+        检测区域
+        <span>
+          <Button
+            onClick={() =>
+              (window.location.href = axios.defaults.baseURL + "/api/cameras/")
+            }
+            size="small"
+            style={{ marginLeft: 20}}
+          >
+            【测试】查看完整JSON
+          </Button>
+        </span>
+      </Title>
 
       <div
         style={{
@@ -227,6 +240,7 @@ const Areas = () => {
         }}
       >
         <div style={{ flex: 2 }}>
+          <div></div>
           <Flex justify="space-between">
             <Button
               type="primary"
@@ -287,17 +301,17 @@ const Areas = () => {
             {selectedArea ? (
               <>
                 <PolygonCanv
-                  key={"polygoncanv"+selectedArea.id}
+                  key={"polygoncanv" + selectedArea.id}
                   videoWidth={selectedCamera.frame_width}
                   data={selectedArea.coordinates}
                 ></PolygonCanv>
                 <CrossLinesCanv
-                  key={"crosslinescanv"+selectedArea.id}
+                  key={"crosslinescanv" + selectedArea.id}
                   videoWidth={selectedCamera.frame_width}
                   data={selectedArea.algoparam.cross_line}
                 ></CrossLinesCanv>
                 <CrossDirectionCanv
-                  key={"crossdirectioncanv"+selectedArea.id}
+                  key={"crossdirectioncanv" + selectedArea.id}
                   videoWidth={selectedCamera.frame_width}
                   data={selectedArea.algoparam.cross_direction}
                 ></CrossDirectionCanv>

@@ -227,11 +227,10 @@ const Events = () => {
         display: "flex",
       }}
     >
-      <Title level={4}>事件列表</Title>
-      <div>
-        <Link to="/events">
-          <Button
+      <Title level={4}>事件列表
+        <span><Button
             size="small"
+            style={{ marginLeft: 20}}
             onClick={() => {
               axios.get(`/api/events/generate_test_data/`);
               setInputRange({
@@ -242,9 +241,8 @@ const Events = () => {
             }}
           >
             生成测试数据
-          </Button>
-        </Link>
-      </div>
+          </Button></span>
+      </Title>
       <Flex gap="small" wrap align="center" justify="space-between">
         <Flex>
           <Tag.CheckableTag

@@ -34,10 +34,10 @@ export const AreaEditor = ({ camera, area = null, onUpdate }) => {
         const eventTypes = response.data;
         setEventTypes(eventTypes);
       } catch (error) {
-        if (error.response) {
-          message.error(error.response.data.detail);
+        if (error.response.status==500) {
+          message.error("服务器未响应，，拉取事件类型列表失败！");
         } else {
-          message.error(error.message);
+          message.error(error.response.data.message);
         }
       }
     };
@@ -72,10 +72,10 @@ export const AreaEditor = ({ camera, area = null, onUpdate }) => {
       onUpdate && onUpdate(area);
       resetState();
     } catch (error) {
-      if (error.response) {
-        message.error(error.response.data.detail);
+      if (error.response.status==500) {
+        message.error("服务器未响应，添加区域失败！");
       } else {
-        message.error(error.message);
+        message.error(error.response.data.message);
       }
     }
   };
@@ -87,10 +87,10 @@ export const AreaEditor = ({ camera, area = null, onUpdate }) => {
       onUpdate && onUpdate(response.data);
       resetState();
     } catch (error) {
-      if (error.response) {
-        message.error(error.response.data.detail);
+      if (error.response.status==500) {
+        message.error("服务器未响应，更新区域数据失败！");
       } else {
-        message.error(error.message);
+        message.error(error.response.data.message);
       }
     }
   };
@@ -175,7 +175,7 @@ export const AreaEditor = ({ camera, area = null, onUpdate }) => {
             textAlign: "center",
           }}
         >
-          <FlvPlayer url={camera ? camera.ip_addr : ""}></FlvPlayer>
+          <FlvPlayer url={`/api/cameras/${camera.id}/url`} isLive={true}></FlvPlayer>
 
           <PolygonDrawPad
             videoWidth={camera?.frame_width}

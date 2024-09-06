@@ -9,6 +9,7 @@ import {
   Typography,
   Popconfirm,
   Tag,
+  Select,
 } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
@@ -19,31 +20,48 @@ const { Title } = Typography;
 
 const Cameras = () => {
   const [cameras, setCameras] = useState([]);
+  const [nvrs, setNvrs] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
   const location = useLocation();
 
-
-
   const refreshData = async () => {
     try {
-      const response = await axios.get('/api/cameras/');
+      const response = await axios.get("/api/cameras/");
       const cameras = response.data;
-      console.log("cameras:",cameras);
+      console.log("cameras:", cameras);
       setCameras(cameras);
-
     } catch (error) {
-      if (error.response) {
-        message.error(error.response.data.detail);
+      if (error.response.status==500) {
+        message.error("服务器未响应，拉取摄像机列表失败！");
       } else {
-        message.error(error.message);
+        message.error(error.response.data.message);
       }
     }
   };
+
+  const fetchNvrs = async () => {
+    try {
+      const response = await axios.get("/api/nvrs/");
+      const nvrs = response.data;
+      console.log("nvrs:", nvrs);
+      console.log(nvrOptions);
+      setNvrs(nvrs);
+    } catch (error) {
+      if (error.response.status==500) {
+        message.error("服务器未响应，拉取 NVR 列表失败！");
+      } else {
+        message.error(error.response.data.message);
+      }
+    }
+  };
+
+  const nvrOptions = nvrs.map((nvr) => ({ value: nvr.id, label: nvr.mac }));
+
   useEffect(() => {
     refreshData();
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (location.state?.openModal) {
@@ -55,8 +73,9 @@ const Cameras = () => {
   }, [location.state, form]);
 
   const showModal = (camera = null) => {
+    fetchNvrs();
     setIsEditing(!!camera);
-    form.resetFields(); 
+    form.resetFields();
     form.setFieldsValue(camera || {});
     setIsModalOpen(true);
   };
@@ -67,18 +86,23 @@ const Cameras = () => {
       console.log(values);
       if (isEditing) {
         await axios.patch(`/api/cameras/${values.id}`, values);
-        setCameras(cameras.map((camera) => (camera.id === values.id? values : camera)));
+        setCameras(
+          cameras.map((camera) => (camera.id === values.id ? values : camera))
+        );
         message.success("摄像机更新成功！");
       } else {
-        const response = await axios.post("/api/cameras/",values);
+        const response = await axios.post("/api/cameras/", values);
         setCameras([...cameras, response.data]);
         message.success("添加摄像机成功！");
       }
       setIsModalOpen(false);
       form.resetFields();
     } catch (error) {
-      console.error(error);
-      message.error("提交表单失败");
+      if (error.response.status==500) {
+        message.error("服务器未响应，提交数据失败！");
+      } else {
+        message.error(error.response.data.message);
+      }
     }
   };
 
@@ -97,14 +121,12 @@ const Cameras = () => {
   };
 
   const validateAspectRatio = () => {
-    
     const frameWidth = form.getFieldValue("frame_width");
     const frameHeight = form.getFieldValue("frame_height");
 
     if (!frameWidth || !frameHeight) {
       return Promise.resolve();
     }
-
 
     const aspectRatio = frameWidth / frameHeight;
 
@@ -146,40 +168,42 @@ const Cameras = () => {
   };
 
   const columns = [
-    { title: "摄像机名称", dataIndex: "name", key: "name", ellipsis: true, width: "10%" },
+    {
+      title: "摄像机名称",
+      dataIndex: "name",
+      key: "name",
+      ellipsis: true,
+      width: "15%",
+    },
+    {
+      title: "品牌",
+      dataIndex: "brand",
+      key: "brand",
+      ellipsis: true,
+      width: "10%",
+    },
     {
       title: "描述",
       dataIndex: "description",
       key: "description",
       ellipsis: true,
-      width: "20%",
+      width: "15%",
     },
     {
       title: "IP 地址",
       dataIndex: "ip_addr",
       key: "ip_addr",
       ellipsis: true,
-      width: "30%",
+      width: "15%",
     },
     {
-      title: "mac",
+      title: "MAC",
       dataIndex: "mac",
       key: "mac",
       ellipsis: true,
-      width: "20%",
+      width: "15%",
     },
-    {
-      title: "状态",
-      dataIndex: "state",
-      key: "state",
-      ellipsis: true,
-      width: "10%",
-      render: (text, record) => (
-        <Tag color={record.state === 1 ? "green" : "red"}>
-          {record.state === 1 ? "在线" : "离线"}
-        </Tag>
-      ),
-    },
+    
     {
       title: "宽",
       dataIndex: "frame_width",
@@ -193,6 +217,32 @@ const Cameras = () => {
       key: "frame_height",
       ellipsis: true,
       width: "10%",
+    },
+    {
+      title: "NVR",
+      dataIndex: "nvr",
+      key: "nvr",
+      ellipsis: true,
+      width: "20%",
+      render: (text, record) => <span>{record.mac}</span>,
+    },
+    {
+      title: "通道",
+      dataIndex: "nvr_channel",
+      key: "nvr_channel",
+      ellipsis: true,
+      width: "10%",
+    },
+    {
+      title: "状态",
+      dataIndex: "state",
+      key: "state",
+      width: "10%",
+      render: (text, record) => (
+        <Tag color={record.state === 1 ? "green" : "red"}>
+          {record.state === 1 ? "在线" : "离线"}
+        </Tag>
+      ),
     },
     {
       title: "操作",
@@ -260,6 +310,13 @@ const Cameras = () => {
             <Input />
           </Form.Item>
           <Form.Item
+            name="brand"
+            label="品牌"
+            rules={[{ required: true, message: "请输入摄像机品牌!" }]}
+          >
+            <Select options={[{ value: "hk", label: "hk" }]} />
+          </Form.Item>
+          <Form.Item
             name="description"
             label="描述"
             rules={[{ required: true, message: "请输入描述!" }]}
@@ -269,29 +326,57 @@ const Cameras = () => {
           <Form.Item
             name="ip_addr"
             label="IP 地址"
-            rules={[{ required: true, message: "请输入合法url地址!" },{ pattern: /^(rtsp|http):\/\/[^\s$.?#].[^\s]*$/, message: "请输入有效的url地址!" }]}
+            rules={[
+              { required: true, message: "请输入 ip 地址!" },
+              {
+                pattern:
+                  "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+                message: "请输入有效的 ip 地址!",
+              },
+            ]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="frame_width"
             label="宽"
-            rules={[{ required: true, message: "请输入宽!" }, { validator: validateAspectRatio }]}
+            rules={[
+              { required: true, message: "请输入宽!" },
+              { validator: validateAspectRatio },
+            ]}
           >
             <Input onChange={handleWidthChange} />
           </Form.Item>
           <Form.Item
             name="frame_height"
             label="高"
-            rules={[{ required: true, message: "请输入高!" }, { validator: validateAspectRatio }]}
+            rules={[
+              { required: true, message: "请输入高!" },
+              { validator: validateAspectRatio },
+            ]}
           >
             <Input onChange={handleHeightChange} />
           </Form.Item>
           <Form.Item
             name="mac"
-            label="mac地址"
-            rules={[{ required: true, message: "请输入mac地址!" },{pattern:"^([0-9a-fA-F]{2}(:|-)){5}[0-9a-fA-F]{2}$",message:"请输入正确的mac地址！如 11:22:33:44:55:66 或 11-22-33-44-55-66 "}]}
+            label="mac 地址"
+            rules={[
+              { required: true, message: "请输入mac地址!" },
+              {
+                pattern: "^([0-9a-f]{2}(:|-)){5}[0-9a-f]{2}$",
+                message:
+                  "请输入正确的mac地址！全部为小写字母，以冒号分割如 a1:b2:c3:d4:f5:66",
+              },
+            ]}
           >
+            <Input />
+          </Form.Item>
+
+          <Form.Item name="nvr_id" label="NVR">
+            <Select options={nvrOptions} />
+          </Form.Item>
+
+          <Form.Item name="nvr_channel" label="NVR 通道">
             <Input />
           </Form.Item>
         </Form>

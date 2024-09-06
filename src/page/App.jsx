@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -6,11 +6,16 @@ import {
   ExclamationCircleOutlined,
   VideoCameraOutlined,
   SaveOutlined,
+  ClusterOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, theme, ConfigProvider } from "antd";
+import { Button, Tag, Layout, Menu, theme, ConfigProvider } from "antd";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import zhCN from "antd/locale/zh_CN";
+
+
 import Login from "./Login";
+
+
 
 const { Header, Sider, Content } = Layout;
 const App = () => {
@@ -20,12 +25,29 @@ const App = () => {
   } = theme.useToken();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const handleLogin = (status) => {
-    setIsLoggedIn(status);
+  const handleLogin = (login) => {
+    setIsLoggedIn(login);
   };
 
   const location = useLocation();
   const selectedKey = location.pathname;
+  const [status, setStatus] = useState(null);
+
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const response = await fetch("/api/status/");
+        const data = await response.json();
+        setStatus(data);
+      } catch (error) {
+        console.log(error)
+      }
+    };
+    fetchStatus();
+    const intervalId = setInterval(fetchStatus, 5000);
+    return () => clearInterval(intervalId);
+  }, []);
 
   return (
     <ConfigProvider locale={zhCN}>
@@ -54,6 +76,11 @@ const App = () => {
                   label: <Link to="/replay">录像回放</Link>,
                 },
                 {
+                  key: "/nvrs",
+                  icon: <ClusterOutlined />,
+                  label: <Link to="/nvrs">NVR设置</Link>,
+                },
+                {
                   key: "/cameras",
                   icon: <VideoCameraOutlined />,
                   label: <Link to="/cameras">录像通道</Link>,
@@ -69,9 +96,12 @@ const App = () => {
           <Layout>
             <Header
               style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
                 padding: 0,
                 background: colorBgContainer,
-                height:64,
+                height: 64,
               }}
             >
               <Button
@@ -84,6 +114,12 @@ const App = () => {
                   height: 64,
                 }}
               />
+              <span style={{marginRight:15}}>
+                <Tag color={status?.cpu>50?"volcano":"green"}>CPU: {status?.cpu}%</Tag>
+                <Tag color={status?.npu>50?"volcano":"green"}>NPU: {status?.npu}%</Tag>
+                <Tag color={status?.mem>50?"volcano":"green"}>Mem: {status?.mem}%</Tag>
+                <Tag color={status?.disk>50?"volcano":"green"}>Disk: {status?.disk}%</Tag>
+              </span>
             </Header>
             <Content
               style={{

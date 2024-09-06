@@ -1,5 +1,5 @@
 // src/EventVideoPlayer.js
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Layout,
   Select,
@@ -12,17 +12,23 @@ import {
 import "antd/dist/reset.css";
 import FlvPlayer from "../component/FlvPlayer";
 import axios from "axios";
+import dayjs from "dayjs";
+
 const { Title } = Typography;
 const { Sider, Content } = Layout;
 
 const Replay = () => {
-  const [selectedCamera, setSelectedCamera] = useState("");
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [cameras, setCameras] = useState([]);
-  const playerRef = useRef(null);
+  const [selectedCamera, setSelectedCamera] = useState(null);
 
-  const handleDateChange = (date, dateString) => {
-    setSelectedDate(dateString);
+  const [selectedTimestamp, setSelectedTimestamp] = useState(0);
+  const [cameras, setCameras] = useState([]);
+  const [url, setUrl] = useState("");
+
+  const handleDateChange = (date) => {
+    if (date) {
+      const timestamp = date.unix();
+      setSelectedTimestamp(timestamp);
+    }
   };
 
   const fetchCameras = async () => {
@@ -32,12 +38,68 @@ const Replay = () => {
       console.log("cameras:", cameras);
       setCameras(cameras);
     } catch (error) {
-      if (error.response) {
-        message.error(error.response.data.detail);
+      if (error.response.status == 500) {
+        message.error("服务器未响应，拉取摄像机列表失败！");
       } else {
-        message.error(error.message);
+        message.error(error.response.data.message);
       }
     }
+  };
+
+  const handlePlayButtonClick = () => {
+    if (selectedCamera === null) {
+      message.info("请选择摄像机");
+      return;
+    }
+    if (selectedTimestamp === 0) {
+      message.info("请选择时间");
+      return;
+    }
+    setUrl(`/api/cameras/${selectedCamera.id}/url?time=${selectedTimestamp}`);
+  };
+
+  const now = dayjs();
+
+  // 3个月之前的日期
+  const threeMonthsAgo = dayjs().subtract(3, "months");
+
+  // 禁用日期函数
+  const disabledDate = (current) => {
+    // 禁用今天之后的日期和三个月之前的日期
+    return (
+      current &&
+      (current.isAfter(now, "day") || current.isBefore(threeMonthsAgo, "day"))
+    );
+  };
+
+  // 禁用时间函数
+  const disabledTime = (current) => {
+    if (!current) return {};
+
+    const isToday = current.isSame(now, "day");
+    const isThreeMonthsAgo = current.isSame(threeMonthsAgo, "day");
+
+    // 如果选择的是今天，禁用未来的时间
+    if (isToday) {
+      const hours = Array.from({ length: 24 }, (_, i) => i).filter(
+        (h) => h > now.hour()
+      );
+      return {
+        disabledHours: () => hours,
+      };
+    }
+
+    // 如果选择的是三个月前的日期，禁用早于该日的时间
+    if (isThreeMonthsAgo) {
+      const hours = Array.from({ length: 24 }, (_, i) => i).filter(
+        (h) => h < threeMonthsAgo.hour()
+      );
+      return {
+        disabledHours: () => hours,
+      };
+    }
+
+    return {};
   };
 
   useEffect(() => {
@@ -71,16 +133,16 @@ const Replay = () => {
                 format: "HH:mm",
               }}
               format="YYYY-MM-DD HH:mm"
-              onChange={(value, dateString) => {
-                console.log("Selected Time: ", value);
-                console.log("Formatted Selected Time: ", dateString);
+              onChange={(value) => {
+                handleDateChange(value);
               }}
-              onOk={handleDateChange}
+              disabledDate={disabledDate}
+              disabledTime={disabledTime}
             />
             <Button
               type="primary"
               style={{ marginTop: "20px" }}
-              onClick={() => {}}
+              onClick={handlePlayButtonClick}
             >
               回放
             </Button>
@@ -95,7 +157,7 @@ const Replay = () => {
               height: 0,
             }}
           >
-            <FlvPlayer url={selectedCamera?.ip_addr}></FlvPlayer>
+            <FlvPlayer url={url}></FlvPlayer>
           </div>
         </Content>
       </Layout>

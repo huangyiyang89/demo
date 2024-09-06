@@ -13,9 +13,11 @@ import Replay from "./page/Replay.jsx";
 import Cameras from "./page/Cameras.jsx";
 import Statistic from "./page/Statistic.jsx";
 import Areas from "./page/Areas.jsx";
-import Videotest from "./page/Videotest.jsx";
-import axios from "axios";
-axios.defaults.baseURL = 'http://localhost:8000';
+import Nvrs from "./page/Nvrs.jsx";
+
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
+dayjs.locale('zh-cn')
 
 const router = createBrowserRouter([
   {
@@ -40,6 +42,10 @@ const router = createBrowserRouter([
         element: <Replay />,
       },
       {
+        path: "nvrs",
+        element: <Nvrs />,
+      },
+      {
         path: "cameras",
         element: <Cameras />,
       },
@@ -50,11 +56,7 @@ const router = createBrowserRouter([
       {
         path: "areas",
         element: <Areas />,
-      },
-      {
-        path: "test",
-        element: <Videotest />,
-      },
+      }
     ],
   },
 ]);

@@ -8,15 +8,15 @@ import axios from "axios";
 const { Title } = Typography;
 
 const Live = () => {
+  const [loading,setLoading] = useState(true);
   const [currentCameras, setCurrentCameras] = useState([]);
   const [checkedCameraIds, setCheckedCameraIds] = useState([]);
-  const [loading,setLoading] = useState(true);
+  
  
   const filteredCameras = checkedCameraIds.map((id) =>
     currentCameras.find((camera) => camera.id === id))
   
   useEffect(() => {
-    setLoading(true)
     const fetchData = async () => {
       try {
         const response = await axios.get('/api/cameras/');
@@ -24,17 +24,21 @@ const Live = () => {
         console.log("cameras:",cameras);
         setCurrentCameras(cameras);
         setCheckedCameraIds(cameras.map((camera) => camera.id));
-
       } catch (error) {
-        if (error.response) {
-          message.error(error.response.data.detail);
+        if (error.response.status==500) {
+          message.error("服务器未响应，拉取摄像机列表失败！");
         } else {
-          message.error(error.message);
+          message.error(error.response.data.message);
         }
+      }
+      finally{
+        setLoading(false)
       }
     };
     fetchData();
-    setLoading(false)
+    const intervalId = setInterval(fetchData, 5000); 
+    return () => clearInterval(intervalId); 
+  
   }, []);
 
   return (

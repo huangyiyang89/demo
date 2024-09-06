@@ -37,7 +37,11 @@ const Areas = () => {
       console.log("cameras:", cameras);
       setCameras(cameras);
     } catch (error) {
-      console.error("Failed to fetch", error);
+      if (error.response.status==500) {
+        message.error("服务器未响应，拉取摄像机列表失败！");
+      } else {
+        message.error(error.response.data.message);
+      }
     }
   };
 
@@ -108,10 +112,10 @@ const Areas = () => {
       }
       refreshData();
     } catch (error) {
-      if (error.response) {
-        message.error(error.response.data.detail);
+      if (error.response.status==500) {
+        message.error("服务器未响应，拉取区域数据失败！");
       } else {
-        message.error(error.message);
+        message.error(error.response.data.message);
       }
     }
   };
@@ -119,7 +123,7 @@ const Areas = () => {
   const columns = [
     // { title: "ID", dataIndex: "id", key: "id", width: 60  },
     {
-      title: "检测区域名称",
+      title: "区域名称",
       dataIndex: "name",
       key: "name",
       ellipsis: true,
@@ -140,12 +144,12 @@ const Areas = () => {
       dataIndex: "localtime",
       key: "localtime",
       ellipsis: true,
-      width: "20%",
+      width: "30%",
     },
     {
       title: "检测参数",
       key: "algo",
-      width: "10%",
+      width: "15%",
       render: (text, record) => (
         <Button
           type="primary"
@@ -216,20 +220,7 @@ const Areas = () => {
 
   return (
     <div>
-      <Title level={4}>
-        检测区域
-        <span>
-          <Button
-            onClick={() =>
-              (window.location.href = axios.defaults.baseURL + "/api/cameras/")
-            }
-            size="small"
-            style={{ marginLeft: 20}}
-          >
-            【测试】查看完整JSON
-          </Button>
-        </span>
-      </Title>
+      <Title level={4}>检测区域</Title>
 
       <div
         style={{
@@ -255,7 +246,7 @@ const Areas = () => {
                 value: camera.id,
                 label: camera.name,
               }))}
-              placeholder="选择摄像机"
+              placeholder="尚未添加摄像机"
               onChange={(e) => {
                 const selectedCamera = cameras.find(
                   (camera) => camera.id === e
@@ -297,7 +288,7 @@ const Areas = () => {
                 : "56.25%",
             }}
           >
-            <FlvPlayer url={selectedCamera?.ip_addr}></FlvPlayer>
+            <FlvPlayer url={selectedCamera?`/api/cameras/${selectedCamera.id}/url`:""} isLive={true}></FlvPlayer>
             {selectedArea ? (
               <>
                 <PolygonCanv
@@ -335,7 +326,7 @@ const Areas = () => {
       >
         <div style={{ padding: 20 }}>
           <AreaEditor
-            key={editingArea ? "areaeditor" + editingArea.id : null}
+            key={editingArea ? "AreaEditor" + editingArea.id : null}
             camera={selectedCamera}
             area={editingArea}
             onUpdate={handleUpdate}
@@ -352,7 +343,7 @@ const Areas = () => {
       >
         <div style={{ padding: 20 }}>
           <AlgoEditor
-            key={editingArea ? "algoeditor" + editingArea.id : null}
+            key={editingArea ? "AlgoEditor" + editingArea.id : null}
             area={editingArea}
             onUpdate={handleUpdate}
           />

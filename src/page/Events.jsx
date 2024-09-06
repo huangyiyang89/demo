@@ -18,7 +18,6 @@ import EventImage from "../component/EventImage";
 import dayjs from "dayjs";
 import EventView from "../component/EventView";
 import axios from "axios";
-import { Link } from "react-router-dom";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -38,15 +37,15 @@ const Events = () => {
   const [open, setOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   //view mode
-  const [viewMode, setViewMode] = useState("table"); // 'table' or 'card'
+  const [viewMode, setViewMode] = useState("card"); // 'table' or 'card'
   //tags
   const [eventtypes, setEventtypes] = useState([]);
   const [selectedEventtypes, setSelectedEventtypes] = useState([]);
 
   const [inputRange, setInputRange] = useState({
-    start: dayjs().startOf("d"),
-    end: dayjs().endOf("d"),
-    tag:"今天"
+    start: dayjs().startOf("w"),
+    end: dayjs().endOf("w"),
+    tag: "本周",
   });
   const [loading, setLoading] = useState(false);
 
@@ -68,10 +67,10 @@ const Events = () => {
         });
         setEventtypes(eventtypes);
       } catch (error) {
-        if (error.response) {
-          message.error(error.response.data.detail);
+        if (error.response.status==500) {
+          message.error("服务器未响应，，拉取事件类型列表失败！");
         } else {
-          message.error(error.message);
+          message.error(error.response.data.message);
         }
       }
     };
@@ -85,13 +84,13 @@ const Events = () => {
           `/api/events/?start_time=${start}&end_time=${end}`
         );
         const events = response.data;
-        console.log("events:", events)
+        console.log("events:", events);
         setEvents(events);
       } catch (error) {
-        if (error.response) {
-          message.error(error.response.data.detail);
+        if (error.response.status==500) {
+          message.error("服务器未响应，拉取事件列表失败！");
         } else {
-          message.error(error.message);
+          message.error(error.response.data.message);
         }
       }
     };
@@ -227,22 +226,7 @@ const Events = () => {
         display: "flex",
       }}
     >
-      <Title level={4}>事件列表
-        <span><Button
-            size="small"
-            style={{ marginLeft: 20}}
-            onClick={() => {
-              axios.get(`/api/events/generate_test_data/`);
-              setInputRange({
-                start: dayjs().startOf("w"),
-                end: dayjs().endOf("w"),
-                tag: "本周"
-              });
-            }}
-          >
-            生成测试数据
-          </Button></span>
-      </Title>
+      <Title level={4}>事件列表</Title>
       <Flex gap="small" wrap align="center" justify="space-between">
         <Flex>
           <Tag.CheckableTag
@@ -260,7 +244,7 @@ const Events = () => {
           </Tag.CheckableTag>
           {eventtypes.map((eventtype) => (
             <Tag.CheckableTag
-              key={"tag"+eventtype.id}
+              key={"tag" + eventtype.id}
               checked={eventtype?.checked}
               onChange={(checked) => handleTagChange(eventtype, checked)}
             >

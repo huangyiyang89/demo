@@ -19,10 +19,10 @@ const Login = ({ onLogin }) => {
       message.success("登录成功");
     } catch (error) {
       onLogin(false);
-      if (error.response) {
-        message.error(error.response.data.detail);
+      if (error.response.status==500) {
+        message.error("登录失败，服务器未响应！");
       } else {
-        message.error(error.message);
+        message.error(error.response.data.message);
       }
     }
     setLoading(false);
@@ -58,7 +58,7 @@ const Login = ({ onLogin }) => {
             alt="Logo"
             style={{ width: "100px", marginBottom: "10px" }}
           />
-          <h1 style={{ margin: 0 }}>DEMO</h1>
+          <h1 style={{ margin: 0 }}>CSI BOX</h1>
         </div>
         <Form.Item
           name="username"

@@ -54,7 +54,7 @@ export const EventView = ({ event = null }) => {
               height: 0,
             }}
           >
-            <FlvPlayer url={event.src}></FlvPlayer>
+            <FlvPlayer url={`/api/cameras/${event?.camera_id}/url?time=${event.timestamp}`}></FlvPlayer>
           </div>
         </div>
       </Flex>

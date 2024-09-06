@@ -62,7 +62,7 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
             >
               {camera?.events?.map((event) => (
                 <List.Item
-                  key={event.id}
+                  key={"List"+event.id}
                   style={{
                     padding: 0,
                     border: 0,
@@ -99,10 +99,9 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
                   height: 0,
                 }}
               >
-                <FlvPlayer url={camera.ip_addr}></FlvPlayer>
+                <FlvPlayer url={`/api/cameras/${camera.id}/url`} isLive={true}></FlvPlayer>
                 {camera?.areas?.map((area) => (
-                  <PolygonCanv key={area.id} videoWidth={camera.frame_width} data={area.coordinates}></PolygonCanv>
-                  // <Canv key={area.id} area={area}></Canv>
+                  <PolygonCanv key={"PolygonCanv"+area.id} videoWidth={camera.frame_width} data={area.coordinates}></PolygonCanv>
                 ))}
               </div>
             </Content>
@@ -122,9 +121,9 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
                   height: 0,
                 }}
               >
-                <FlvPlayer url={camera.ip_addr}></FlvPlayer>
+                <FlvPlayer url={`/api/cameras/${camera.id}/url`} isLive={true}></FlvPlayer>
                 {camera?.areas?.map((area) => (
-                  <PolygonCanv key={area.id} videoWidth={camera.frame_width} data={area.coordinates}></PolygonCanv>
+                  <PolygonCanv key={"PolygonCanv"+area.id} videoWidth={camera.frame_width} data={area.coordinates}></PolygonCanv>
                 ))}
               </div>
               <div style={footerStyle}>{camera.description}</div>
@@ -142,7 +141,7 @@ const CameraLayout = ({ camera = null, horizontal = false }) => {
                 }}
               >
                 {camera?.events?.map((event) => (
-                  <Col key={camera.id} span={8}>
+                  <Col key={"Col"+event.id} span={8}>
                     <div>
                       <EventImage event={event} />
                       <div

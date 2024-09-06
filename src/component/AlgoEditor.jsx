@@ -33,10 +33,10 @@ const AlgoEditor = ({ area, onUpdate }) => {
       console.log("patch_response:",response.data)
       onUpdate(response.data);
     } catch (error) {
-      if (error.response) {
-        message.error(error.response.data.detail);
+      if (error.response.status==500) {
+        message.error("服务器未响应，更新算法参数失败！");
       } else {
-        message.error(error.message);
+        message.error(error.response.data.message);
       }
     }
   };
@@ -66,7 +66,7 @@ const AlgoEditor = ({ area, onUpdate }) => {
         <Form.Item
           label="人体检测阈值"
           name="people_score_thresh"
-          hidden={shouldHidden("1201")}
+          hidden={shouldHidden("1001")}
         >
           <InputNumber
             step={"0.1"}
@@ -78,7 +78,7 @@ const AlgoEditor = ({ area, onUpdate }) => {
         <Form.Item
           label="人脸检测阈值"
           name="face_score_thresh"
-          hidden={shouldHidden("1201")}
+          hidden={shouldHidden("1001")}
         >
           <InputNumber
             step={"0.1"}
@@ -90,7 +90,7 @@ const AlgoEditor = ({ area, onUpdate }) => {
         <Form.Item
           label="人头检测阈值"
           name="head_score_thresh"
-          hidden={shouldHidden("1201")}
+          hidden={shouldHidden("1002")}
         >
           <InputNumber
             step={"0.1"}
@@ -102,7 +102,7 @@ const AlgoEditor = ({ area, onUpdate }) => {
         <Form.Item
           label="安全帽检测阈值"
           name="helmet_score_thresh"
-          hidden={shouldHidden("1401")}
+          hidden={shouldHidden("1002")}
         >
           <InputNumber
             step={"0.1"}
@@ -114,7 +114,7 @@ const AlgoEditor = ({ area, onUpdate }) => {
         <Form.Item
           label="烟火检测阈值"
           name="fire_score_thresh"
-          hidden={shouldHidden("2101")}
+          hidden={shouldHidden("1005")}
         >
           <InputNumber
             step={"0.1"}
@@ -126,7 +126,7 @@ const AlgoEditor = ({ area, onUpdate }) => {
         <Form.Item
           label="积水检测阈值"
           name="water_score_thresh"
-          hidden={shouldHidden("2102")}
+          hidden={shouldHidden("1004")}
         >
           <InputNumber
             step={"0.1"}
@@ -138,7 +138,7 @@ const AlgoEditor = ({ area, onUpdate }) => {
         <Form.Item
           label="跌倒检测阈值"
           name="falldown_score_thresh"
-          hidden={shouldHidden("1501")}
+          hidden={shouldHidden("1003")}
         >
           <InputNumber
             step={"0.1"}

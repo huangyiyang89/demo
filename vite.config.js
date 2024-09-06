@@ -10,12 +10,10 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8000',
         changeOrigin: true,
-      },
-      '/api/stream': {
-        target: 'ws://localhost:8000', // 目标WebSocket服务器地址
-        changeOrigin: true,
-        ws: true, // 确保这是一个WebSocket代理
-      },
+      }
     }
   },
+  build: {
+    outDir: 'C:\\Users\\HY\\Desktop\\csi_server\\frontend', // 这里可以设置构建输出的目录
+  }
 })
